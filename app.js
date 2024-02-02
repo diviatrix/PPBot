@@ -1,31 +1,60 @@
+// #region IMPORTS
 const TelegramBot = require('node-telegram-bot-api');
 const fs = require('fs');
 const path = require('path');
 const timeout_pp = 24; // in hours
 const ExpressBackend = require('./ExpressBackend.js');
 const { is } = require('bluebird');
+const { log } = require('console');
+const ms = require('ms');
+// #endregion
 
+// #region CONSTANTS
 // Specify the storage folder path
-const storageFolderPath = 'storage';
+const storageFolderPath = '/storage';
+const publicFolderPath = '/public';
 
 // JSONs and paths
-const tokenPath = path.join(storageFolderPath, '/token.json');
-const token = loadJSON(tokenPath).token;
+const userDatabasePath = path.join(storageFolderPath, 'userDatabase.json');
+const userDatabase = openOrCreateJSON(userDatabasePath);
 
-const userDatabasePath = path.join(storageFolderPath, '/userDatabase.json');
-const userDatabase = loadJSON(userDatabasePath);
+const tokenPath = path.join(storageFolderPath, 'token.json');
+const token = openOrCreateJSON(tokenPath).token;
 
-const rarityPath = path.join(storageFolderPath, '/rarity.json');
-const rarityData = loadJSON(rarityPath);
+const rarityPath = path.join(storageFolderPath, '/arity.json');
+const rarityData = openOrCreateJSON(rarityPath);
 
-const messageStringsPath = path.join(storageFolderPath, '/messageStrings.json');
-const messageStrings = loadJSON(messageStringsPath);
+const messageStringsPath = path.join(storageFolderPath, 'messageStrings.json');
+const messageStrings = openOrCreateJSON(messageStringsPath);
 
-const ppPath = path.join(storageFolderPath, '/pp.json');
-const ppList = loadJSON(ppPath);
+const ppPath = path.join(storageFolderPath, 'pp.json');
+const ppList = openOrCreateJSON(ppPath);
 
-const defaultUserPath = path.join(storageFolderPath, '/defaultUser.json');
-const defaultUser = loadJSON(defaultUserPath);
+const defaultUserPath = path.join(storageFolderPath, 'defaultUser.json');
+const defaultUser = openOrCreateJSON(defaultUserPath);
+// #endregion
+
+//#region COMMANDS OBJECT
+const commands = {
+	'/info': (msg) => {
+		logAsBot(`[${msg.from.name}][${msg.from.id}] is trying to get info.`);		
+		infoCommand(msg);
+		
+	},
+	'/pp': (msg) => {
+		logAsBot(`${msg.from.name}][${msg.from.id}] is trying to get PP.`);
+		ppCommand(msg);		
+	},
+	'/stop': (msg) => {
+		logAsBot(`${msg.from.name}][${msg.from.id}] is trying to unregister.`);
+		stopCommand(msg);
+	},
+	'/go': (msg) => {
+		logAsBot(`${msg.from.name}][${msg.from.id}] is trying to register.`);
+		goCommand(msg);
+	}
+};
+//#endregion
 
 // Create a new instance of the Telegram bot
 const bot = new TelegramBot(token, { polling: true });
@@ -36,203 +65,164 @@ const webBackend = new ExpressBackend();
 // run initial function to create all objects and setup them
 startup();
 
-// startup function to create all objects and setup them
-function startup()
-{
+//#region BOT COMMANDS
+// parse command to command, args
+function parseCommand(msg) {
+	const command = msg.text.split(' ')[0];
+	const args = msg.text.split(' ').slice(1);
 
-	webBackend.start();
+	return { command, args };
 }
 
-
-// ====== BOT  BLOCK =======
-
-// --- BOT EVENTS BLOCK ----
-// INITIAL MESSAGE RECIEVE
-// on any text message show it in console with user id [] and username
-bot.on('message', (msg) => {
-	// check if message is command "/"
-	if (msg.text.startsWith('/')) {
-		recieveCommand(msg.text);
-		return;
-	}
-	// or check if user registered and add to variables 
-	else if (isRegistered(msg.from.id)) {
-		// add +1 to user message counter
-		addMessageCountByUserId(msg.from.id);
-	}
-	// or send to console.log and ignore
-	else {
-		// show message in console
-		console.log(`[${msg.from.id}] ${msg.from.username}: ${msg.text}`);
-		return;
-	}
-});
-
-// ----COMMANDS BLOCK-----
 
 // /info command
 // shows user info
 // usage - /info for self info
 // usage - /info number for get count how many users have this PP
-bot.onText(/\/info(@\w+)?/, (msg, match) => {
-	// get chat id
-	const chatId = msg.chat.id;
-	// get user id
-	const userId = msg.from.id;
-	// if no username provided, show self info
-	if (msg.text === '/info') {
-		// show user info
-		// user id, message counter, count of PP
-		message = `User id is: ${userId}\nMessage counter: ${getUserDataFromDatabase(userId).messagesCount}\nPP count: ${Object.keys(userDatabase[userId]).length}`;
-		bot.sendMessage(chatId, message);
+function infoCommand(msg) {
+	let message;
+
+	if (args.length === 1) {
+		message = `${msg.from.name} stats:\n - Message counter: ${getUserDataFromDatabase(msg.from.id).messagesCount}\n -PP count: ${Object.keys(userDatabase[msg.from.id]).length}`;
 	}
-	// try to parse int after /info %someInteger%
-	else if (parseInt(msg.text.split(' ')[1])) {
-		// show how many users have this PP
-		const PPId = parseInt(msg.text.split(' ')[1]);
+	else if (parseInt(args[1])) {
+		const PPId = parseInt(args[1]);
 		const count = countPPOwners(PPId);
-		bot.sendMessage(chatId,  `$}There are ${count} Dudes who have ${PPId}.`);
+		message =  `There are ${count} Dudes who have ${PPId}.`;
 	}
 	else {
-		// incorrent usage
-		bot.sendMessage(chatId, 'Incorrect usage. Use /info for self info, /info @username for user info or /info number for get count how many users have this PP.');
+		message = 'Incorrect usage. Use /info for self info, /info @username for user info or /info number for get count how many users have this PP.';
 	}
-});
+	logAsBot(`Sent message to chat -> ${chatId}: ${message}`);
+	sendMessage(chatId, message);
+}
 
-// Handle the "/pp" command
-bot.onText(/\/pp(@\w+)?/, (msg) => {
-	if (!isRegistered(msg.from.id)) { return; }
-
-	const userData = getUserDataFromDatabase(userId);
+// /pp command
+// shows user PP
+// usage - /pp for random PP of the day
+// usage - /pp number to get info about this PP
+function ppCommand(userId, args) {
+	let message;
 	
-	// if user is registered and has recieved PP today, send new PP
-	// send message with time of next possible get
-	if (userData && userData.lastPPReceived && !isPPTimePassed(userData.lastPPReceived.time)) {		
-		// send message to user with last received PP and time of next possible get		
-		bot.sendMessage(msg.chat.id, `${msg.from.username} already got PP of the day: ${preparePPMessageById(userData.lastPPReceived.id)} You can get a new one after ${(timeUntilNextPossiblePPGet(msg.from.id) / 1000 / 60 / 60).toFixed(1)} hours.`);
-		return;
-	}
-	else if (userData) {
-		// send new PP to user
-		const PP = getRandomPP();
+	if (args.length === 0) {
+		const PP = getRandomPP(userId);
 		addPPToUserInDatabase(userId, PP.id);
-		const message = 'Your PP size of the day is: ' + preparePPMessageById(PP.id);
-
-		bot.sendMessage(chatId, message);
+		message = 'Your PP size of the day is: ' + preparePPMessageById(PP.id);
 	}
-	else {
-		// send message to user to register
-		bot.sendMessage(chatId, `${msg.from.username}}You need to register first. Use /go command to register.`);
-	}
-});
-
-// /stop command, find user in db and remove
-bot.onText(/\/stop(@\w+)?/, (msg) => {
-	if (!isRegistered(msg.from.id)) { return; }
-
-	// check if user already registered
-	if (isRegistered(msg.from.id)) {
-		delete userDatabase[userId];
-		saveJSON(storageFolderPath, userDatabasePath, userDatabase);
-		console.log(`[${msg.from.id}] ${msg.from.username} has been removed from database.`);
-		bot.sendMessage(msg.chat.id, `<b>${msg.from.username} has been removed from database.</b>`, { parse_mode: 'HTML' });
-	}
-	else
-	{
-		console.log(`[${userId}] ${msg.from.username} is not registered.`);
-		bot.sendMessage(msg.chat.id, `<b>${msg.from.username} is not registered.</b>`, { parse_mode: 'HTML' });
-	}
-});
-
-// command to register player in bot database
-// /go
-bot.onText(/\/go(@\w+)?/, (msg) => {
-	if (!isRegistered(msg.from.id)) 
-	{
-		writeNewUserToDatabase(msg.from.id);
-	}
-
-	try {
-		// check if user already registered
-		if (isRegistered(userId)) {
-			console.log(`[${msg.from.id}] ${msg.from.username} is already registered.`);
-			return;
-		} else {
-			writeNewUserToDatabase(userId);
-			console.log(`[${userId}] ${msg.from.username} has been registered.`);
-			bot.sendMessage(msg.chat.id, `<b>${msg.from.username} have been registered as THE DUDE.</b>`, { parse_mode: 'HTML' });
+	else if (args.length === 1) {
+		const PPId = parseInt(args[0]);
+		if (userHasPPInDatabase(userId, PPId)) {
+			message = `You already have ${PPId}.`;
 		}
-	} catch (error) {
-		console.error(`Error occurred while registering user: ${error}`);
-		bot.sendMessage(msg.chat.id, `An error occurred while registering. Please try again later.`);
+		else {
+			addPPToUserInDatabase(userId, PPId);
+			message = 'You got ' + preparePPMessageById(PPId);
+		}
 	}
-});
 
+	bot.sendMessage(chatId, message);
+}
 
-// ==== FUNCTIONS BLOCK ======
+function goCommand(userId, args) {
+	let message;
+	
+	console.log(`${userId} is trying to register.`);	
 
-// ---- BASIC BOT FUNCTIONS ----
+	// check if registerd already
+	if (isRegistered(userId)) {
+		message = 'You are already registered.';
+	}
+	// register if not
+	else {
+		writeNewUserToDatabase(userId);
+		message = 'You have been registered as THE DUDE.';
+	}
+
+	bot.sendMessage(chatId, message);
+}
+
+function stopCommand(msg) {
+	let message;
+	console.log(`${msg.from.id} is trying to unregister.`);
+
+	if (isRegistered(userId)) {
+		// TODO: delete user from userDatabase
+		message = 'You have been unregistered.';
+		sendMessage(chatId, message);
+	}
+}
+//#endregion
+
+//#region UTILITY FUNCTIONS ----
+function logAsBot(message) { console.log(`[Bot]: ${message}`); }
+function logAsUser(msg) { console.log(`[${msg.from.name}]: ${message}`); }
+function logAsApp(message) { console.log(`[App]: ${message}`); }
+function logAsUtility(message) { console.log(`[Utility]: ${message}`); }
+//#endregion
+
+//#region BASIC BOT FUNCTIONS
 // function to recieve command from user and trigger action
-function recieveCommand(command) {
-
-	switch (command) {
-		case '/go':
-			// register user
-			break;
-		case '/stop':
-			// remove user
-			break;
-		case '/info':
-			// show user info
-			break;
-		case '/pp':
-			// get PP
-			break;
-		default:
-			// unknown command
-			break;
+function recieveCommand(msg) {
+	const recievedCommand = parseCommand(msg);
+	if (isValidCommand(parseCommand(msg))) {
+		commands[command](msg);
 	}
 }
 
-// ---- LOAD SAVE JSON ----
-// function to load json as object by provided path
-// checks if file exist, if not creates new one and alerts about it
-function loadJSON(filePath) {
-	if (!fs.existsSync(filePath)) {
-		fs.writeFileSync(filePath, JSON.stringify({}, null, 2));
-		console.log(`${filePath} created.`);
-	}
-	try {
-		return JSON.parse(fs.readFileSync(filePath));
-	}
-	catch (err) {
-		console.error(`Could not read ${filePath} file.`);
-	}
+// function to check if message is command
+function isCommand(messageText) {
+	return messageText.startsWith('/');
 }
+
+function isValidCommand(recieveCommand) {
+	return commands[recieveCommand.command] !== undefined;
+}
+
+// function to parse command
+function parseCommand(msg) {
+	const command = msg.text.split(' ')[0];
+	const args = msg.text.split(' ').slice(1);
+
+	return { command, args };
+}
+
+function sendMessage(chatId, message) {
+	bot.sendMessage(chatId, message);
+	logAsBot(`Sent message to chat -> ${chatId}: ${message}`);
+}
+//#endregion
+
+//#region LOAD SAVE JSON FUNCTIONS
+
+// function to open or create json file by provided path and data
+function openOrCreateJSON(filePath, data) {
+	if (data === undefined) { data = {}; }
+	if (!pathExist(filePath)) { createJSON(filePath, data); logAsUtility(`Can't find ${filePath} -> created empty.`);}
+}
+
+// function to create empty json file by provided path and data
+function createJSON(filePath, data) 
+{
+	if (!pathExist(filePath)) { fs.writeFileSync(filePath, JSON.stringify(data, null, 2)); }
+}
+
+// function to check if file exist by provided path
+function pathExist(filePath) { return fs.existsSync(filePath); }
 
 // function to save json object to file by provided path and data
-function saveJSON(folderPath, filePath, data) 
+function writeJSON(filePath, data) 
 {
-	// if path not exist create 
-	if (!fs.existsSync(folderPath)) {
-		fs.mkdirSync(folderPath);
-		console.log(`${folderPath} created.`);
-	}
-	
 	// save data to file
 	fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-	console.log(`${filePath} saved.`);
+	logAsUtility(`${filePath} saved.`);
 }
+//#endregion
 
-// ---- USER DATABSE FUNCTIONS ----
+//#region USER DATABSE FUNCTIONS
 // Load userDatabase from default path
-// check if file exist, then - return its contents as object
-// can return empty object if file not exist
 function loadUserDatabase() 
 {
-	if (loadJSON(userDatabasePath)) {
-		return loadJSON(userDatabasePath);
-	}
+	userDatabase = openOrCreateJSON(userDatabasePath);
 }
 
 // Load or create userDatabase with default path
@@ -244,13 +234,13 @@ function loadOrCreateUserDatabase()
 	}
 	else {
 		const userDatabase = { 0: { messagesCount: 0, lastPPReceived: null } };
-		saveJSON(storageFolderPath, userDatabasePath, userDatabase);
+		writeJSON(userDatabasePath, userDatabase);
 		return userDatabase;
 	}
 }
+// #endregion
 
-
-// ---- ACCOUNT FUNCTIONS ----
+//#region ACCOUNT FUNCTIONS
 function isRegistered(userId) {
 	if (!userDatabase) { return false; }
 	else { userDatabase[userId] !== undefined; }
@@ -262,7 +252,7 @@ function addMessageCountByUserId(userId) {
 
 	if (isRegistered(userId)) {
 		userDatabase[userId].messagesCount++;
-		saveJSON(storageFolderPath, userDatabasePath, userDatabase); 
+		writeJSON(storageFolderPath, userDatabasePath, userDatabase); 
 	}
 }
 
@@ -275,7 +265,7 @@ function writeNewUserToDatabase(userId) {
 		};
 
 		console.log(`New user [${userId}] added to userDatabase.`);
-		saveJSON(storageFolderPath, userDatabasePath, userDatabase);
+		writeJSON(storageFolderPath, userDatabasePath, userDatabase);
 	}
 }
 
@@ -283,8 +273,9 @@ function writeNewUserToDatabase(userId) {
 function getUserDataFromDatabase(userId) {
 	return userDatabase[userId];
 }
+// #endregion
 
-// ---- PP FUNCTIONS ----
+// #region PP FUNCTIONS
 
 // check if provided time + timeout is less than current time
 function isPPTimePassed(time) {
@@ -350,7 +341,7 @@ function addPPToUserInDatabase(userId, PPId) {
 	userDatabase[userId].lastPPReceived.time = new Date();
 
 	// save userDatabase to file		
-	saveJSON(storageFolderPath, userDatabasePath, userDatabase);
+	writeJSON(storageFolderPath, userDatabasePath, userDatabase);
 }
 
 // function to check if user (id) has PP in userDatabase
@@ -372,4 +363,56 @@ function getRandomPP(userId) {
 	}
 
 	return randomPP;
-};
+}
+// #endregion
+
+// #region BOT HANDLERS
+// INITIAL MESSAGE RECIEVE
+// on any text message show it in console with user id [] and username
+bot.on('message', (msg) => {
+	// check if message is command "/"
+	if (isCommand(msg.text)) {
+		recieveCommand(msg.from.id, msg.text);
+	}
+	// or check if user registered and add to variables 
+	else if (isRegistered(msg.from.id)) {
+		// add +1 to user message counter
+		addMessageCountByUserId(msg.from.id);
+	}
+
+	console.log(`[${msg.from.id}] ${msg.from.username}: ${msg.text}`);
+	return;
+});
+// #endregion
+
+// #region STARTUP
+// startup function to create all objects and setup them
+function startup()
+{
+	preCheck();
+	webBackend.start();
+}
+
+// function to check if all files exist and create them if not
+function preCheck() 
+{
+	// telegram bot values
+	token = openOrCreateJSON(tokenPath, { token: 'YOUR TOKEN HERE' }) === undefined;
+
+	// userDatabase values
+	userDatabase = openOrCreateJSON(userDatabasePath, { "users": {0: defaultUser[0]} });
+
+
+	// other jsons
+	if (openOrCreateJSON(rarityPath) === undefined) {
+		writeJSON(storageFolderPath, rarityPath, 
+			{
+				"normal": {
+					"color": "#808080",
+					"text": "Normal",
+					"dropRate": 0.5
+				}
+			});
+	}
+}
+// #endregion
