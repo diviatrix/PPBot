@@ -1,0 +1,29 @@
+
+{
+	"normal": {},
+	"Italic": 
+	{
+		"open" : "<i>",
+		"close" : "</i>"
+	},
+	"Bold": 
+	{
+		"open" : "<b>",
+		"close" : "</b>"
+	},
+	"PreFormatted": 
+	{
+		"open" : "```",
+		"close" : "```"
+	},
+	"StrikeThrough": 
+	{
+		"open" : "<s>",
+		"close" : "</s>"
+	},
+	"Underline": 
+	{
+		"open" : "<u>",
+		"close" : "</u>"
+	}
+}
