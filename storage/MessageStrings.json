@@ -1,6 +1,10 @@
 
 {
-	"normal": {},
+	"normal": 
+	{
+		"open" : "",
+		"close" : ""
+	},
 	"Italic": 
 	{
 		"open" : "<i>",
