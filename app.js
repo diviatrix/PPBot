@@ -1,8 +1,6 @@
 const TelegramBot = require('node-telegram-bot-api');
 const fs = require('fs');
 const path = require('path');
-// Load your Telegram bot token
-const token = '314547287:AAHXHfDhzj02Z8r6nog_UZwIotsSYJ5eH9Y';
 const timeout_pp = 24; // in hours
 const ExpressBackend = require('./ExpressBackend.js');
 const { is } = require('bluebird');
@@ -10,32 +8,67 @@ const { is } = require('bluebird');
 // Specify the storage folder path
 const storageFolderPath = 'storage';
 
+// JSONs and paths
+const tokenPath = path.join(storageFolderPath, '/token.json');
+const token = loadJSON(tokenPath).token;
+
+const userDatabasePath = path.join(storageFolderPath, '/userDatabase.json');
+const userDatabase = loadJSON(userDatabasePath);
+
+const rarityPath = path.join(storageFolderPath, '/rarity.json');
+const rarityData = loadJSON(rarityPath);
+
+const messageStringsPath = path.join(storageFolderPath, '/messageStrings.json');
+const messageStrings = loadJSON(messageStringsPath);
+
+const ppPath = path.join(storageFolderPath, '/pp.json');
+const ppList = loadJSON(ppPath);
+
+const defaultUserPath = path.join(storageFolderPath, '/defaultUser.json');
+const defaultUser = loadJSON(defaultUserPath);
+
 // Create a new instance of the Telegram bot
 const bot = new TelegramBot(token, { polling: true });
 
-// JSONs and paths
-const userDatabasePath = '/userDatabase.json';
-const userDatabase = loadJSON(path.join(storageFolderPath, userDatabasePath));
-const rarityPath = '/rarity.json';
-const rarityData = loadJSON(path.join(storageFolderPath, rarityPath));
-const messageStringsPath = '/messageStrings.json';
-const messageStrings = loadJSON(path.join(storageFolderPath, messageStringsPath));
-const ppPath = '/pp.json';
-const ppList = loadJSON(path.join(storageFolderPath, ppPath));
-
+// Start web backend
 const webBackend = new ExpressBackend();
 
+// run initial function to create all objects and setup them
 startup();
 
 // startup function to create all objects and setup them
 function startup()
 {
+
 	webBackend.start();
 }
 
 
+// ====== BOT  BLOCK =======
 
-// COMMANDS BLOCK
+// --- BOT EVENTS BLOCK ----
+// INITIAL MESSAGE RECIEVE
+// on any text message show it in console with user id [] and username
+bot.on('message', (msg) => {
+	// check if message is command "/"
+	if (msg.text.startsWith('/')) {
+		recieveCommand(msg.text);
+		return;
+	}
+	// or check if user registered and add to variables 
+	else if (isRegistered(msg.from.id)) {
+		// add +1 to user message counter
+		addMessageCountByUserId(msg.from.id);
+	}
+	// or send to console.log and ignore
+	else {
+		// show message in console
+		console.log(`[${msg.from.id}] ${msg.from.username}: ${msg.text}`);
+		return;
+	}
+});
+
+// ----COMMANDS BLOCK-----
 
 // /info command
 // shows user info
@@ -74,7 +107,7 @@ bot.onText(/\/pp(@\w+)?/, (msg) => {
 	
 	// if user is registered and has recieved PP today, send new PP
 	// send message with time of next possible get
-	if (userData && userData.lastPPReceived && !isTimePassed(userData.lastPPReceived.time)) {		
+	if (userData && userData.lastPPReceived && !isPPTimePassed(userData.lastPPReceived.time)) {		
 		// send message to user with last received PP and time of next possible get		
 		bot.sendMessage(msg.chat.id, `${msg.from.username} already got PP of the day: ${preparePPMessageById(userData.lastPPReceived.id)} You can get a new one after ${(timeUntilNextPossiblePPGet(msg.from.id) / 1000 / 60 / 60).toFixed(1)} hours.`);
 		return;
@@ -135,45 +168,10 @@ bot.onText(/\/go(@\w+)?/, (msg) => {
 	}
 });
 
-// INITIAL MESSAGE RECIEVE
-// on any text message show it in console with user id [] and username
-bot.on('message', (msg) => {
-	// check if message is command "/"
-	if (msg.text.startsWith('/')) {
-		recieveCommand(msg.text);
-		return;
-	}
-	// or check if user registered and add to 
-	// or send to console.log and ignore
-	else {
-		// show message in console
-		console.log(`[${msg.from.id}] ${msg.from.username}: ${msg.text}`);
-		return;
-	}
 
+// ==== FUNCTIONS BLOCK ======
 
-
-	// show message in console
-	console.log(`[${msg.from.id}] ${msg.from.username}: ${msg.text}`);
-
-	// leave if no userDatabase
-	if (!userDatabase) 
-	{
-		console.log('userDatabase is not defined or empty. Do nothin.');	
-		return;
-	}
-
-	// leave if not registered
-	if (getUserDataFromDatabase(msg.from.id) === undefined) { return; }
-
-	// add +1 to user message counter
-	addMessageCountByUserId(msg.from.id);
-	
-	// log counter value to console
-	
-	console.log(`[${msg.from.id}] message counter: ${getUserDataFromDatabase(msg.from.id).messagesCount}`);
-});
-
+// ---- BASIC BOT FUNCTIONS ----
 // function to recieve command from user and trigger action
 function recieveCommand(command) {
 
@@ -196,8 +194,7 @@ function recieveCommand(command) {
 	}
 }
 
-// FUNCTIONS BLOCK
-
+// ---- LOAD SAVE JSON ----
 // function to load json as object by provided path
 // checks if file exist, if not creates new one and alerts about it
 function loadJSON(filePath) {
@@ -227,6 +224,33 @@ function saveJSON(folderPath, filePath, data)
 	console.log(`${filePath} saved.`);
 }
 
+// ---- USER DATABSE FUNCTIONS ----
+// Load userDatabase from default path
+// check if file exist, then - return its contents as object
+// can return empty object if file not exist
+function loadUserDatabase() 
+{
+	if (loadJSON(userDatabasePath)) {
+		return loadJSON(userDatabasePath);
+	}
+}
+
+// Load or create userDatabase with default path
+// database has to have first user with id 0 to work properly
+function loadOrCreateUserDatabase() 
+{
+	if (loadUserDatabase()) {
+		return loadUserDatabase();
+	}
+	else {
+		const userDatabase = { 0: { messagesCount: 0, lastPPReceived: null } };
+		saveJSON(storageFolderPath, userDatabasePath, userDatabase);
+		return userDatabase;
+	}
+}
+
+
+// ---- ACCOUNT FUNCTIONS ----
 function isRegistered(userId) {
 	if (!userDatabase) { return false; }
 	else { userDatabase[userId] !== undefined; }
@@ -242,8 +266,28 @@ function addMessageCountByUserId(userId) {
 	}
 }
 
+// function to write new user (id) to userDatabase
+function writeNewUserToDatabase(userId) {
+	if (!isRegistered(userId)) {
+		userDatabase[userId] = {
+			messagesCount: 0,
+			lastPPReceived: null
+		};
+
+		console.log(`New user [${userId}] added to userDatabase.`);
+		saveJSON(storageFolderPath, userDatabasePath, userDatabase);
+	}
+}
+
+// function to get user data from database by user id
+function getUserDataFromDatabase(userId) {
+	return userDatabase[userId];
+}
+
+// ---- PP FUNCTIONS ----
+
 // check if provided time + timeout is less than current time
-function isTimePassed(time) {
+function isPPTimePassed(time) {
 	const currentTime = new Date();
 	const timeToCheck = new Date(time);
 	timeToCheck.setHours(timeToCheck.getHours() + timeout_pp);
@@ -273,7 +317,6 @@ function addNewPP(id, rarity, description) {
 	fs.writeFileSync(path.join(storageFolderPath, '/pp.json'), JSON.stringify(ppList, null, 2));
 }
 
-
 // check how many time unti next possible pp get by user id
 function timeUntilNextPossiblePPGet(userId) {
 	if (!isRegistered(userId)) { return; }
@@ -298,19 +341,6 @@ function countPPOwners(PPId) {
 	return count;
 }
 
-// function to write new user (id) to userDatabase
-function writeNewUserToDatabase(userId) {
-	if (!isRegistered(userId)) {
-		userDatabase[userId] = {
-			messagesCount: 0,
-			lastPPReceived: null
-		};
-
-		console.log(`New user [${userId}] added to userDatabase.`);
-		saveJSON(storageFolderPath, userDatabasePath, userDatabase);
-	}
-}
-
 // function to add PP to user (id) in userDatabase
 function addPPToUserInDatabase(userId, PPId) {
 	// add PP to user in userDatabase
@@ -323,27 +353,11 @@ function addPPToUserInDatabase(userId, PPId) {
 	saveJSON(storageFolderPath, userDatabasePath, userDatabase);
 }
 
-// function to get user data from database by user id
-function getUserDataFromDatabase(userId) {
-	return userDatabase[userId];
-}
-
 // function to check if user (id) has PP in userDatabase
 function userHasPPInDatabase(userId, PPId) {
 	return userDatabase[userId]?.[PPId] !== undefined;
 }
 
-// method to find random PP in data
-// db example
-//const userDatabase = {
-	//	"123456789": {
-	//		"pp1": true,
-	//		"pp3": true
-	//	},
-	//	"987654321": {
-	//		"pp2": true,
-	//		"pp4": true
-	//	}
 function getRandomPP(userId) {
 	let randomPP;
 	let userHasPP = true;
