@@ -15,31 +15,90 @@ const storageFolderPath = '/storage';
 const publicFolderPath = '/public';
 
 // JSONs and paths
-const userDatabasePath = path.join(storageFolderPath, 'userDatabase.json');
-const userDatabase = openOrCreateJSON(userDatabasePath);
-
 const tokenPath = path.join(storageFolderPath, 'token.json');
-const token = openOrCreateJSON(tokenPath).token;
+const token = openOrCreateJSON(tokenPath, { "token" : 'YOUR TOKEN HERE' }).token;
 
-const rarityPath = path.join(storageFolderPath, '/arity.json');
-const rarityData = openOrCreateJSON(rarityPath);
+const rarityPath = path.join(storageFolderPath, '/rarity.json');
+const rarityData = openOrCreateJSON(rarityPath, {
+	"normal": {
+		"color": "#808080",
+		"text": "Normal",
+		"dropRate": 0.5
+	}});
 
 const messageStringsPath = path.join(storageFolderPath, 'messageStrings.json');
-const messageStrings = openOrCreateJSON(messageStringsPath);
+const messageStrings = openOrCreateJSON(messageStringsPath, 
+	{
+		"normal": {
+			"open": "",
+			"close": ""
+		}
+	});	
 
 const ppPath = path.join(storageFolderPath, 'pp.json');
-const ppList = openOrCreateJSON(ppPath);
+const ppList = openOrCreateJSON(ppPath, 
+	[
+		{
+			"id": 1337,
+			"description": "You are L33T AF!",
+			"rarity": "1337"
+		}
+	]);
 
 const defaultUserPath = path.join(storageFolderPath, 'defaultUser.json');
-const defaultUser = openOrCreateJSON(defaultUserPath);
+const defaultUser = openOrCreateJSON(defaultUserPath, [
+	0,
+	{
+		"lastPPReceived": 
+		{
+			"id": 0,
+			"time": ""
+		},
+		"collection": 
+		{
+			"pp": {
+				"id": 0,
+				"time": ""
+			},
+			"pp2": {
+				"id": 0,
+				"time": ""
+			}
+		}
+	}
+]);
+
+const userDatabasePath = path.join(storageFolderPath, 'userDatabase.json');
+const userDatabase = openOrCreateJSON(userDatabasePath, {
+	 "users": [
+		{
+			"id" : 1337,
+			"messagesCount": 0,
+			"lastPPReceived": {
+				"id": 0,
+				"time": ""
+			},
+			"collection": {
+				"pp": {
+					"id": 0,
+					"time": ""
+				},
+				"pp2": {
+					"id": 0,
+					"time": ""
+				}
+			}
+		}			
+	]
+});
+		
 // #endregion
 
 //#region COMMANDS OBJECT
 const commands = {
 	'/info': (msg) => {
 		logAsBot(`[${msg.from.name}][${msg.from.id}] is trying to get info.`);		
-		infoCommand(msg);
-		
+		infoCommand(msg);		
 	},
 	'/pp': (msg) => {
 		logAsBot(`${msg.from.name}][${msg.from.id}] is trying to get PP.`);
@@ -65,15 +124,7 @@ const webBackend = new ExpressBackend();
 // run initial function to create all objects and setup them
 startup();
 
-//#region BOT COMMANDS
-// parse command to command, args
-function parseCommand(msg) {
-	const command = msg.text.split(' ')[0];
-	const args = msg.text.split(' ').slice(1);
-
-	return { command, args };
-}
-
+// #region COMMANDS
 
 // /info command
 // shows user info
@@ -164,24 +215,27 @@ function logAsUtility(message) { console.log(`[Utility]: ${message}`); }
 // function to recieve command from user and trigger action
 function recieveCommand(msg) {
 	const recievedCommand = parseCommand(msg);
-	if (isValidCommand(parseCommand(msg))) {
-		commands[command](msg);
+
+	if (isValidCommand(recieveCommand.command)) {
+		commands[recieveCommand.command](msg);
 	}
 }
 
 // function to check if message is command
-function isCommand(messageText) {
-	return messageText.startsWith('/');
+function isCommand(msg) {
+	return msg.text.startsWith('/');
 }
 
 function isValidCommand(recieveCommand) {
-	return commands[recieveCommand.command] !== undefined;
+	const recievedCommand = parseCommand(msg);
+	console.log(`Checking if ${recievedCommand} is valid command.`);
+	return commands[recievedCommand.command] !== undefined;
 }
 
 // function to parse command
 function parseCommand(msg) {
 	const command = msg.text.split(' ')[0];
-	const args = msg.text.split(' ').slice(1);
+	const args = msg.text.split(' ')[1];
 
 	return { command, args };
 }
@@ -195,15 +249,24 @@ function sendMessage(chatId, message) {
 //#region LOAD SAVE JSON FUNCTIONS
 
 // function to open or create json file by provided path and data
+// return result
 function openOrCreateJSON(filePath, data) {
-	if (data === undefined) { data = {}; }
-	if (!pathExist(filePath)) { createJSON(filePath, data); logAsUtility(`Can't find ${filePath} -> created empty.`);}
+    if (data === undefined) { data = {}; }
+    const absolutePath = path.join(__dirname, filePath);
+    if (!pathExist(absolutePath)) { 
+        createJSON(absolutePath, data); 
+        logAsUtility(`Can't find ${absolutePath} -> created empty.`); 
+    }
+
+	return JSON.parse(fs.readFileSync(absolutePath));
 }
 
-// function to create empty json file by provided path and data
-function createJSON(filePath, data) 
-{
-	if (!pathExist(filePath)) { fs.writeFileSync(filePath, JSON.stringify(data, null, 2)); }
+// return result
+function createJSON(filePath, data) {
+    if (data === undefined) { data = {}; }
+	const absolutePath = path.join(__dirname, filePath);
+	fs.writeFileSync(absolutePath, JSON.stringify(data, null, 2));
+	logAsUtility(`${absolutePath} created.`);
 }
 
 // function to check if file exist by provided path
@@ -218,61 +281,29 @@ function writeJSON(filePath, data)
 }
 //#endregion
 
-//#region USER DATABSE FUNCTIONS
-// Load userDatabase from default path
-function loadUserDatabase() 
-{
-	userDatabase = openOrCreateJSON(userDatabasePath);
-}
-
-// Load or create userDatabase with default path
-// database has to have first user with id 0 to work properly
-function loadOrCreateUserDatabase() 
-{
-	if (loadUserDatabase()) {
-		return loadUserDatabase();
-	}
-	else {
-		const userDatabase = { 0: { messagesCount: 0, lastPPReceived: null } };
-		writeJSON(userDatabasePath, userDatabase);
-		return userDatabase;
-	}
-}
-// #endregion
-
 //#region ACCOUNT FUNCTIONS
 function isRegistered(userId) {
 	if (!userDatabase) { return false; }
-	else { userDatabase[userId] !== undefined; }
+	return userDatabase.users.some((user) => user.id === userId);
 }
 
 // function to add message counter ++ by user id
 function addMessageCountByUserId(userId) {
-	if (!userDatabase) { return;}
-
-	if (isRegistered(userId)) {
-		userDatabase[userId].messagesCount++;
-		writeJSON(storageFolderPath, userDatabasePath, userDatabase); 
-	}
+	userDatabase[userId].messagesCount++;
+	writeJSON(userDatabasePath, userDatabase); 
 }
 
 // function to write new user (id) to userDatabase
-function writeNewUserToDatabase(userId) {
-	if (!isRegistered(userId)) {
-		userDatabase[userId] = {
-			messagesCount: 0,
-			lastPPReceived: null
-		};
-
-		console.log(`New user [${userId}] added to userDatabase.`);
-		writeJSON(storageFolderPath, userDatabasePath, userDatabase);
-	}
+function writeNewUserToDatabase(userId) 
+{
+	// add new user to userDatabase.users
+	userDatabase.users.push({ "id": userId, "messagesCount": 0, "lastPPReceived": { "id": 0, "time": "" }, "collection": { "pp": { "id": 0, "time": "" }, "pp2": { "id": 0, "time": "" } } });
+	// save userDatabase to file
+	writeJSON(userDatabasePath, userDatabase);
+	console.log(`New user [${userId}] added to userDatabase.`);
 }
 
-// function to get user data from database by user id
-function getUserDataFromDatabase(userId) {
-	return userDatabase[userId];
-}
+
 // #endregion
 
 // #region PP FUNCTIONS
@@ -371,8 +402,9 @@ function getRandomPP(userId) {
 // on any text message show it in console with user id [] and username
 bot.on('message', (msg) => {
 	// check if message is command "/"
-	if (isCommand(msg.text)) {
-		recieveCommand(msg.from.id, msg.text);
+	if (isCommand(msg)) {
+		console.log(`[${msg.from.id}] ${msg.from.username}: ${msg.text}`);
+		recieveCommand(msg);
 	}
 	// or check if user registered and add to variables 
 	else if (isRegistered(msg.from.id)) {
@@ -383,36 +415,16 @@ bot.on('message', (msg) => {
 	console.log(`[${msg.from.id}] ${msg.from.username}: ${msg.text}`);
 	return;
 });
+
+bot.on('polling_error', (error) => {
+	console.log(error);  // => 'EFATAL'
+  });
 // #endregion
 
 // #region STARTUP
 // startup function to create all objects and setup them
 function startup()
 {
-	preCheck();
 	webBackend.start();
-}
-
-// function to check if all files exist and create them if not
-function preCheck() 
-{
-	// telegram bot values
-	token = openOrCreateJSON(tokenPath, { token: 'YOUR TOKEN HERE' }) === undefined;
-
-	// userDatabase values
-	userDatabase = openOrCreateJSON(userDatabasePath, { "users": {0: defaultUser[0]} });
-
-
-	// other jsons
-	if (openOrCreateJSON(rarityPath) === undefined) {
-		writeJSON(storageFolderPath, rarityPath, 
-			{
-				"normal": {
-					"color": "#808080",
-					"text": "Normal",
-					"dropRate": 0.5
-				}
-			});
-	}
 }
 // #endregion
