@@ -1,0 +1,227 @@
+[
+	{
+		"id": 1337,
+		"description": "You are L33T AF!",
+		"rarity": "1337"
+	},
+	{
+		"id": 420,
+		"description": "Smoke W33D Everyday!",
+		"rarity": "normal"
+	},
+	{
+		"id": 1000,
+		"description": "Millenium",
+		"rarity": "rare"
+	},
+	{
+		"id": 42,
+		"description": "The Answer to the Ultimate Question of Life, the Universe, and Everything",
+		"rarity": "epic"
+	},
+	{
+		"id": 666,
+		"description": "The Number of the Beast",
+		"rarity": "rare"
+	},
+	{
+		"id": 7,
+		"description": "Lucky",
+		"rarity": "normal"
+	},
+	{
+		"id": 13,
+		"description": "Unlucky",
+		"rarity": "rare"
+	},
+	{
+		"id": 23,
+		"description": "23",
+		"rarity": "normal"
+	},
+	{
+		"id": 69,
+		"description": "69, hehe",
+		"rarity": "normal"
+	},
+	{
+		"id": 100,
+		"description": "Century, 100%",
+		"rarity": "normal"
+	},
+	{
+		"id": 5051,
+		"description": "Suck my Nyaa~~",
+		"rarity": "Legendary"
+	},
+	{
+		"id": 314,
+		"description": "Pi Day!",
+		"rarity": "normal"
+	},
+	{
+		"id": 88,
+		"description": "Back to the Future!",
+		"rarity": "normal"
+	},
+	{
+		"id": 101,
+		"description": "Binary for 5",
+		"rarity": "normal"
+	},
+	{
+		"id": 256,
+		"description": "A programmer's favorite number",
+		"rarity": "epic"
+	},
+	{
+		"id": 404,
+		"description": "Not Found",
+		"rarity": "normal"
+	},
+	{
+		"id": 2001,
+		"description": "A Space Odyssey",
+		"rarity": "rare"
+	},
+	{
+		"id": 0,
+		"description": "The void",
+		"rarity": "normal"
+	},
+	{
+		"id": 1,
+		"description": "The loneliest number",
+		"rarity": "normal"
+	},
+	{
+		"id": 2,
+		"description": "Binary for 10",
+		"rarity": "normal"
+	},
+	{
+		"id": 1024,
+		"description": "1 Kilobyte for old school",
+		"rarity": "normal"
+	},
+	{
+		"id": 2048,
+		"description": "Popular mobile game",
+		"rarity": "normal"
+	},
+	{
+		"id": 999,
+		"description": "Maximum HP in many RPG games",
+		"rarity": "epic"
+	},
+	{
+		"id": 1080,
+		"description": "Full HD resolution (1920x1080)",
+		"rarity": "normal"
+	},
+	{
+		"id": 1440,
+		"description": "Quad HD resolution (2560x1440)",
+		"rarity": "rare"
+	},
+	{
+		"id": 2160,
+		"description": "4K UHD resolution (3840x2160)",
+		"rarity": "legendary"
+	},
+	{
+		"id": 60,
+		"description": "Standard FPS for smooth gameplay",
+		"rarity": "normal"
+	},
+	{
+		"id": 120,
+		"description": "High refresh rate for competitive gaming",
+		"rarity": "rare"
+	},
+	{
+		"id": 8,
+		"description": "Number of bits in a byte",
+		"rarity": "normal"
+	},
+	{
+		"id": 64,
+		"description": "Number of bits in a typical CPU architecture",
+		"rarity": "normal"
+	},
+	{
+		"id": 16,
+		"description": "Base in hexadecimal number system",
+		"rarity": "normal"
+	},
+	{
+		"id": 512,
+		"description": "Common SSD storage size (in GB)",
+		"rarity": "normal"
+	},
+	{
+		"id": 4096,
+		"description": "Common page size in operating systems (in bytes)",
+		"rarity": "rare"
+	},
+	{
+		"id": 65536,
+		"description": "Maximum number of ports in TCP/UDP",
+		"rarity": "epic"
+	},
+	{
+		"id": 2147483647,
+		"description": "Maximum value for a 32-bit integer",
+		"rarity": "legendary"
+	},
+	{
+		"id": 4294967296,
+		"description": "Number of possible values in a 32-bit system",
+		"rarity": "1337"
+	},
+	{
+		"id": 9223372036854775807,
+		"description": "Maximum value for a 64-bit integer",
+		"rarity": "1337"
+	},
+	{
+		"id": 47,
+		"description": "Codename of the protagonist in the Hitman series",
+		"rarity": "legendary"
+	},
+	{
+		"id": 20,
+		"description": "Highest number on a standard D20 die in tabletop games",
+		"rarity": "normal"
+	},
+	{
+		"id": 6,
+		"description": "Number of faces on a standard dice",
+		"rarity": "normal"
+	},
+	{
+		"id": 30,
+		"description": "Console peasant FPS for smooth gameplay",
+		"rarity": "normal"
+	},
+	{
+		"id": 144,
+		"description": "Alo, eto pro-gamer?",
+		"rarity": "Legendary"
+	},
+	{
+		"id": 240,
+		"description": "Kak tam? na toy storone FPS?",
+		"rarity": "Legendary"
+	},
+	{
+		"id": 228,
+		"description": "Happyness at home...",
+		"rarity": "normal"
+	},
+	{
+		"id": 365,
+		"description": "No scope, no life",
+		"rarity": "1337"
+	}
+]

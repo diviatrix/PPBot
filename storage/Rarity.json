@@ -1,0 +1,32 @@
+{
+	"normal": {
+		"color": "#808080",
+		"text": "Normal",
+		"dropRate": 0.5
+	},
+	"rare": {
+		"color": "#008000",
+		"text": "Italic",
+		"dropRate": 0.3
+	},
+	"epic": {
+		"color": "#800080",
+		"text": "Bold",
+		"dropRate": 0.1
+	},
+	"legendary": {
+		"color": "#FFD700",
+		"text": "PreFormatted",
+		"dropRate": 0.05
+	},
+	"1337": {
+		"color": "#FFA500",
+		"text": "StrikeThrough",
+		"dropRate": 0.05
+	},
+	"KS": {
+		"color": "#FF0000",
+		"text": "Underline",
+		"dropRate": 0.1
+	}
+}
