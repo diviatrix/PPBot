@@ -53,7 +53,9 @@ const storageFolderPath = path.join(__dirname, '/storage');
 const publicFolderPath = '/public';
 
 // JSONs and paths
-const tokenPath = path.join(storageFolderPath, 'token.json');
+const settingsPath = path.join(storageFolderPath, 'settings.json');
+const settingsModel = { "token": '', "port": 3000};
+const settings = openOrCreateJSON(settingsPath, settingsModel)
 
 const rarityPath = path.join(storageFolderPath, '/rarity.json');
 const rarityData = openOrCreateJSON(rarityPath, {
@@ -161,7 +163,7 @@ const commands =
 // LETS
 let bot;
 let webBackend;
-let token = openOrCreateJSON(tokenPath, { "token" : '' }).token;
+let token = settings.token;
 
 // #region COMMANDS
 
@@ -390,7 +392,7 @@ function writeJSON(filePath, data)
 }
 
 function writeSettings() {
-	writeJSON(tokenPath, { "token": token });
+	writeJSON(settingsPath, { "token": token });
 }
 //#endregion
 
@@ -612,7 +614,7 @@ async function startup() {
 
 async function checkToken() {
     if (!token) {
-        logAsApp(`Token not found. Please put it to ${tokenPath} with your token or input now:`);
+        logAsApp(`Token not found. Please put it to ${settingsPath} with your token or input now:`);
 
         const rl = readline.createInterface({
             input: process.stdin,
