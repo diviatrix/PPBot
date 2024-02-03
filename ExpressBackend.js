@@ -30,7 +30,7 @@ module.exports = class ExpressBackend {
         this.app.use(express.static(path.join(__dirname, 'public')));
 
         this.app.listen(this.port, () => {
-            console.log(`Server is running on port ${this.port}`);
+            console.log('\x1b[35m[Express Backend]\x1b[0m: Server is running on port:', this.port);
         });
     }
 }

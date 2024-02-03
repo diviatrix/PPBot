@@ -1,33 +1,26 @@
-
 {
-	"normal": 
-	{
-		"open" : "",
-		"close" : ""
+	"Normal": {
+	  "open": "",
+	  "close": ""
 	},
-	"Italic": 
-	{
-		"open" : "<i>",
-		"close" : "</i>"
+	"Italic": {
+	  "open": "<i>",
+	  "close": "</i>"
 	},
-	"Bold": 
-	{
-		"open" : "<b>",
-		"close" : "</b>"
+	"Bold": {
+	  "open": "<b>",
+	  "close": "</b>"
 	},
-	"PreFormatted": 
-	{
-		"open" : "```",
-		"close" : "```"
+	"PreFormatted": {
+	  "open": "```",
+	  "close": "```"
 	},
-	"StrikeThrough": 
-	{
-		"open" : "<s>",
-		"close" : "</s>"
+	"StrikeThrough": {
+	  "open": "<s>",
+	  "close": "</s>"
 	},
-	"Underline": 
-	{
-		"open" : "<u>",
-		"close" : "</u>"
+	"Underline": {
+	  "open": "<u>",
+	  "close": "</u>"
 	}
-}
+  }

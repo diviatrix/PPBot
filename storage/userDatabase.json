@@ -3,7 +3,7 @@
     {
       "id": 1337,
       "messagesCount": 0,
-      "lastPPReceived": {
+      "lastPP": {
         "id": 0,
         "time": ""
       },
@@ -16,6 +16,16 @@
           "id": 0,
           "time": ""
         }
+      }
+    },
+    {
+      "id": 124117375,
+      "messagesCount": 0,
+      "lastPP": {
+        "id": 0,
+        "time": ""
+      },
+      "collection": {
       }
     }
   ]
