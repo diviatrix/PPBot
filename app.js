@@ -9,6 +9,8 @@ const { log } = require('console');
 const ms = require('ms');
 const { string } = require('assert-plus');
 const readline = require('readline');
+const { DateFromTime } = require('es-abstract/es2019.js');
+const { last } = require('lodash');
 
 // #endregion
 
@@ -44,6 +46,8 @@ const consoleColors = {
 	"bot": "\x1b[38;5;201m",
 	"app": "\x1b[38;5;100m"
 };
+
+
 //#endregion
 
 
@@ -67,7 +71,7 @@ const rarityData = openOrCreateJSON(rarityPath, {
 const messageStringsPath = path.join(storageFolderPath, 'messageStrings.json');
 const messageStrings = openOrCreateJSON(messageStringsPath, 
 	{
-		"normal": {
+		"Normal": {
 			"open": "",
 			"close": ""
 		}
@@ -84,55 +88,29 @@ const ppList = openOrCreateJSON(ppPath,
 	]);
 
 const defaultUserPath = path.join(storageFolderPath, 'defaultUser.json');
-const defaultUser = openOrCreateJSON(defaultUserPath, [
-	0,
+const defaultUser = openOrCreateJSON(defaultUserPath, (
+	
 	{
+		"id": 0,
+		"messagesCount": 0,
 		"lastPP": 
 		{
 			"id": 0,
-			"time": ""
+			"time": `${new Date().getTime() - timeout_pp}`
 		},
 		"collection": 
 		{
-			"pp": {
-				"id": 0,
-				"time": ""
-			},
-			"pp2": {
-				"id": 0,
-				"time": ""
-			}
 		}
-	}
-]);
+	}));
 
 const userDatabasePath = path.join(storageFolderPath, 'userDatabase.json');
 const userDatabase = openOrCreateJSON(userDatabasePath, {
 	 "users": [
 		{
-			"id" : 1337,
-			"messagesCount": 0,
-			"lastPP": {
-				"id": 0,
-				"time": ""
-			},
-			"collection": {
-				"pp": {
-					"id": 0,
-					"time": ""
-				},
-				"pp2": {
-					"id": 0,
-					"time": ""
-				}
-			}
+			defaultUser
 		}			
 	]
 });
-
-const coloredString = (string, color) => {
-	return `\x1b[${color}m${string}\x1b[0m`;
-};
 		
 // #endregion
 
@@ -184,7 +162,7 @@ function infoCommand(msg) {
 	const lastPPTime = userData.lastPP.time;
 
 	// self info
-	if (!input.args) { message = `You have sent ${messageCount} messages. Your last PP was ${lastPP} at ${lastPPTime}. You have total of ${userPPs} PPs.`; }
+	if (!input.args) { message = `You have sent <b>${messageCount}</b> messages since register.\nYour last PP was <b>${lastPP}</b> at ${lastPPTime}.\nYou have total of <b>${userPPs}</b> PPs in collection.`; }
 	else if (parseInt(args[1])) {
 		const PPId = parseInt(args[1]);
 		const count = countPPOwners(PPId);
@@ -193,6 +171,8 @@ function infoCommand(msg) {
 	else {
 		message = 'Incorrect usage. Use /info for self info, /info @username for user info or /info number for get count how many users have this PP.';
 	}
+
+	sendMessage(msg.chat.id, message, msg.message_id);
 }
 
 // /pp command
@@ -227,30 +207,35 @@ function ppCommand(msg) {
 function dailyPP(msg) {	
 	// check user _lastPP in database
 	const _lastPP = userLastPPReceived(msg.from.id);
+	let message;
 
-	if (_lastPP) 
+	readOrFixLastPPTime(msg.from.id);
+
+	if (_lastPP.id == 0) 
 	{
 		// send message to user with greets
-		sendMessage(msg.chat.id, `This is Your first PP!  Congratulations!!!`, msg.message_id);
-		user.lastPP = { "id": 0, "time": new Date(new Date() - timeout_pp) };
-	}
-	else if (new Date() - _lastPP.time + timeout_pp > 0)
-	{
-		// send message to user with last pp info
-		sendMessage(msg.chat.id, preparePPMessageById(_lastPP.id), msg.message_id);
+		_lastPP.time = new Date(Date.now() - timeout_pp).toISOString();
+		sendMessage(msg.chat.id, `Everybody Starts with something..\nWelcome to PP club \u2764`, msg.message_id);
 	}
 
-	if (new Date() - _lastPP.time + timeout_pp > 0)
+	// if user already received PP today
+	logAsDebug(canRecieveNewPP(msg.from.id));
+	if (!canRecieveNewPP(msg.from.id))
 	{
-		message = `You already received PP today. Time left: ${timeUntilNextPossiblePPGet(msg.from.id)}.`;
+		message = `You already received PP today.\n`;
+		message += preparePPMessageById(_lastPP.id);
+		message += `\n\n<i>Return for next PP Check tomorrow.</i>`;
+		// send message to user with last pp info
+		sendMessage(msg.chat.id, message, msg.message_id);
 	}
-	
-	// if not - randomize new
 	else 
 	{
 		const randomPP = getNewRandomPPForUser(msg.from.id);
-		message = `You got ${randomPP.id}.`;
-		addPPToUserCollection(msg.from.id, randomPP.id);
+		message = `Congratulations!!!\nYou've got ${randomPP.id}\n\n`;
+		message += preparePPMessageById(randomPP.id);
+		if (addPPToUserCollection(msg.from.id, randomPP.id) != NaN ) { sendMessage(msg.chat.id, message, msg.message_id);}
+		
+		
 	}
 }
 
@@ -259,9 +244,6 @@ function ppInfo(msg, PPId)
 	const message = preparePPMessageById(PPId);
 	sendMessage(msg.chat.id, message, msg.message_id);
 }
-
-
-
 
 function goCommand(msg) {
 	let message;	
@@ -422,8 +404,10 @@ function getUserData(userId) {
 // function to write new user (id) to userDatabase
 function writeNewUserToDatabase(userId) 
 {
-	// add new user to userDatabase.users
-	userDatabase.users.push({ "id": userId, "messagesCount": 0, "lastPP": { "id": 0, "time": "" }, "collection": { "pp": { "id": 0, "time": "" }, "pp2": { "id": 0, "time": "" } } });
+	let newUser = defaultUser;
+	newUser.id = userId;
+
+	userDatabase.users.push(newUser);
 	// save userDatabase to file
 	writeJSON(userDatabasePath, userDatabase);
 	logAsApp(`New user [${userId}] added to userDatabase.`);
@@ -466,6 +450,21 @@ function addNewPP(PP) {
 	fs.writeFileSync(path.join(storageFolderPath, '/pp.json'), JSON.stringify(ppList, null, 2));
 }
 
+function readOrFixLastPPTime(userId) {
+	const fixedPPtime = new Date(Date.now() - timeout_pp).toISOString();
+	const user = getUserData(userId);
+	if (!user) { return; }
+	
+	if (!user.lastPP.time) { user.lastPP.time = fixedPPtime; } // if no value
+	else if (typeof user.lastPP.time !== 'string') { user.lastPP.time = fixedPPtime; } // if not string
+	else if (new Date(user.lastPP.time) == NaN) { user.lastPP.time = fixedPPtime; } // if not ISO date string
+
+	writeJSON(userDatabasePath, userDatabase);
+
+	return user.lastPP.time;
+}
+
+
 // if user has PP by id, search in userDatabase, return bool
 function userHasPP(userId, PPId) {
 	const result = false;
@@ -488,17 +487,16 @@ function userLastPPReceived(userId) {
 	return user.lastPP;
 }
 
-// check how many time unti next possible pp get by user id
-function timeUntilNextPossiblePPGet(userId) {
-	if (!isRegistered(userId)) { return; }
-
-	const userData = getUserData(userId);
-	const lastTimePPReceived = userData.lastPP.time;
-	const nextPossibleGetTime = new Date(lastTimePPReceived);
-	nextPossibleGetTime.setHours(nextPossibleGetTime.getHours() + timeout_pp);
-	const currentTime = new Date();
-	const timeLeft = nextPossibleGetTime - currentTime;
-	return timeLeft;
+// check if can recieve new PP
+// if lastPP.time is not ISO string, return true
+// else if lastPP.time + timeout_pp is less than now, return true
+// else return false
+function canRecieveNewPP(userId) {
+	const user = getUserData(userId);
+	const lastPP = readOrFixLastPPTime(userId);
+	if (!user) { return false; }
+	if (new Date(lastPP).getTime() + timeout_pp < Date.now()) { return true; }
+	return false;
 }
 
 // count number of PP owners in userDatabase
@@ -530,8 +528,11 @@ function addPPToUserCollection(userId, PPId) {
 		return;
 	}
 
-	// if has user and user has no PP - add PP
 	user.collection.push({ "id": PPId, "time": new Date() });
+	user.lastPP = { "id": PPId, "time": new Date().toISOString() };
+	writeJSON(userDatabasePath, userDatabase);
+	
+	return user.lastPP;
 }
 
 function getPPbyID(PPId) 
@@ -606,8 +607,11 @@ async function startup() {
     });
 
     bot.on('polling_error', (error) => {
-        logAsBot(`Polling error: ${error}`);
-    });
+		logAsBot(`Polling error: ${JSON.stringify(error)}`);
+		if (error.stack) {
+			logAsBot(`Error stack: ${error.stack}`);
+		}
+	});
 
     webBackend.start();
 }
