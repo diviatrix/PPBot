@@ -388,6 +388,10 @@ function writeJSON(filePath, data)
 
 	logAsUtility(`${filePath} saved.`);
 }
+
+function writeSettings() {
+	writeJSON(tokenPath, { "token": token });
+}
 //#endregion
 
 //#region ACCOUNT FUNCTIONS
@@ -572,22 +576,9 @@ function generateRandomPP() {
 
 // #region STARTUP
 async function startup() {
-    if (!token) {
-        logAsApp(`Token not found. Please put it to ${tokenPath} with your token or input now:`);
-
-        const rl = readline.createInterface({
-            input: process.stdin,
-            output: process.stdout
-        });
-
-        token = await new Promise(resolve => {
-            rl.question('Please enter your bot token from @botfather: ', (input) => {
-                rl.close();
-                resolve(input);
-            });
-        });
-		if (token) { writeJSON(tokenPath, { "token": token }); }
-    }
+    
+    // Check if token exists and request from user
+    await checkToken();
 
     // Create a new instance of the Telegram bot
     bot = new TelegramBot(token, { polling: true });
@@ -612,11 +603,30 @@ async function startup() {
         return;
     });
 
-	bot.on('polling_error', (error) => {
-		logAsBot(`Polling error: ${error}`);
-	});
+    bot.on('polling_error', (error) => {
+        logAsBot(`Polling error: ${error}`);
+    });
 
     webBackend.start();
+}
+
+async function checkToken() {
+    if (!token) {
+        logAsApp(`Token not found. Please put it to ${tokenPath} with your token or input now:`);
+
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+
+        token = await new Promise(resolve => {
+            rl.question('Please enter your bot token from @botfather: ', (input) => {
+                rl.close();
+                resolve(input);
+            });
+        });
+        if (token) { writeSettings(); }
+    }
 }
 
 // run initial function to create all objects and setup them
