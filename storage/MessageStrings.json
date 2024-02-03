@@ -11,9 +11,9 @@
 	  "open": "<b>",
 	  "close": "</b>"
 	},
-	"PreFormatted": {
-	  "open": "```",
-	  "close": "```"
+	"Code": {
+	  "open": "<code>",
+	  "close": "</code>"
 	},
 	"StrikeThrough": {
 	  "open": "<s>",
