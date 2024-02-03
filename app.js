@@ -612,6 +612,10 @@ async function startup() {
         return;
     });
 
+	bot.on('polling_error', (error) => {
+		logAsBot(`Polling error: ${error}`);
+	});
+
     webBackend.start();
 }
 
