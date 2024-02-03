@@ -1,6 +1,7 @@
 # PPBot
-# Author: Oleg@FXTV
-Telegram bot for all the Dudes
+Author: Oleg@FXTV
+
+# Telegram bot for all the Dudes
 
 Prequisites:
 - Node.js
