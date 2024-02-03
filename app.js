@@ -581,7 +581,7 @@ async function startup() {
         });
 
         token = await new Promise(resolve => {
-            rl.question('Please enter your token: ', (input) => {
+            rl.question('Please enter your bot token from @botfather: ', (input) => {
                 rl.close();
                 resolve(input);
             });
