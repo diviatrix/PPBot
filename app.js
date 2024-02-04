@@ -209,7 +209,7 @@ function addCommand(msg) {
 		logAsDebug(JSON.stringify(data, null, 2));
 		suggestions[_userId] = data[_userId];
 		
-		writeJSON(suggestionPath, suggestions); 
+		//writeJSON(suggestionPath, suggestions); 
 		_message = localeKeys.user.suggest_success;
 	}
 	sendMessage(msg.chat.id, _message, msg.message_id);
