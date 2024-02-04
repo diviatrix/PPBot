@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const timeout_pp = 24 * 60 * 60 * 1000; // first number is hours
 const ExpressBackend = require('./ExpressBackend.js');
-const { is } = require('bluebird');
+const { is, some } = require('bluebird');
 const { log } = require('console');
 const ms = require('ms');
 const { string } = require('assert-plus');
@@ -74,8 +74,20 @@ const localePath = path.join(storageFolderPath, 'locale.json');
 const localeKeys = openOrCreateJSON(localePath, localeModel);
 
 // suggestion db, stores user suggestions
+const suggestionModel = [
+	{
+		"1234567890": [
+			{
+			  "suggestion": "Pls 1337",
+			  "time": "2022-01-03T00:00:00Z"
+			}
+			// More suggestions...
+		  ]
+		  // More users...
+	}
+];
 const suggestionPath = path.join(storageFolderPath, 'suggestion.json');
-const suggestionModel = { "suggestions": [] };
+const suggestions = openOrCreateJSON(suggestionPath, suggestionModel);
 
 const rarityPath = path.join(storageFolderPath, '/rarity.json');
 const rarityData = openOrCreateJSON(rarityPath, {
@@ -137,7 +149,7 @@ const commands =
 	{
 	'/me': (msg) => {
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get info.`);		
-		infoCommand(msg);		
+		meCommand(msg);		
 	},
 	'/pp': (msg) => {
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get PP.`);
@@ -156,6 +168,15 @@ const commands =
 		sendMessage(msg.chat.id, 
 			'Available commands:\n<code>/me</code> - get your info\n<code>/pp</code> - get PP\n<code>/pp 1337</code> - get info about PP\n<code>/deleteme</code> - unregister\n<code>/go</code> - register\n<code>/commands</code> - get commands', msg.message_id);
 	},
+	'/add': (msg) => {
+		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to suggest.`);
+		addCommand(msg);
+	},
+	'/rar': (msg) => {
+		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get rarities.`);
+		rarCommand(msg);
+		
+	}
 };
 //#endregion
 
@@ -169,24 +190,42 @@ let token = settings.token;
 // /me command
 // shows user info
 // usage - /me for self info
-// usage - /me number for get count how many users have this PP
-function infoCommand(msg) {
-	const input = parseCommand(msg);
-	let message;
-
-	const userData = getUserData(msg.from.id);
-	if (!userData) { return; }
-
-	const userPPs = userPPcount(msg.from.id);
-	const messageCount = userData.messagesCount;
-	const lastPP = userData.lastPP.id;
-	const lastPPTime = userData.lastPP.time;
-
-	// self info
-	message = `Your last PP is:  ${preparePPMessageById(lastPP)} from ${lastPPTime}.\nYou have sent <b>${messageCount}</b> messages since register.\nYou have total of <b>${userPPs}</b> PPs in collection.`;
-
-	sendMessage(msg.chat.id, message, msg.message_id);
+// usage - /me number for get count how many users have this PPasync function addCommand(msg) {
+function addCommand(msg) {
+	const { args: _suggestion } = parseCommand(msg);
+	const { id: _userId } = msg.from;
+	let _message;
+	if (!_suggestion) { _message = localeKeys.user.suggest_no_args;	} 
+	else if (userSubmittedThisSuggestion(_userId, _suggestion)) { _message = localeKeys.user.suggest_already_submitted; } 
+	else {
+		let data = {
+			[_userId]: [
+				{
+					"suggestion": _suggestion,
+					"time": new Date().toISOString()
+				}
+			]
+		};
+		logAsDebug(JSON.stringify(data, null, 2));
+		suggestions[_userId] = data[_userId];
+		
+		writeJSON(suggestionPath, suggestions); 
+		_message = localeKeys.user.suggest_success;
+	}
+	sendMessage(msg.chat.id, _message, msg.message_id);
 }
+
+function rarCommand(msg) {
+	let _message = `Rarities:\n`;
+	// iterate thru rarityData
+	for (const _rarity in rarityData) {
+		const _mesStr = messageStrings[rarityData[_rarity].text];
+		if (_mesStr) { _message += `\n${_mesStr.open}[${_rarity}]${_mesStr.close}`; };
+	}
+	sendMessage(msg.chat.id, _message, msg.message_id);
+}
+
+
 
 // /pp command
 // shows user PP
@@ -207,7 +246,7 @@ function ppCommand(msg) {
 	else if (parseInt(command.args) == 0) { ppInfo(msg, 0); }
 	else { sendMessage(
 		msg.chat.id, 
-		'Incorrect usage or PP doesn\'t exist in our database\nUse <code>/pp</code> for random PP of the day\n<code>/pp 1337</code> to get info about this PP\n<code>/suggest</code> to suggest new PP.',
+		'Incorrect usage or PP doesn\'t exist in our database\nUse <code>/pp</code> for random PP of the day\n<code>/pp 1337</code> to get info about this PP\n<code>/add 2077</code> to suggest new PP.',
 		msg.message_id);}
 }
 
@@ -241,8 +280,6 @@ function dailyPP(msg) {
 		message = `Congratulations!!!\nYou've got ${randomPP.id}\n\n`;
 		message += preparePPMessageById(randomPP.id);
 		if (addPPToUserCollection(msg.from.id, randomPP.id) != NaN ) { sendMessage(msg.chat.id, message, msg.message_id);}
-		
-		
 	}
 }
 
@@ -280,6 +317,13 @@ function deletemeCommand(msg) {
 		removeUserById(msg.from.id);
 		sendMessage(msg.chat.id, 'You have been unregistered.', msg.message_id);
 	}
+}
+
+function meCommand(msg) {
+	const user = getUserData(msg.from.id);
+	if (!user) { logAsDebug(`User ${msg.from.id} not found in userDatabase.`); return; }
+	const message = `User: ${msg.from.first_name} ${msg.from.last_name}\nMessages: ${user.messagesCount}\nPP count: ${userPPcount(msg.from.id)}\nSuggestions: ${suggestions[msg.from.id] ? suggestions[msg.from.id].length : 0}`;
+	sendMessage(msg.chat.id, message, msg.message_id);
 }
 //#endregion
 
@@ -365,10 +409,16 @@ function openOrCreateJSON(filePath, data) {
 	return JSON.parse(fs.readFileSync(filePath));
 }
 function writeJSON(filePath, data) {
-	// check if file exists
-	fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-	logAsUtility(`${filePath} saved.`);
+	try {
+		fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+		logAsUtility(`${filePath} saved.`);
+		return true;
+	} catch (error) {
+		console.error(`Error writing file at ${filePath}: ${error}`);
+	}
 }
+
+
 // function to check if file exist by provided path
 function pathExist(filePath) { return fs.existsSync(filePath); }
 
@@ -388,6 +438,7 @@ function writeJSON(filePath, data)
 function writeSettings() {
 	writeJSON(settingsPath, { "token": token });
 }
+
 //#endregion
 
 //#region ACCOUNT FUNCTIONS
@@ -407,6 +458,13 @@ function removeUserById(userId) {
 	if (userIndex === -1) { return; }
 	userDatabase.users.splice(userIndex, 1);
 	writeJSON(userDatabasePath, userDatabase);
+}
+
+function userSubmittedThisSuggestion(_userId, _suggestion) {
+	const _userSuggestions = suggestions[_userId];
+	if (!_userSuggestions || !Array.isArray(_userSuggestions)) { suggestions[_userId] = []; return false; }
+	if (_userSuggestions.some((suggestion) => suggestion.suggestion === _suggestion)) { return true; }
+	return false;
 }
 
 function getUserData(userId) {
@@ -439,7 +497,7 @@ function preparePPMessageById(PPId) {
     if (!mesStr) { logAsApp(`PPID: ${PPId}, failed to get message rarity strings: ${JSON.stringify(PP.rarity, null, 2)}, ${JSON.stringify(messageStrings, null, 2)}`); return; }
 
     let message;
-
+	
     if (PP && PP.rarity && rarityData[PP.rarity]) { message = `${mesStr.open}[${PP.rarity}][${PP.id}][${PP.description}]${mesStr.close}`; } 
 	else { logAsApp('PP or PP.rarity is undefined, or rarityData[PP.rarity] does not exist'); }
 
