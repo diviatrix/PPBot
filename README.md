@@ -17,7 +17,14 @@
 - run `node app.js`
 - follow instruction on screen
 - add bot to chat as admin (it is required to get access to messages)
-- or text to your bot @your_name directly
+- or text to your bot @your_bot_name directly
+
+*Usage*
+- `/go` - registers user with defaultUser data and Telegram ID
+- `/pp` - Gives user random PP of the Day or show recieved if timeout is not reached
+- `/pp 1337` - use with any number to check its stats, or if it is added
+- `/info` - shows user data stats 
+All bot answers are replies to request message
 
 *User Data:*
 - saved as JSON

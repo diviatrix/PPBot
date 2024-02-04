@@ -61,6 +61,22 @@ const settingsPath = path.join(storageFolderPath, 'settings.json');
 const settingsModel = { "token": '', "port": 3000};
 const settings = openOrCreateJSON(settingsPath, settingsModel)
 
+// locale
+const localeModel = {
+	"base": {
+	  "register_success": "Welcome"
+	},
+	"user": {
+	  "register_success": "🤮🤮🤮\nGG <s>N00B</s>"
+	}
+  };
+const localePath = path.join(storageFolderPath, 'locale.json');
+const localeKeys = openOrCreateJSON(localePath, localeModel);
+
+// suggestion db, stores user suggestions
+const suggestionPath = path.join(storageFolderPath, 'suggestion.json');
+const suggestionModel = { "suggestions": [] };
+
 const rarityPath = path.join(storageFolderPath, '/rarity.json');
 const rarityData = openOrCreateJSON(rarityPath, {
 	"normal": {
@@ -119,7 +135,7 @@ const userDatabase = openOrCreateJSON(userDatabasePath, {
 //#region COMMANDS OBJECT
 const commands = 
 	{
-	'/info': (msg) => {
+	'/me': (msg) => {
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get info.`);		
 		infoCommand(msg);		
 	},
@@ -129,12 +145,17 @@ const commands =
 	},
 	'/deleteme': (msg) => {
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to unregister.`);
-		stopCommand(msg);
+		deletemeCommand(msg);
 	},
 	'/go': (msg) => {
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to register.`);
 		goCommand(msg);
-	}
+	},
+	'/commands': (msg) => {
+		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get commands.`);
+		sendMessage(msg.chat.id, 
+			'Available commands:\n<code>/me</code> - get your info\n<code>/pp</code> - get PP\n<code>/pp 1337</code> - get info about PP\n<code>/deleteme</code> - unregister\n<code>/go</code> - register\n<code>/commands</code> - get commands', msg.message_id);
+	},
 };
 //#endregion
 
@@ -145,10 +166,10 @@ let token = settings.token;
 
 // #region COMMANDS
 
-// /info command
+// /me command
 // shows user info
-// usage - /info for self info
-// usage - /info number for get count how many users have this PP
+// usage - /me for self info
+// usage - /me number for get count how many users have this PP
 function infoCommand(msg) {
 	const input = parseCommand(msg);
 	let message;
@@ -162,15 +183,7 @@ function infoCommand(msg) {
 	const lastPPTime = userData.lastPP.time;
 
 	// self info
-	if (!input.args) { message = `You have sent <b>${messageCount}</b> messages since register.\nYour last PP was <b>${lastPP}</b> at ${lastPPTime}.\nYou have total of <b>${userPPs}</b> PPs in collection.`; }
-	else if (parseInt(args[1])) {
-		const PPId = parseInt(args[1]);
-		const count = countPPOwners(PPId);
-		message =  `There are ${count} Dudes who have ${PPId}.`;
-	}
-	else {
-		message = 'Incorrect usage. Use /info for self info, /info @username for user info or /info number for get count how many users have this PP.';
-	}
+	message = `Your last PP is:  ${preparePPMessageById(lastPP)} from ${lastPPTime}.\nYou have sent <b>${messageCount}</b> messages since register.\nYou have total of <b>${userPPs}</b> PPs in collection.`;
 
 	sendMessage(msg.chat.id, message, msg.message_id);
 }
@@ -189,19 +202,13 @@ function ppCommand(msg) {
 	const command = parseCommand(msg);
 
 	// if "/pp" no params 
-	if (!command.args) 
-	{
-		dailyPP(msg);
-	}
-	// check if args exist 
-	else if (command.args && parseInt(command.args))
-	{
-		ppInfo(msg, parseInt(command.args));
-	}
-	else 
-	{
-		sendMessage(msg.chat.id, 'Incorrect usage. Use /pp for random PP of the day, /pp number to get info about this PP.', msg.message_id);
-	}
+	if (!command.args) { dailyPP(msg); }
+	else if (command.args && parseInt(command.args)) { ppInfo(msg, parseInt(command.args)); }
+	else if (parseInt(command.args) == 0) { ppInfo(msg, 0); }
+	else { sendMessage(
+		msg.chat.id, 
+		'Incorrect usage or PP doesn\'t exist in our database\nUse <code>/pp</code> for random PP of the day\n<code>/pp 1337</code> to get info about this PP\n<code>/suggest</code> to suggest new PP.',
+		msg.message_id);}
 }
 
 function dailyPP(msg) {	
@@ -241,29 +248,31 @@ function dailyPP(msg) {
 
 function ppInfo(msg, PPId) 
 {
-	const message = preparePPMessageById(PPId);
-	sendMessage(msg.chat.id, message, msg.message_id);
+	let _message = `Information about PP: ${PPId}\n${preparePPMessageById(PPId)}`;
+	_message += `\n${userHasPP(msg.from.id, PPId) ? '\nYou <b>have</b> this PP.\n' : 'You don\'t have this PP.'}\n`;
+	_message += `Total of ${countPPOwners(PPId)} users have this PP.`;
+	sendMessage(msg.chat.id, _message, msg.message_id);
 }
 
 function goCommand(msg) {
-	let message;	
+	let _message;	
 
 	// check if registerd already
 	if (isRegistered(msg.from.id)) {
-		message = 'You are already registered.';
+		_message = 'Forgot you are registered? 😒\nIf you want to unregister - <code>/deleteme</code> 🤮\nAccount will be removed permanently 🤮';
 	}
 	// register if not
 	else {
 		writeNewUserToDatabase(msg.from.id);
-		message = 'You have been registered as THE DUDE.';
+		_message = `🎆🎆🎆Congratulations!🎆🎆🎆\nNow you can now use \n<code>/me</code>, \n<code>/pp</code> \nand <code>/deleteme</code> commands`;
 	}
 
-	logAsDebug(`[goCommand][${msg.chat.id}][${message}][${msg.from.id}]`);
+	logAsDebug(`[goCommand][${msg.chat.id}][${_message}][${msg.from.id}]`);
 	
-	sendMessage(msg.chat.id, message, msg.message_id);
+	sendMessage(msg.chat.id, _message, msg.message_id);
 }
 
-function stopCommand(msg) {
+function deletemeCommand(msg) {
 	let message;
 	logAsApp(`[${msg.from.id}][${msg.from.first_name} ${msg.from.last_name}] is trying to unregister.`);
 
@@ -279,6 +288,7 @@ function stopCommand(msg) {
 function recieveCommand(msg) 
 {
 	logAsApp(`Recieved command: ${msg.text}`);
+
 	const recievedCommand = parseCommand(msg);
 
 	if (isValidCommand(recievedCommand.command)) {
@@ -293,15 +303,17 @@ function isCommand(msg) {
 }
 
 function isValidCommand(parsedCommand) {
-	const result = Object.keys(commands).some((command) => command === parsedCommand);
+	const result = Object.keys(commands).some((command) => command == parsedCommand);
+	logAsDebug(`Checking if command is valid: ${parsedCommand}: ${result}`);
 	return result;
 }
 
 // function to parse command
 function parseCommand(msg) 
 {
-	const command = msg.text.split(' ')[0];
-	const args = msg.text.split(' ')[1];
+	const command = msg.text.split(/[@\s]/)[0];
+	const args = msg.text.split(/[@\s]/).slice(1).join(' ');
+	logAsDebug(`Parsed command: ${command} ${args}`);
 	return { command, args };
 }
 
@@ -467,18 +479,10 @@ function readOrFixLastPPTime(userId) {
 
 // if user has PP by id, search in userDatabase, return bool
 function userHasPP(userId, PPId) {
-	const result = false;
 	const user = getUserData(userId);
 	if (!user) { return; }
-
-	for (const PP in user.collection) {
-		if (PP.id === PPId) {
-			result = true;
-			break;
-		}
-	}
-
-	return result;
+	if (Array.isArray(user.collection) && user.collection.some((PP) => PP.id === PPId)) { return true; }
+	return false;
 }
 
 function userLastPPReceived(userId) {
@@ -501,13 +505,8 @@ function canRecieveNewPP(userId) {
 
 // count number of PP owners in userDatabase
 function countPPOwners(PPId) {
-	let count = 0;
-	for (const user in userDatabase) {
-		if (userDatabase[user][PPId]) {
-			count++;
-		}
-	}
-	return count;
+	if (!userDatabase) { return 0; }
+	return userDatabase.users.filter((user) => Array.isArray(user.collection) && user.collection.some((PP) => PP.id === PPId)).length;
 }
 
 // function to add PP to user (id) in userDatabase with all checks
@@ -544,12 +543,11 @@ function getPPbyID(PPId)
 
 function userPPcount(userID)
 {
-	const count = 0;
-	const users = userDatabase.users;
+	let count = 0;
+	const user = getUserData(userID);
+	if (!user.collection) { return count; }
 
-	if (users) { 
-		if (users.collection) count = users.collection.length; 
-	}
+	count = user.collection.length;
 	
 	return count;
 }
@@ -572,7 +570,6 @@ function generateRandomPP() {
 	const randomPP = ppList[Math.floor(Math.random() * ppList.length)];
 	return randomPP;
 }
-
 // #endregion
 
 
@@ -612,6 +609,14 @@ async function startup() {
 			logAsBot(`Error stack: ${error.stack}`);
 		}
 	});
+
+	// bot handle message /commands@botname where botname is bot username
+	bot.onText(/\/commands@(\w+)/, (msg, match) => { 
+		if (match == bot.getMe().username) {
+			recieveCommand(msg);
+		}
+	});
+	
 
     webBackend.start();
 }
