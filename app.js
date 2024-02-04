@@ -58,7 +58,7 @@ const publicFolderPath = '/public';
 
 // JSONs and paths
 const settingsPath = path.join(storageFolderPath, 'settings.json');
-const settingsModel = { "token": '', "port": 3000};
+const settingsModel = { "token": process.env.TOKEN || ``, "port": process.env.PORT || 3000};
 const settings = openOrCreateJSON(settingsPath, settingsModel)
 
 // locale
@@ -183,7 +183,7 @@ const commands =
 // LETS
 let bot;
 let webBackend;
-let token = settings.token;
+let token = process.env.TOKEN || settings.token;
 
 // #region COMMANDS
 
