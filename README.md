@@ -1,5 +1,5 @@
 # PPBot
-*Author:* Oleg@FXTV
+*Author:* t.me/zerodivider
 
 # Telegram bot for all the Dudes
 
