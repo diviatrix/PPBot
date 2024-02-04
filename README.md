@@ -23,7 +23,7 @@
 - `/go` - registers user with defaultUser data and Telegram ID
 - `/pp` - Gives user random PP of the Day or show recieved if timeout is not reached
 - `/pp 1337` - use with any number to check its stats, or if it is added
-- `/info` - shows user data stats 
+- `/me` - shows user data stats 
 All bot answers are replies to request message
 
 *User Data:*
@@ -32,7 +32,7 @@ All bot answers are replies to request message
 - - user Telegram ID
 - - messages count since register
 - - collection info
-- /deleteme fully remove user data from json including ID
+- `/deleteme` fully remove user data from db including ID
 
 userData structure
     ```{
