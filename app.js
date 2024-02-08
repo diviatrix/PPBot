@@ -2,7 +2,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const fs = require('fs');
 const path = require('path');
-const timeout_pp = 24 * 60 * 60 * 1000; // first number is hours
+const timeout_pp = 20 * 60 * 60 * 1000; // first number is hours
 const ExpressBackend = require('./ExpressBackend.js');
 const { is, some } = require('bluebird');
 const { log } = require('console');
@@ -11,6 +11,7 @@ const { string } = require('assert-plus');
 const readline = require('readline');
 const { DateFromTime } = require('es-abstract/es2019.js');
 const { last } = require('lodash');
+const { get } = require('request');
 
 // #endregion
 
@@ -176,6 +177,10 @@ const commands =
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get rarities.`);
 		rarCommand(msg);
 		
+	},
+	'/a' : (msg) => {
+		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to use admin command.`);
+		adminCommand(msg); 
 	}
 };
 //#endregion
@@ -186,6 +191,13 @@ let webBackend;
 let token = process.env.TOKEN || settings.token;
 
 // #region COMMANDS
+
+
+function adminCommand(msg) {
+	if (isAdmin(msg)) {
+		sendMessage(msg.chat.id, 'You are admin.', msg.message_id);
+	}
+}
 
 // /me command
 // shows user info
@@ -579,9 +591,10 @@ function addPPToUserCollection(userId, PPId) {
 	if (!user.collection) { user.collection = []; }
 	if (!Array.isArray(user.collection)) { user.collection = []; } // Ensure user.collection is an array
 
-	// if user has PP - ret
+	// if user has PP - add +1 to pp count
 	if (userHasPP(userId, PPId)) {
-		logAsApp(`User [${userId}] already has PP [${PPId}].`);
+		// add +1 to pp count
+		getUserData(userId).collection.find((PP) => PP.id === PPId).count++;
 		return;
 	}
 
@@ -696,6 +709,12 @@ async function checkToken() {
         });
         if (token) { writeSettings(); }
     }
+}
+
+// check if sender id == in settings.admin, return result
+async function isAdmin(mes)
+{
+	return (mes.from.id == settings.admin);
 }
 
 // run initial function to create all objects and setup them
