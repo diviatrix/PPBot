@@ -185,6 +185,10 @@ const commands =
 	'/toppp': (msg) => {
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get top PP.`);
 		topPPCommand(msg);
+	},
+	'/allpp': (msg) => {
+		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get all PP.`);
+		allPPCommand(msg);
 	}
 };
 //#endregion
@@ -206,6 +210,11 @@ async function aCommand(msg) {
 	const command = parseCommand(msg);
 
 	_message = ('You are admin.');
+}
+
+async function allPPCommand(msg) {
+	let _message = "All PP Here: <a href='https://github.com/diviatrix/PPBot/blob/baza/storage/pp.json'>https://github.com/diviatrix/PPBot/blob/baza/storage/pp.json</a>";
+	sendMessage(msg.chat.id, _message, msg.message_id, { parse_mode: 'HTML' });
 }
 
 async function topPPCommand(msg) {

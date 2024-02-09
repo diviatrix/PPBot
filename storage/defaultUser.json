@@ -1,5 +1,6 @@
 {
   "id": 0,
+  "username": "string",
   "chatId": 0,
   "messagesCount": 0,
   "gemsCount": 0,
