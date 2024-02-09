@@ -1,11 +1,12 @@
-[
-	0,
-	{
-		"lastPPReceived": 
-		{
-			"id": 0,
-			"time": ""
-		},
-		"collection": {}
-	}
-]
+{
+  "id": 0,
+  "username": "string",
+  "chatId": 0,
+  "messagesCount": 0,
+  "gemsCount": 0,
+  "lastPP": {
+    "id": 0,
+    "time": "1706906036417"
+  },
+  "collection": {}
+}
