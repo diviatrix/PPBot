@@ -180,7 +180,11 @@ const commands =
 	},
 	'/a' : (msg) => {
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to use admin command.`);
-		adminCommand(msg); 
+		aCommand(msg); 
+	},
+	'/toppp': (msg) => {
+		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get top PP.`);
+		topPPCommand(msg);
 	}
 };
 //#endregion
@@ -193,17 +197,37 @@ let token = process.env.TOKEN || settings.token;
 // #region COMMANDS
 
 
-function adminCommand(msg) {
-	if (isAdmin(msg)) {
-		sendMessage(msg.chat.id, 'You are admin.', msg.message_id);
+async function aCommand(msg) {
+	let _message = `You are not admin.`;
+	if (!await isAdmin(msg)) {
+		return;
 	}
+
+	const command = parseCommand(msg);
+
+	_message = ('You are admin.');
 }
+
+async function topPPCommand(msg) {
+	// Show top 10 PP of the day
+	// scan userDatabase for lastPP.time
+	// filter by today
+	// sort by lastPP.id
+	// send user message with reply: top 10 (or less) PP
+	const _today = new Date().toISOString().split('T')[0];
+	const _users = userDatabase.users.filter((user) => user.lastPP.time.split('T')[0] == _today);
+	const _sorted = _users.sort((a, b) => a.lastPP.id - b.lastPP.id);
+	let _message = `Top PP of the day:\n`;
+	await Promise.all(_sorted.slice(0, 10).sort((a, b) => b.lastPP.id - a.lastPP.id).map(async (user) => { _message += `${user.lastPP.id}\n`; } ));
+	sendMessage(msg.chat.id, _message, msg.message_id);
+}
+
 
 // /me command
 // shows user info
 // usage - /me for self info
 // usage - /me number for get count how many users have this PPasync function addCommand(msg) {
-function addCommand(msg) {
+async function addCommand(msg) {
 	const { args: _suggestion } = parseCommand(msg);
 	const { id: _userId } = msg.from;
 	let _message;
@@ -228,7 +252,7 @@ function addCommand(msg) {
 }
 
 function rarCommand(msg) {
-	let _message = `Rarities:\n`;
+	let _message = `Rarities:`;
 	// iterate thru rarityData
 	for (const _rarity in rarityData) {
 		const _mesStr = messageStrings[rarityData[_rarity].text];
@@ -313,7 +337,7 @@ function goCommand(msg) {
 	// register if not
 	else {
 		writeNewUserToDatabase(msg.from.id);
-		_message = `🎆🎆🎆Congratulations!🎆🎆🎆\nNow you can now use \n<code>/me</code>, \n<code>/pp</code> \nand <code>/deleteme</code> commands`;
+		_message = `🎆🎆🎆Congratulations!🎆🎆🎆\nNow you can now use\n<code>/commands></code>\n<code>/me</code>, \n<code>/pp</code> \nand <code>/deleteme</code> commands`;
 	}
 
 	logAsDebug(`[goCommand][${msg.chat.id}][${_message}][${msg.from.id}]`);
@@ -331,15 +355,32 @@ function deletemeCommand(msg) {
 	}
 }
 
-function meCommand(msg) {
-	const user = getUserData(msg.from.id);
-	if (!user) { logAsDebug(`User ${msg.from.id} not found in userDatabase.`); return; }
-	const message = `User: ${msg.from.first_name} ${msg.from.last_name}\nMessages: ${user.messagesCount}\nPP count: ${userPPcount(msg.from.id)}\nSuggestions: ${suggestions[msg.from.id] ? suggestions[msg.from.id].length : 0}`;
+async function meCommand(msg) {
+	const user = await getUserData(msg.from.id);
+	if ( !user) { 
+		logAsDebug(`User ${msg.from.id} not found in userDatabase.`); 
+		return; 
+	}
+	await checkUserFields(user);
+
+	const ppCount = userPPcount(msg.from.id);
+	const suggestionLength = suggestions[msg.from.id] ? suggestions[msg.from.id].length : 0;
+	const message = `User: ${msg.from.first_name} ${msg.from.last_name}\nMessages: ${user.messagesCount}\nPP collection: ${ppCount}\nGems: ${user.gemsCount} \nSuggestions: ${suggestionLength}`;
 	sendMessage(msg.chat.id, message, msg.message_id);
 }
+
 //#endregion
 
 //#region BASIC BOT FUNCTIONS
+async function checkUserFields(_user) {
+	// if user doesn't have needed fields, create them and save userDatabase
+	if (!_user.messagesCount) { _user.messagesCount = 0; }
+	if (!_user.collection) { _user.collection = []; }
+	if (!_user.gemsCount) { _user.gemsCount = 0; }
+	userDatabase.users = userDatabase.users.map(user => user.id === _user.id ? _user : user);
+	writeJSON(userDatabasePath, userDatabase);
+}
+
 // function to recieve command from user and trigger action
 function recieveCommand(msg) 
 {
@@ -349,6 +390,16 @@ function recieveCommand(msg)
 
 	if (isValidCommand(recievedCommand.command)) {
 		commands[recievedCommand.command](msg);
+	}
+}
+
+// function to pick random rarity from list by its weight
+function randomRarity() {
+	const totalWeight = Object.values(rarityData).reduce((acc, rarity) => acc + rarity.dropRate, 0);
+	let random = Math.random() * totalWeight;
+	for (const rarity in rarityData) {
+		random -= rarityData[rarity].weight;
+		if (random <= 0) { return rarity; }
 	}
 }
 
@@ -372,6 +423,13 @@ function parseCommand(msg)
 	logAsDebug(`Parsed command: ${command} ${args}`);
 	return { command, args };
 }
+
+// gets telegram name and last name by id
+async function getChatMemberNameById(chatID, userID) {
+	const chatMember = await bot.getChatMember(chatID, userID);
+	return chatMember.user.first_name + ' ' + chatMember.user.last_name;
+}
+
 
 async function sendMessage(chatID, message, replyID) 
 {
@@ -490,10 +548,13 @@ function writeNewUserToDatabase(userId)
 	newUser.id = userId;
 
 	userDatabase.users.push(newUser);
+	
 	// save userDatabase to file
 	writeJSON(userDatabasePath, userDatabase);
 	logAsApp(`New user [${userId}] added to userDatabase.`);
 }
+
+
 
 // #endregion
 
@@ -714,7 +775,11 @@ async function checkToken() {
 // check if sender id == in settings.admin, return result
 async function isAdmin(mes)
 {
-	return (mes.from.id == settings.admin);
+	const _id = mes.from.id;
+	const _admin = settings.admin;
+	const _result = _id == _admin;
+	logAsDebug(`isAdmin: ${JSON.stringify( _id, null, 2)} == ${_admin}: ${_result}`);
+	return (_result);
 }
 
 // run initial function to create all objects and setup them

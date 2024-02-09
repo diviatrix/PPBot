@@ -1,6 +1,8 @@
 {
   "id": 0,
+  "chatId": 0,
   "messagesCount": 0,
+  "gemsCount": 0,
   "lastPP": {
     "id": 0,
     "time": "1706906036417"
