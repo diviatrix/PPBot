@@ -133,3 +133,5 @@ dist
 storage/token.json
 storage/settings.json
 storage/userDatabase.json
+app/storage/settings.json
+app/storage/database.json
