@@ -4,6 +4,8 @@ const TelegramBot = require("node-telegram-bot-api");
 const fs = require("fs");
 require("path");
 const ExpressBackend = require("./ExpressBackend.js");
+const Logger = require("./logger.js");
+const logger = new Logger("info", "error", "warning");
 require("bluebird");
 require("console");
 require("assert-plus");
@@ -15,50 +17,12 @@ require("request");
 
 // #endregion
 
-// #region UTILITY constgants
-const colorizeString = (string, color) => { return `${color}${string}${consoleColors.normal}`; };
-const _log = (message, logType = "") => {
-	const now = new Date();
-	const formattedDate = now.toISOString().replace("T", " ").substring(0, 19);
-	const logPrefix = logType ? `[${logType}]:` : "";
-	console.log(`[${formattedDate}] ${ logPrefix} ${message}`);
-};
-const logAsBot = (message) => {
-	const callerName = new Error().stack.split("\n")[2].trim().split(" ")[1];
-	_log(`${callerName}: ${message}`, colorizeString("Bot", consoleColors.bot)); 
-};
-const logAsApp = (message) => {
-	const callerName = new Error().stack.split("\n")[2].trim().split(" ")[1];
-	_log(`${callerName}: ${message}`, colorizeString("App", consoleColors.app));
-};
-const logAsUtility = (message) => _log(message, colorizeString("Utility", consoleColors.utility));
-const logAsDebug = (message) => _log(message, colorizeString("Debug", consoleColors.debug));
-
-const consoleColors = {
-	"normal": "\x1b[38;5;244m",
-	"rare": "\x1b[38;5;21m",
-	"epic": "\x1b[38;5;129m",
-	"legendary": "\x1b[38;5;226m",
-	"info": "\x1b[38;5;46m",
-	"error": "\x1b[38;5;196m",
-	"debug": "\x1b[38;5;21m",
-	"utility": "\x1b[38;5;15m",
-	"bot": "\x1b[38;5;201m",
-	"app": "\x1b[38;5;100m"
-};
-
 
 //#endregion
 
-
 // #region CONSTANTS
-// Specify the storage folder path
-// eslint-disable-next-line no-undef
 const storageFolderPath = path.join(__dirname, "storage");
-
-// JSONs and paths
 const settingsPath = path.join(storageFolderPath, "settings.json");
-// eslint-disable-next-line no-undef
 const settingsModel = { "token": process.env.TOKEN || "", "port": process.env.PORT || 3001};
 const settings = openOrCreateJSON(settingsPath, settingsModel);
 
@@ -74,31 +38,13 @@ const localeModel = {
 const localePath = path.join(storageFolderPath, "locale.json");
 const localeKeys = openOrCreateJSON(localePath, localeModel);
 
-// suggestion db, stores user suggestions
-const suggestionModel = [
-	{
-		"1234567890": [
-			{
-				"suggestion": "Pls 1337",
-				"time": "2022-01-03T00:00:00Z"
-			}
-			// More suggestions...
-		]
-		// More users...
-	}
-];
-const suggestionPath = path.join(storageFolderPath, "suggestion.json");
-const suggestions = openOrCreateJSON(suggestionPath, suggestionModel);
-
-const rarityPath = path.join(storageFolderPath, "/rarity.json");
-const rarityData = openOrCreateJSON(rarityPath, {
+const rarityData = openOrCreateJSON(path.join(storageFolderPath, "/rarity.json"), {
 	"normal": {
 		"text": "Normal",
 		"dropRate": 0.5
 	}});
 
-const messageStringsPath = path.join(storageFolderPath, "messageStrings.json");
-const messageStrings = openOrCreateJSON(messageStringsPath, 
+const messageStrings = openOrCreateJSON(path.join(storageFolderPath, "messageStrings.json"), 
 	{
 		"Normal": {
 			"open": "",
@@ -106,31 +52,24 @@ const messageStrings = openOrCreateJSON(messageStringsPath,
 		}
 	});	
 
-const ppPath = path.join(storageFolderPath, "pp.json");
-const ppList = openOrCreateJSON(ppPath, 
-	[
-		{
-			"id": 1337,
-			"description": "You are L33T AF!",
-			"rarity": "1337"
-		}
-	]);
+const ppList = openOrCreateJSON(path.join(storageFolderPath, "pp.json"), 
+	[{
+		"id": 1337,
+		"description": "You are L33T AF!",
+		"rarity": "1337"
+	}]);
 
-const defaultUserPath = path.join(storageFolderPath, "defaultUser.json");
-const defaultUser = openOrCreateJSON(defaultUserPath, (
-	
+// Remove the duplicate declaration of the defaultUser variable
+const defaultUser = openOrCreateJSON(path.join(storageFolderPath, "defaultUser.json"), {
+	"id": 0,
+	"messagesCount": 0,
+	"lastPP": 
 	{
 		"id": 0,
-		"messagesCount": 0,
-		"lastPP": 
-		{
-			"id": 0,
-			"time": `${new Date().getTime() - 24 * 60 * 60 * 1000}`
-		},
-		"collection": 
-		{
-		}
-	}));
+		"time": `${new Date().getTime() - 24 * 60 * 60 * 1000}`
+	},
+	"collection": []
+});
 
 const userDatabasePath = path.join(storageFolderPath, "userDatabase.json");
 const userDatabase = openOrCreateJSON(userDatabasePath, {
@@ -149,45 +88,45 @@ const userDatabase = openOrCreateJSON(userDatabasePath, {
 const commands = 
 {
 	"/me": (msg) => {
-		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get info.`);		
+		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get info.`, "info");		
 		meCommand(msg);		
 	},
 	"/pp": (msg) => {
-		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get PP.`);
+		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get PP.`);
 		ppCommand(msg);		
 	},
 	"/deleteme": (msg) => {
-		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to unregister.`);
+		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to unregister.`);
 		deletemeCommand(msg);
 	},
 	"/go": (msg) => {
-		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to register.`);
+		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to register.`);
 		goCommand(msg);
 	},
 	"/commands": (msg) => {
-		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get commands.`);
+		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get commands.`);
 		sendMessage(msg.chat.id, 
 			"Available commands:\n<code>/me</code> - get your info\n<code>/pp</code> - get PP\n<code>/pp 1337</code> - get info about PP\n<code>/deleteme</code> - unregister\n<code>/go</code> - register\n<code>/commands</code> - get commands", msg.message_id);
 	},
 	"/add": (msg) => {
-		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to suggest.`);
+		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to suggest.`);
 		addCommand(msg);
 	},
 	"/rar": (msg) => {
-		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get rarities.`);
+		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get rarities.`);
 		rarCommand(msg);
 		
 	},
 	"/a" : (msg) => {
-		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to use admin command.`);
+		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to use admin command.`);
 		aCommand(msg); 
 	},
 	"/toppp": (msg) => {
-		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get top PP.`);
+		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get top PP.`);
 		topPPCommand(msg);
 	},
 	"/allpp": (msg) => {
-		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get all PP.`);
+		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get all PP.`);
 		allPPCommand(msg);
 	}
 };
@@ -252,7 +191,7 @@ async function addCommand(msg) {
 				}
 			]
 		};
-		logAsDebug(JSON.stringify(data, null, 2));
+		logger.log(JSON.stringify(data, null, 2));
 		suggestions[_userId] = data[_userId];
 		
 		//writeJSON(suggestionPath, suggestions); 
@@ -278,7 +217,7 @@ function rarCommand(msg) {
 function ppCommand(msg) {
 	// get user data
 	const user = getUserData(msg.from.id);
-	if (!user) { logAsDebug(`User ${msg.from.id} not found in userDatabase.`); return; }
+	if (!user) { logger.log(`User ${msg.from.id} not found in userDatabase.`); return; }
 
 	// we have to already know it is command and command is pp
 	// parse it
@@ -311,7 +250,7 @@ function dailyPP(msg) {
 	}
 
 	// if user already received PP today
-	logAsDebug(canRecieveNewPP(msg.from.id));
+	logger.log(canRecieveNewPP(msg.from.id));
 	if (!canRecieveNewPP(msg.from.id))
 	{
 		message = "You already received PP today.\n";
@@ -350,13 +289,13 @@ function goCommand(msg) {
 		_message = "🎆🎆🎆Congratulations!🎆🎆🎆\nNow you can now use\n<code>/commands></code>\n<code>/me</code>, \n<code>/pp</code> \nand <code>/deleteme</code> commands";
 	}
 
-	logAsDebug(`[goCommand][${msg.chat.id}][${_message}][${msg.from.id}]`);
+	logger.log(`[goCommand][${msg.chat.id}][${_message}][${msg.from.id}]`);
 	
 	sendMessage(msg.chat.id, _message, msg.message_id);
 }
 
 function deletemeCommand(msg) {
-	logAsApp(`[${msg.from.id}][${msg.from.first_name} ${msg.from.last_name}] is trying to unregister.`);
+	logger.log(`[${msg.from.id}][${msg.from.first_name} ${msg.from.last_name}] is trying to unregister.`);
 
 	if (isRegistered(msg.from.id)) {
 		removeUserById(msg.from.id);
@@ -367,7 +306,7 @@ function deletemeCommand(msg) {
 async function meCommand(msg) {
 	const user = await getUserData(msg.from.id);
 	if ( !user) { 
-		logAsDebug(`User ${msg.from.id} not found in userDatabase.`); 
+		logger.log(`User ${msg.from.id} not found in userDatabase.`); 
 		return; 
 	}
 	await checkUserFields(user);
@@ -393,7 +332,7 @@ async function checkUserFields(_user) {
 // function to recieve command from user and trigger action
 function recieveCommand(msg) 
 {
-	logAsApp(`Recieved command: ${msg.text}`);
+	logger.log(`Recieved command: ${msg.text}`);
 
 	const recievedCommand = parseCommand(msg);
 
@@ -410,7 +349,7 @@ function isCommand(msg) {
 
 function isValidCommand(parsedCommand) {
 	const result = Object.keys(commands).some((command) => command == parsedCommand);
-	logAsDebug(`Checking if command is valid: ${parsedCommand}: ${result}`);
+	logger.log(`Checking if command is valid: ${parsedCommand}: ${result}`);
 	return result;
 }
 
@@ -419,7 +358,7 @@ function parseCommand(msg)
 {
 	const command = msg.text.split(/[@\s]/)[0];
 	const args = msg.text.split(/[@\s]/).slice(1).join(" ");
-	logAsDebug(`Parsed command: ${command} ${args}`);
+	logger.log(`Parsed command: ${command} ${args}`);
 	return { command, args };
 }
 
@@ -429,30 +368,30 @@ async function sendMessage(chatID, message, replyID)
 	const callerName = new Error().stack.split("\n")[2].trim().split(" ")[1];
 	// basic conditions
 	if (!message || !chatID) { 
-		logAsDebug(`[${callerName}] sendMessage: message or chatID is undefined: ${message} ${chatID}`);
+		logger.log(`[${callerName}] sendMessage: message or chatID is undefined: ${message} ${chatID}`);
 		return; 
 	}
 	// send message to chat
 	else if (!replyID) {
 		bot.sendMessage(chatID, message, { parse_mode: "HTML" })
 			.then(() => {
-				logAsBot(`Sent message to chat -> ${chatID}: ${message}`);
+				logger.log(`Sent message to chat -> ${chatID}: ${message}`);
 			})
 			.catch((error) => {
-				logAsBot(`[${callerName}] sendMessage: ${error}`);
+				logger.log(`[${callerName}] sendMessage: ${error}`);
 			});
 	} else if (replyID) {
 		bot.sendMessage(chatID, message, { reply_to_message_id: replyID, parse_mode: "HTML"})
 			.then(() => {
-				logAsBot(`Sent message to chat -> ${chatID}: ${message}`);
+				logger.log(`Sent message to chat -> ${chatID}: ${message}`);
 			})
 			.catch((error) => {
-				logAsBot(`[${callerName}] sendMessage: ${error}`);
+				logger.log(`[${callerName}] sendMessage: ${error}`);
 			});
 	} else {
 		bot.sendMessage(chatID, message)
 			.catch((error) => { 
-				logAsBot(`[${callerName}] sendMessage: ${error}`); 
+				logger.log(`[${callerName}] sendMessage: ${error}`); 
 			});
 	}
 }
@@ -465,7 +404,7 @@ function openOrCreateJSON(filePath, data) {
 	if (data === undefined) { data = {}; }
 	if (!pathExist(filePath)) { 
 		writeJSON(filePath, data); 
-		logAsUtility(`Can't find ${filePath} -> created empty.`); 
+		logger.log(`Can't find ${filePath} -> created empty.`); 
 	}
 
 	return JSON.parse(fs.readFileSync(filePath));
@@ -473,7 +412,7 @@ function openOrCreateJSON(filePath, data) {
 function writeJSON(filePath, data) {
 	try {
 		fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-		logAsUtility(`${filePath} saved.`);
+		logger.log(`${filePath} saved.`);
 		return true;
 	} catch (error) {
 		console.error(`Error writing file at ${filePath}: ${error}`);
@@ -532,7 +471,7 @@ function writeNewUserToDatabase(userId)
 	
 	// save userDatabase to file
 	writeJSON(userDatabasePath, userDatabase);
-	logAsApp(`New user [${userId}] added to userDatabase.`);
+	logger.log(`New user [${userId}] added to userDatabase.`);
 }
 
 
@@ -545,15 +484,15 @@ function writeNewUserToDatabase(userId)
 // [Rarity][Number] Description
 function preparePPMessageById(PPId) {
 	const PP = getPPbyID(PPId);
-	if (!PP) { logAsApp(`PPID: ${PPId}, failed to get getPPbyID`); return; }
+	if (!PP) { logger.log(`PPID: ${PPId}, failed to get getPPbyID`); return; }
 
 	const mesStr = messageStrings[rarityData[PP.rarity].text];
-	if (!mesStr) { logAsApp(`PPID: ${PPId}, failed to get message rarity strings: ${JSON.stringify(PP.rarity, null, 2)}, ${JSON.stringify(messageStrings, null, 2)}`); return; }
+	if (!mesStr) { logger.log(`PPID: ${PPId}, failed to get message rarity strings: ${JSON.stringify(PP.rarity, null, 2)}, ${JSON.stringify(messageStrings, null, 2)}`); return; }
 
 	let message;
 	
 	if (PP && PP.rarity && rarityData[PP.rarity]) { message = `${mesStr.open}[${PP.rarity}][${PP.id}][${PP.description}]${mesStr.close}`; } 
-	else { logAsApp("PP or PP.rarity is undefined, or rarityData[PP.rarity] does not exist"); }
+	else { logger.log("PP or PP.rarity is undefined, or rarityData[PP.rarity] does not exist"); }
 
 	if (!message) message = `Fix me: ${this.name} function.`;
 
@@ -638,7 +577,7 @@ function addPPToUserCollection(userId, PPId) {
 function getPPbyID(PPId) 
 {
 	const PP = ppList.find((PP) => PP.id === PPId);
-	if (!PP) { logAsApp(`Tried to get PP by id: ${PPId}, but failed`); }
+	if (!PP) { logger.log(`Tried to get PP by id: ${PPId}, but failed`); }
 	return PP;
 }
 
@@ -667,7 +606,7 @@ function getNewRandomPPForUser(userId) {
 }
 
 function generateRandomPP() {
-	if (!ppList) { return logAsApp("Tried to take ppList but failed, cant generate."); }
+	if (!ppList) { return logger.log("Tried to take ppList but failed, cant generate."); }
 	const randomPP = ppList[Math.floor(Math.random() * ppList.length)];
 	return randomPP;
 }
@@ -688,8 +627,7 @@ async function startup() {
 	webBackend = new ExpressBackend();
 
 	bot.on("message", (msg) => {
-		//logAsBot(JSON.stringify(msg, null, 2));
-		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}]: ${msg.text}`);
+		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}]: ${msg.text}`);
 
 		// check if message is command "/"
 		if (isCommand(msg)) {
@@ -698,16 +636,16 @@ async function startup() {
 		// or check if user registered and add to variables 
 		else if (isRegistered(msg.from.id)) {
 			// add +1 to user message counter
-			if(msg.text) addMessageCountByUserId(msg.from.id);
+			if (msg.text) addMessageCountByUserId(msg.from.id);
 		}
 
 		return;
 	});
 
 	bot.on("polling_error", (error) => {
-		logAsBot(`Polling error: ${JSON.stringify(error)}`);
+		logger.log(`Polling error: ${JSON.stringify(error)}`);
 		if (error.stack) {
-			logAsBot(`Error stack: ${error.stack}`);
+			logger.log(`Error stack: ${error.stack}`);
 		}
 	});
 
@@ -724,7 +662,7 @@ async function startup() {
 
 async function checkToken() {
 	if (!token) {
-		logAsApp(`Token not found. Please put it to ${settingsPath} with your token or input now:`);
+		logger.log(`Token not found. Please put it to ${settingsPath} with your token or input now:`);
 
 		const rl = readline.createInterface({
 			input: process.stdin,
@@ -747,7 +685,7 @@ async function isAdmin(mes)
 	const _id = mes.from.id;
 	const _admin = settings.admin;
 	const _result = _id == _admin;
-	logAsDebug(`isAdmin: ${JSON.stringify( _id, null, 2)} == ${_admin}: ${_result}`);
+	logger.log(`isAdmin: ${JSON.stringify( _id, null, 2)} == ${_admin}: ${_result}`);
 	return (_result);
 }
 

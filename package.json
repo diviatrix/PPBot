@@ -2,7 +2,7 @@
   "name": "ppbot",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "src/app.js",
   "dependencies": {
     "accepts": "^1.3.8",
     "ajv": "^6.12.6",
@@ -207,7 +207,8 @@
     "yallist": "^3.1.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/app.js"
   },
   "keywords": [],
   "author": "",
