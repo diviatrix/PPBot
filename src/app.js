@@ -11,8 +11,6 @@ const path = require("path");
 require("es-abstract/es2019.js");
 require("lodash");
 require("request");
-
-
 // eslint-disable-next-line no-undef
 const storageFolderPath = path.join(__dirname, "storage");
 const settingsPath = path.join(storageFolderPath, "settings.json");
@@ -21,12 +19,6 @@ const settings = openOrCreateJSON(settingsPath, { "token": process.env.TOKEN || 
 const ppList = openOrCreateJSON(path.join(storageFolderPath, "pp.json"), []);
 const userDatabasePath = path.join(storageFolderPath, "userDatabase.json");
 const userDatabase = openOrCreateJSON(userDatabasePath, { "users": [] });
-		
-// #endregion
-
-
-
-//#region COMMANDS OBJECT
 const commands = 
 {
 	"/me": (msg) => {
@@ -67,24 +59,15 @@ const commands =
 		allPPCommand(msg);
 	}
 };
-//#endregion
 
-// LETS
 let bot;
 let webBackend = new ExpressBackend();
 // eslint-disable-next-line no-undef
 let token = process.env.TOKEN || settings.token;
 
-// #region COMMANDS
-
-
 async function aCommand(msg) {
 	let _message = "You are not admin.";
-	if (!await isAdmin(msg)) {
-		return;
-	}
-
-	//const command = parseCommand(msg);
+	if (!await isAdmin(msg)) { return; }
 	_message = ("You are admin.");
 	sendMessage(msg.chat.id, _message, msg.message_id);
 }
@@ -170,7 +153,7 @@ function dailyPP(msg) {
 	else 
 	{
 		const randomPP = getNewRandomPPForUser(msg.from.id);
-		message = `Congratulations!!!\nYou've got ${randomPP.id}\n\n`;
+		message = `Congratulations! You've got ${randomPP.id}\n`;
 		message += preparePPMessageById(randomPP.id);
 		if (isNaN(addPPToUserCollection(msg.from.id, randomPP.id))) { sendMessage(msg.chat.id, message, msg.message_id);}
 	}
@@ -364,14 +347,6 @@ function writeNewUserToDatabase(userId)
 	logger.log(`New user [${userId}] added to userDatabase.`);
 }
 
-
-
-// #endregion
-
-// #region PP FUNCTIONS
-
-// prepare string to message about pp by id
-// [Rarity][Number] Description
 function preparePPMessageById(PPId) {
 	const PP = getPPbyID(PPId);
 	if (!PP) { logger.log(`PPID: ${PPId}, failed to get getPPbyID`); return; }
@@ -405,8 +380,6 @@ function readOrFixLastPPTime(userId) {
 	return user.lastPP.time;
 }
 
-
-// if user has PP by id, search in userDatabase, return bool
 function userHasPP(userId, PPId) {
 	const user = getUserData(userId);
 	if (!user) { return; }
@@ -420,10 +393,6 @@ function userLastPPReceived(userId) {
 	return user.lastPP;
 }
 
-// check if can recieve new PP
-// if lastPP.time is not ISO string, return true
-// else if lastPP.time + timeout_pp is less than now, return true
-// else return false
 function canRecieveNewPP(userId) {
 	const user = getUserData(userId);
 	const lastPP = readOrFixLastPPTime(userId);
@@ -432,31 +401,20 @@ function canRecieveNewPP(userId) {
 	return false;
 }
 
-// count number of PP owners in userDatabase
 function countPPOwners(PPId) {
 	if (!userDatabase) { return 0; }
 	return userDatabase.users.filter((user) => Array.isArray(user.collection) && user.collection.some((PP) => PP.id === PPId)).length;
 }
 
-// function to add PP to user (id) in userDatabase with all checks
 function addPPToUserCollection(userId, PPId) {
-	// add PP to user in userDatabase
 	const user = getUserData(userId);
-
-	// if no user - ret
 	if (!user) { return; }
-
-	// if no collection - create
 	if (!user.collection) { user.collection = []; }
 	if (!Array.isArray(user.collection)) { user.collection = []; } // Ensure user.collection is an array
-
-	// if user has PP - add +1 to pp count
 	if (userHasPP(userId, PPId)) {
-		// add +1 to pp count
 		getUserData(userId).collection.find((PP) => PP.id === PPId).count++;
 		return;
 	}
-
 	user.collection.push({ "id": PPId, "time": new Date() });
 	user.lastPP = { "id": PPId, "time": new Date().toISOString() };
 	writeJSON(userDatabasePath, userDatabase);
@@ -476,7 +434,6 @@ function userPPcount(userID)
 	let count = 0;
 	const user = getUserData(userID);
 	if (!user.collection) { return count; }
-
 	count = user.collection.length;
 	
 	return count;
@@ -484,9 +441,7 @@ function userPPcount(userID)
 
 function getNewRandomPPForUser(userId) {
 	let randomPP;
-
 	randomPP = generateRandomPP();
-
 	while (userHasPP(userId, randomPP.id))
 	{
 		randomPP = generateRandomPP();
@@ -500,18 +455,13 @@ function generateRandomPP() {
 	const randomPP = ppList[Math.floor(Math.random() * ppList.length)];
 	return randomPP;
 }
-// #endregion
 
-
-
-// #region STARTUP
 async function startup() {
 	bot = new TelegramBot(token, { polling: true });
 	webBackend.start();
 
 	bot.on("text", (msg) => {
 		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}]: ${msg.text}`);
-
 		if (isCommand(msg)) { recieveCommand(msg); }
 		else if (isRegistered(msg.from.id)) { addMessageCountByUserId(msg.from.id); }
 
@@ -525,7 +475,6 @@ async function startup() {
 		}
 	});
 
-	// bot handle message /commands@botname where botname is bot username
 	bot.onText(/\/commands@(\w+)/, (msg, match) => { 
 		if (match == bot.getMe().username) {
 			recieveCommand(msg);
@@ -533,8 +482,6 @@ async function startup() {
 	});
 }
 
-
-// check if sender id == in settings.admin, return result
 async function isAdmin(mes)
 {
 	const _id = mes.from.id;
@@ -544,7 +491,4 @@ async function isAdmin(mes)
 	return (_result);
 }
 
-// run initial function to create all objects and setup them
 startup();
-
-// #endregion

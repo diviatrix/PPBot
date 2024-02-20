@@ -121,6 +121,7 @@
     "lock": "^1.1.0",
     "lodash": "^4.17.21",
     "loose-envify": "^1.4.0",
+    "lowdb": "^7.0.1",
     "lru-cache": "^5.1.1",
     "media-typer": "^0.3.0",
     "merge-descriptors": "^1.0.1",
