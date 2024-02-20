@@ -18,47 +18,9 @@ const storageFolderPath = path.join(__dirname, "storage");
 const settingsPath = path.join(storageFolderPath, "settings.json");
 // eslint-disable-next-line no-undef
 const settings = openOrCreateJSON(settingsPath, { "token": process.env.TOKEN || "", "port": process.env.PORT || 3001});
-const rarityData = openOrCreateJSON(path.join(storageFolderPath, "/rarity.json"), {
-	"normal": {
-		"text": "Normal",
-		"dropRate": 0.5
-	}});
-
-const messageStrings = openOrCreateJSON(path.join(storageFolderPath, "messageStrings.json"), 
-	{
-		"Normal": {
-			"open": "",
-			"close": ""
-		}
-	});	
-
-const ppList = openOrCreateJSON(path.join(storageFolderPath, "pp.json"), 
-	[{
-		"id": 1337,
-		"description": "You are L33T AF!",
-		"rarity": "1337"
-	}]);
-
-// Remove the duplicate declaration of the defaultUser variable
-const defaultUser = openOrCreateJSON(path.join(storageFolderPath, "defaultUser.json"), {
-	"id": 0,
-	"messagesCount": 0,
-	"lastPP": 
-	{
-		"id": 0,
-		"time": `${new Date().getTime() - 24 * 60 * 60 * 1000}`
-	},
-	"collection": []
-});
-
+const ppList = openOrCreateJSON(path.join(storageFolderPath, "pp.json"), []);
 const userDatabasePath = path.join(storageFolderPath, "userDatabase.json");
-const userDatabase = openOrCreateJSON(userDatabasePath, {
-	"users": [
-		{
-			defaultUser
-		}			
-	]
-});
+const userDatabase = openOrCreateJSON(userDatabasePath, { "users": [] });
 		
 // #endregion
 
@@ -149,9 +111,9 @@ async function topPPCommand(msg) {
 function rarCommand(msg) {
 	let _message = "Rarities:";
 	// iterate thru rarityData
-	for (const _rarity in rarityData) {
-		const _mesStr = messageStrings[rarityData[_rarity].text];
-		if (_mesStr) { _message += `\n${_mesStr.open}[${_rarity}]${_mesStr.close}`; };
+	for (const _rarity in settings.rarity) {
+		const _mesStr = settings.messageStrings[settings.rarity[_rarity].text];
+		if (_mesStr) { _message += `\n${_mesStr.open}[${_rarity}]${_mesStr.close}`; }
 	}
 	sendMessage(msg.chat.id, _message, msg.message_id);
 }
@@ -210,7 +172,7 @@ function dailyPP(msg) {
 		const randomPP = getNewRandomPPForUser(msg.from.id);
 		message = `Congratulations!!!\nYou've got ${randomPP.id}\n\n`;
 		message += preparePPMessageById(randomPP.id);
-		if (!isNaN(addPPToUserCollection(msg.from.id, randomPP.id))) { sendMessage(msg.chat.id, message, msg.message_id);}
+		if (isNaN(addPPToUserCollection(msg.from.id, randomPP.id))) { sendMessage(msg.chat.id, message, msg.message_id);}
 	}
 }
 
@@ -392,7 +354,7 @@ function getUserData(userId) {
 // function to write new user (id) to userDatabase
 function writeNewUserToDatabase(userId) 
 {
-	let newUser = defaultUser;
+	let newUser = settings.defaultUser;
 	newUser.id = userId;
 
 	userDatabase.users.push(newUser);
@@ -414,12 +376,12 @@ function preparePPMessageById(PPId) {
 	const PP = getPPbyID(PPId);
 	if (!PP) { logger.log(`PPID: ${PPId}, failed to get getPPbyID`); return; }
 
-	const mesStr = messageStrings[rarityData[PP.rarity].text];
+	const mesStr = settings.messageStrings[settings.rarity[PP.rarity].text];
 	if (!mesStr) { logger.log(`PPID: ${PPId}, failed to get message rarity strings: ${JSON.stringify(PP.rarity, null, 2)}, ${JSON.stringify(messageStrings, null, 2)}`); return; }
 
 	let message;
 	
-	if (PP && PP.rarity && rarityData[PP.rarity]) { message = `${mesStr.open}[${PP.rarity}][${PP.id}][${PP.description}]${mesStr.close}`; } 
+	if (PP && PP.rarity && settings.rarity[PP.rarity]) { message = `${mesStr.open}[${PP.rarity}][${PP.id}][${PP.description}]${mesStr.close}`; } 
 	else { logger.log("PP or PP.rarity is undefined, or rarityData[PP.rarity] does not exist"); }
 
 	if (!message) message = `Fix me: ${this.name} function.`;
@@ -466,7 +428,7 @@ function canRecieveNewPP(userId) {
 	const user = getUserData(userId);
 	const lastPP = readOrFixLastPPTime(userId);
 	if (!user) { return false; }
-	if (new Date(lastPP).getTime() < new Date().setHours(0, 0, 0, 0)) { return true; }
+	if (new Date(lastPP) < new Date().setHours(0, 0, 0, 0)) { return true; }
 	return false;
 }
 
