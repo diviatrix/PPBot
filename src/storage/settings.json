@@ -3,5 +3,19 @@
   "admin": 124117375,
   "db" : {
     "path": "/db"
+  },
+  "locale" : {
+    "base": {
+      "register_success": "Welcome",
+      "suggest_no_args": "Do not forget to provide suggestion itself 🗿\nUse <code>/add 2077 - Wake the fuck up, samurai!</code>",
+      "suggest_success": "Thank you for your suggestion.",
+      "suggest_already_submitted": "You have already suggested this."
+    },
+    "user": {
+      "register_success": "🤮🤮🤮\nGG <s>N00B</s>",
+      "suggest_no_args": "Еблан? 🗿\nДелвй так: <code>/add 2077 - Rare - Wake the fuck up, samurai!</code>",
+      "suggest_success": "Спс. 🙈",
+      "suggest_already_submitted": "🤦‍♂️"
+    }
   }
 }

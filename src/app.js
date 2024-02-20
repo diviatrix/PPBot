@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-// #region IMPORTS
 const TelegramBot = require("node-telegram-bot-api");
 const fs = require("fs");
 require("path");
@@ -9,35 +7,17 @@ const logger = new Logger("info", "error", "warning");
 require("bluebird");
 require("console");
 require("assert-plus");
-const readline = require("readline");
 const path = require("path");
 require("es-abstract/es2019.js");
 require("lodash");
 require("request");
 
-// #endregion
 
-
-//#endregion
-
-// #region CONSTANTS
+// eslint-disable-next-line no-undef
 const storageFolderPath = path.join(__dirname, "storage");
 const settingsPath = path.join(storageFolderPath, "settings.json");
-const settingsModel = { "token": process.env.TOKEN || "", "port": process.env.PORT || 3001};
-const settings = openOrCreateJSON(settingsPath, settingsModel);
-
-// locale
-const localeModel = {
-	"base": {
-		"register_success": "Welcome"
-	},
-	"user": {
-		"register_success": "🤮🤮🤮\nGG <s>N00B</s>"
-	}
-};
-const localePath = path.join(storageFolderPath, "locale.json");
-const localeKeys = openOrCreateJSON(localePath, localeModel);
-
+// eslint-disable-next-line no-undef
+const settings = openOrCreateJSON(settingsPath, { "token": process.env.TOKEN || "", "port": process.env.PORT || 3001});
 const rarityData = openOrCreateJSON(path.join(storageFolderPath, "/rarity.json"), {
 	"normal": {
 		"text": "Normal",
@@ -108,14 +88,9 @@ const commands =
 		sendMessage(msg.chat.id, 
 			"Available commands:\n<code>/me</code> - get your info\n<code>/pp</code> - get PP\n<code>/pp 1337</code> - get info about PP\n<code>/deleteme</code> - unregister\n<code>/go</code> - register\n<code>/commands</code> - get commands", msg.message_id);
 	},
-	"/add": (msg) => {
-		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to suggest.`);
-		addCommand(msg);
-	},
 	"/rar": (msg) => {
 		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get rarities.`);
 		rarCommand(msg);
-		
 	},
 	"/a" : (msg) => {
 		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to use admin command.`);
@@ -134,7 +109,7 @@ const commands =
 
 // LETS
 let bot;
-let webBackend;
+let webBackend = new ExpressBackend();
 // eslint-disable-next-line no-undef
 let token = process.env.TOKEN || settings.token;
 
@@ -168,35 +143,6 @@ async function topPPCommand(msg) {
 	const _sorted = _users.sort((a, b) => a.lastPP.id - b.lastPP.id);
 	let _message = "Top PP of the day:\n";
 	await Promise.all(_sorted.slice(0, 10).sort((a, b) => b.lastPP.id - a.lastPP.id).map(async (user) => { _message += `${user.lastPP.id}\n`; } ));
-	sendMessage(msg.chat.id, _message, msg.message_id);
-}
-
-
-// /me command
-// shows user info
-// usage - /me for self info
-// usage - /me number for get count how many users have this PPasync function addCommand(msg) {
-async function addCommand(msg) {
-	const { args: _suggestion } = parseCommand(msg);
-	const { id: _userId } = msg.from;
-	let _message;
-	if (!_suggestion) { _message = localeKeys.user.suggest_no_args;	} 
-	else if (userSubmittedThisSuggestion(_userId, _suggestion)) { _message = localeKeys.user.suggest_already_submitted; } 
-	else {
-		let data = {
-			[_userId]: [
-				{
-					"suggestion": _suggestion,
-					"time": new Date().toISOString()
-				}
-			]
-		};
-		logger.log(JSON.stringify(data, null, 2));
-		suggestions[_userId] = data[_userId];
-		
-		//writeJSON(suggestionPath, suggestions); 
-		_message = localeKeys.user.suggest_success;
-	}
 	sendMessage(msg.chat.id, _message, msg.message_id);
 }
 
@@ -312,8 +258,7 @@ async function meCommand(msg) {
 	await checkUserFields(user);
 
 	const ppCount = userPPcount(msg.from.id);
-	const suggestionLength = suggestions[msg.from.id] ? suggestions[msg.from.id].length : 0;
-	const message = `User: ${msg.from.first_name} ${msg.from.last_name}\nMessages: ${user.messagesCount}\nPP collection: ${ppCount}\nGems: ${user.gemsCount} \nSuggestions: ${suggestionLength}`;
+	const message = `User: ${msg.from.first_name} ${msg.from.last_name}\nMessages: ${user.messagesCount}\nPP collection: ${ppCount}\nGems: ${user.gemsCount}`;
 	sendMessage(msg.chat.id, message, msg.message_id);
 }
 
@@ -419,19 +364,8 @@ function writeJSON(filePath, data) {
 	}
 }
 
-
-// function to check if file exist by provided path
 function pathExist(filePath) { return fs.existsSync(filePath); }
 
-
-
-function writeSettings() {
-	writeJSON(settingsPath, { "token": token });
-}
-
-//#endregion
-
-//#region ACCOUNT FUNCTIONS
 function isRegistered(userId) {
 	if (!userDatabase) { return false; }
 	return userDatabase.users.some((user) => user.id === userId);
@@ -450,12 +384,6 @@ function removeUserById(userId) {
 	writeJSON(userDatabasePath, userDatabase);
 }
 
-function userSubmittedThisSuggestion(_userId, _suggestion) {
-	const _userSuggestions = suggestions[_userId];
-	if (!_userSuggestions || !Array.isArray(_userSuggestions)) { suggestions[_userId] = []; return false; }
-	if (_userSuggestions.some((suggestion) => suggestion.suggestion === _suggestion)) { return true; }
-	return false;
-}
 
 function getUserData(userId) {
 	return userDatabase.users.find((user) => user.id === userId);
@@ -616,28 +544,14 @@ function generateRandomPP() {
 
 // #region STARTUP
 async function startup() {
-    
-	// Check if token exists and request from user
-	await checkToken();
-
-	// Create a new instance of the Telegram bot
 	bot = new TelegramBot(token, { polling: true });
+	webBackend.start();
 
-	// Start web backend
-	webBackend = new ExpressBackend();
-
-	bot.on("message", (msg) => {
+	bot.on("text", (msg) => {
 		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}]: ${msg.text}`);
 
-		// check if message is command "/"
-		if (isCommand(msg)) {
-			recieveCommand(msg);
-		}
-		// or check if user registered and add to variables 
-		else if (isRegistered(msg.from.id)) {
-			// add +1 to user message counter
-			if (msg.text) addMessageCountByUserId(msg.from.id);
-		}
+		if (isCommand(msg)) { recieveCommand(msg); }
+		else if (isRegistered(msg.from.id)) { addMessageCountByUserId(msg.from.id); }
 
 		return;
 	});
@@ -655,29 +569,8 @@ async function startup() {
 			recieveCommand(msg);
 		}
 	});
-	
-
-	webBackend.start();
 }
 
-async function checkToken() {
-	if (!token) {
-		logger.log(`Token not found. Please put it to ${settingsPath} with your token or input now:`);
-
-		const rl = readline.createInterface({
-			input: process.stdin,
-			output: process.stdout
-		});
-
-		token = await new Promise(resolve => {
-			rl.question("Please enter your bot token from @botfather: ", (input) => {
-				rl.close();
-				resolve(input);
-			});
-		});
-		if (token) { writeSettings(); }
-	}
-}
 
 // check if sender id == in settings.admin, return result
 async function isAdmin(mes)
