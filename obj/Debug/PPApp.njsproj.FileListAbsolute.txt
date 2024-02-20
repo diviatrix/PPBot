@@ -1,0 +1,3 @@
+G:\GitRepos\PPBot\obj\Debug\PPApp.njsproj.AssemblyReference.cache
+G:\GitRepos\PPBot\obj\Debug\PPApp.njsproj.CoreCompileInputs.cache
+G:\GitRepos\PPBot\bin\Microsoft.NodejsTools.WebRole.dll

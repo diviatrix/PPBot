@@ -1,39 +1,38 @@
+/* eslint-disable no-undef */
 // #region IMPORTS
-const TelegramBot = require('node-telegram-bot-api');
-const fs = require('fs');
-const path = require('path');
-const timeout_pp = 20 * 60 * 60 * 1000; // first number is hours
-const ExpressBackend = require('./ExpressBackend.js');
-const { is, some } = require('bluebird');
-const { log } = require('console');
-const ms = require('ms');
-const { string } = require('assert-plus');
-const readline = require('readline');
-const { DateFromTime } = require('es-abstract/es2019.js');
-const { last } = require('lodash');
-const { get } = require('request');
+const TelegramBot = require("node-telegram-bot-api");
+const fs = require("fs");
+require("path");
+const ExpressBackend = require("./ExpressBackend.js");
+require("bluebird");
+require("console");
+require("assert-plus");
+const readline = require("readline");
+const path = require("path");
+require("es-abstract/es2019.js");
+require("lodash");
+require("request");
 
 // #endregion
 
-//#region UTILITY constgants
+// #region UTILITY constgants
 const colorizeString = (string, color) => { return `${color}${string}${consoleColors.normal}`; };
-const _log = (message, logType = '') => {
-    const now = new Date();
-    const formattedDate = now.toISOString().replace('T', ' ').substring(0, 19);
-    const logPrefix = logType ? `[${logType}]:` : '';
-    console.log(`[${formattedDate}] ${ logPrefix} ${message}`);
+const _log = (message, logType = "") => {
+	const now = new Date();
+	const formattedDate = now.toISOString().replace("T", " ").substring(0, 19);
+	const logPrefix = logType ? `[${logType}]:` : "";
+	console.log(`[${formattedDate}] ${ logPrefix} ${message}`);
 };
 const logAsBot = (message) => {
-	const callerName = new Error().stack.split('\n')[2].trim().split(' ')[1];
-	_log(`${callerName}: ${message}`, colorizeString('Bot', consoleColors.bot)); 
+	const callerName = new Error().stack.split("\n")[2].trim().split(" ")[1];
+	_log(`${callerName}: ${message}`, colorizeString("Bot", consoleColors.bot)); 
 };
-const logAsUser = (msg, message) => _log(`${msg.from.name}: ${message}`);
 const logAsApp = (message) => {
-	const callerName = new Error().stack.split('\n')[2].trim().split(' ')[1];
-	_log(`${callerName}: ${message}`, colorizeString('App', consoleColors.app));
+	const callerName = new Error().stack.split("\n")[2].trim().split(" ")[1];
+	_log(`${callerName}: ${message}`, colorizeString("App", consoleColors.app));
 };
-const logAsUtility = (message) => _log(message, colorizeString('Utility', consoleColors.utility));
-const logAsDebug = (message) => _log(message, colorizeString('Debug', consoleColors.debug));
+const logAsUtility = (message) => _log(message, colorizeString("Utility", consoleColors.utility));
+const logAsDebug = (message) => _log(message, colorizeString("Debug", consoleColors.debug));
 
 const consoleColors = {
 	"normal": "\x1b[38;5;244m",
@@ -54,24 +53,25 @@ const consoleColors = {
 
 // #region CONSTANTS
 // Specify the storage folder path
-const storageFolderPath = path.join(__dirname, '/storage');
-const publicFolderPath = '/public';
+// eslint-disable-next-line no-undef
+const storageFolderPath = path.join(__dirname, "storage");
 
 // JSONs and paths
-const settingsPath = path.join(storageFolderPath, 'settings.json');
-const settingsModel = { "token": process.env.TOKEN || ``, "port": process.env.PORT || 3000};
-const settings = openOrCreateJSON(settingsPath, settingsModel)
+const settingsPath = path.join(storageFolderPath, "settings.json");
+// eslint-disable-next-line no-undef
+const settingsModel = { "token": process.env.TOKEN || "", "port": process.env.PORT || 3001};
+const settings = openOrCreateJSON(settingsPath, settingsModel);
 
 // locale
 const localeModel = {
 	"base": {
-	  "register_success": "Welcome"
+		"register_success": "Welcome"
 	},
 	"user": {
-	  "register_success": "🤮🤮🤮\nGG <s>N00B</s>"
+		"register_success": "🤮🤮🤮\nGG <s>N00B</s>"
 	}
-  };
-const localePath = path.join(storageFolderPath, 'locale.json');
+};
+const localePath = path.join(storageFolderPath, "locale.json");
 const localeKeys = openOrCreateJSON(localePath, localeModel);
 
 // suggestion db, stores user suggestions
@@ -79,25 +79,25 @@ const suggestionModel = [
 	{
 		"1234567890": [
 			{
-			  "suggestion": "Pls 1337",
-			  "time": "2022-01-03T00:00:00Z"
+				"suggestion": "Pls 1337",
+				"time": "2022-01-03T00:00:00Z"
 			}
 			// More suggestions...
-		  ]
-		  // More users...
+		]
+		// More users...
 	}
 ];
-const suggestionPath = path.join(storageFolderPath, 'suggestion.json');
+const suggestionPath = path.join(storageFolderPath, "suggestion.json");
 const suggestions = openOrCreateJSON(suggestionPath, suggestionModel);
 
-const rarityPath = path.join(storageFolderPath, '/rarity.json');
+const rarityPath = path.join(storageFolderPath, "/rarity.json");
 const rarityData = openOrCreateJSON(rarityPath, {
 	"normal": {
 		"text": "Normal",
 		"dropRate": 0.5
 	}});
 
-const messageStringsPath = path.join(storageFolderPath, 'messageStrings.json');
+const messageStringsPath = path.join(storageFolderPath, "messageStrings.json");
 const messageStrings = openOrCreateJSON(messageStringsPath, 
 	{
 		"Normal": {
@@ -106,7 +106,7 @@ const messageStrings = openOrCreateJSON(messageStringsPath,
 		}
 	});	
 
-const ppPath = path.join(storageFolderPath, 'pp.json');
+const ppPath = path.join(storageFolderPath, "pp.json");
 const ppList = openOrCreateJSON(ppPath, 
 	[
 		{
@@ -116,7 +116,7 @@ const ppList = openOrCreateJSON(ppPath,
 		}
 	]);
 
-const defaultUserPath = path.join(storageFolderPath, 'defaultUser.json');
+const defaultUserPath = path.join(storageFolderPath, "defaultUser.json");
 const defaultUser = openOrCreateJSON(defaultUserPath, (
 	
 	{
@@ -125,16 +125,16 @@ const defaultUser = openOrCreateJSON(defaultUserPath, (
 		"lastPP": 
 		{
 			"id": 0,
-			"time": `${new Date().getTime() - timeout_pp}`
+			"time": `${new Date().getTime() - 24 * 60 * 60 * 1000}`
 		},
 		"collection": 
 		{
 		}
 	}));
 
-const userDatabasePath = path.join(storageFolderPath, 'userDatabase.json');
+const userDatabasePath = path.join(storageFolderPath, "userDatabase.json");
 const userDatabase = openOrCreateJSON(userDatabasePath, {
-	 "users": [
+	"users": [
 		{
 			defaultUser
 		}			
@@ -147,46 +147,46 @@ const userDatabase = openOrCreateJSON(userDatabasePath, {
 
 //#region COMMANDS OBJECT
 const commands = 
-	{
-	'/me': (msg) => {
+{
+	"/me": (msg) => {
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get info.`);		
 		meCommand(msg);		
 	},
-	'/pp': (msg) => {
+	"/pp": (msg) => {
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get PP.`);
 		ppCommand(msg);		
 	},
-	'/deleteme': (msg) => {
+	"/deleteme": (msg) => {
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to unregister.`);
 		deletemeCommand(msg);
 	},
-	'/go': (msg) => {
+	"/go": (msg) => {
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to register.`);
 		goCommand(msg);
 	},
-	'/commands': (msg) => {
+	"/commands": (msg) => {
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get commands.`);
 		sendMessage(msg.chat.id, 
-			'Available commands:\n<code>/me</code> - get your info\n<code>/pp</code> - get PP\n<code>/pp 1337</code> - get info about PP\n<code>/deleteme</code> - unregister\n<code>/go</code> - register\n<code>/commands</code> - get commands', msg.message_id);
+			"Available commands:\n<code>/me</code> - get your info\n<code>/pp</code> - get PP\n<code>/pp 1337</code> - get info about PP\n<code>/deleteme</code> - unregister\n<code>/go</code> - register\n<code>/commands</code> - get commands", msg.message_id);
 	},
-	'/add': (msg) => {
+	"/add": (msg) => {
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to suggest.`);
 		addCommand(msg);
 	},
-	'/rar': (msg) => {
+	"/rar": (msg) => {
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get rarities.`);
 		rarCommand(msg);
 		
 	},
-	'/a' : (msg) => {
+	"/a" : (msg) => {
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to use admin command.`);
 		aCommand(msg); 
 	},
-	'/toppp': (msg) => {
+	"/toppp": (msg) => {
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get top PP.`);
 		topPPCommand(msg);
 	},
-	'/allpp': (msg) => {
+	"/allpp": (msg) => {
 		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}] is trying to get all PP.`);
 		allPPCommand(msg);
 	}
@@ -196,25 +196,26 @@ const commands =
 // LETS
 let bot;
 let webBackend;
+// eslint-disable-next-line no-undef
 let token = process.env.TOKEN || settings.token;
 
 // #region COMMANDS
 
 
 async function aCommand(msg) {
-	let _message = `You are not admin.`;
+	let _message = "You are not admin.";
 	if (!await isAdmin(msg)) {
 		return;
 	}
 
-	const command = parseCommand(msg);
-
-	_message = ('You are admin.');
+	//const command = parseCommand(msg);
+	_message = ("You are admin.");
+	sendMessage(msg.chat.id, _message, msg.message_id);
 }
 
 async function allPPCommand(msg) {
 	let _message = "All PP Here: <a href='https://github.com/diviatrix/PPBot/blob/baza/storage/pp.json'>https://github.com/diviatrix/PPBot/blob/baza/storage/pp.json</a>";
-	sendMessage(msg.chat.id, _message, msg.message_id, { parse_mode: 'HTML' });
+	sendMessage(msg.chat.id, _message, msg.message_id, { parse_mode: "HTML" });
 }
 
 async function topPPCommand(msg) {
@@ -223,10 +224,10 @@ async function topPPCommand(msg) {
 	// filter by today
 	// sort by lastPP.id
 	// send user message with reply: top 10 (or less) PP
-	const _today = new Date().toISOString().split('T')[0];
-	const _users = userDatabase.users.filter((user) => user.lastPP.time.split('T')[0] == _today);
+	const _today = new Date().toISOString().split("T")[0];
+	const _users = userDatabase.users.filter((user) => user.lastPP.time.split("T")[0] == _today);
 	const _sorted = _users.sort((a, b) => a.lastPP.id - b.lastPP.id);
-	let _message = `Top PP of the day:\n`;
+	let _message = "Top PP of the day:\n";
 	await Promise.all(_sorted.slice(0, 10).sort((a, b) => b.lastPP.id - a.lastPP.id).map(async (user) => { _message += `${user.lastPP.id}\n`; } ));
 	sendMessage(msg.chat.id, _message, msg.message_id);
 }
@@ -261,7 +262,7 @@ async function addCommand(msg) {
 }
 
 function rarCommand(msg) {
-	let _message = `Rarities:`;
+	let _message = "Rarities:";
 	// iterate thru rarityData
 	for (const _rarity in rarityData) {
 		const _mesStr = messageStrings[rarityData[_rarity].text];
@@ -269,8 +270,6 @@ function rarCommand(msg) {
 	}
 	sendMessage(msg.chat.id, _message, msg.message_id);
 }
-
-
 
 // /pp command
 // shows user PP
@@ -291,7 +290,7 @@ function ppCommand(msg) {
 	else if (parseInt(command.args) == 0) { ppInfo(msg, 0); }
 	else { sendMessage(
 		msg.chat.id, 
-		'Incorrect usage or PP doesn\'t exist in our database\nUse <code>/pp</code> for random PP of the day\n<code>/pp 1337</code> to get info about this PP\n<code>/add 2077</code> to suggest new PP.',
+		"Incorrect usage or PP doesn't exist in our database\nUse <code>/pp</code> for random PP of the day\n<code>/pp 1337</code> to get info about this PP\n<code>/add 2077</code> to suggest new PP.",
 		msg.message_id);}
 }
 
@@ -302,20 +301,22 @@ function dailyPP(msg) {
 
 	readOrFixLastPPTime(msg.from.id);
 
-	if (_lastPP.id == 0) 
+	if (_lastPP?.id == 0) 
 	{
 		// send message to user with greets
-		_lastPP.time = new Date(Date.now() - timeout_pp).toISOString();
-		sendMessage(msg.chat.id, `Everybody Starts with something..\nWelcome to PP club \u2764`, msg.message_id);
+		_lastPP.time = new Date().setDate(_lastPP.time.getDate() - 1);
+		_lastPP.time = _lastPP.time.toISOString();
+
+		sendMessage(msg.chat.id, "Everybody Starts with something..\nWelcome to PP club \u2764", msg.message_id);
 	}
 
 	// if user already received PP today
 	logAsDebug(canRecieveNewPP(msg.from.id));
 	if (!canRecieveNewPP(msg.from.id))
 	{
-		message = `You already received PP today.\n`;
+		message = "You already received PP today.\n";
 		message += preparePPMessageById(_lastPP.id);
-		message += `\n\n<i>Return for next PP Check tomorrow.</i>`;
+		message += "\n\n<i>Return for next PP Check tomorrow.</i>";
 		// send message to user with last pp info
 		sendMessage(msg.chat.id, message, msg.message_id);
 	}
@@ -324,14 +325,14 @@ function dailyPP(msg) {
 		const randomPP = getNewRandomPPForUser(msg.from.id);
 		message = `Congratulations!!!\nYou've got ${randomPP.id}\n\n`;
 		message += preparePPMessageById(randomPP.id);
-		if (addPPToUserCollection(msg.from.id, randomPP.id) != NaN ) { sendMessage(msg.chat.id, message, msg.message_id);}
+		if (!isNaN(addPPToUserCollection(msg.from.id, randomPP.id))) { sendMessage(msg.chat.id, message, msg.message_id);}
 	}
 }
 
 function ppInfo(msg, PPId) 
 {
 	let _message = `Information about PP: ${PPId}\n${preparePPMessageById(PPId)}`;
-	_message += `\n${userHasPP(msg.from.id, PPId) ? '\nYou <b>have</b> this PP.\n' : 'You don\'t have this PP.'}\n`;
+	_message += `\n${userHasPP(msg.from.id, PPId) ? "\nYou <b>have</b> this PP.\n" : "You don't have this PP."}\n`;
 	_message += `Total of ${countPPOwners(PPId)} users have this PP.`;
 	sendMessage(msg.chat.id, _message, msg.message_id);
 }
@@ -341,12 +342,12 @@ function goCommand(msg) {
 
 	// check if registerd already
 	if (isRegistered(msg.from.id)) {
-		_message = 'Forgot you are registered? 😒\nIf you want to unregister - <code>/deleteme</code> 🤮\nAccount will be removed permanently 🤮';
+		_message = "Forgot you are registered? 😒\nIf you want to unregister - <code>/deleteme</code> 🤮\nAccount will be removed permanently 🤮";
 	}
 	// register if not
 	else {
 		writeNewUserToDatabase(msg.from.id);
-		_message = `🎆🎆🎆Congratulations!🎆🎆🎆\nNow you can now use\n<code>/commands></code>\n<code>/me</code>, \n<code>/pp</code> \nand <code>/deleteme</code> commands`;
+		_message = "🎆🎆🎆Congratulations!🎆🎆🎆\nNow you can now use\n<code>/commands></code>\n<code>/me</code>, \n<code>/pp</code> \nand <code>/deleteme</code> commands";
 	}
 
 	logAsDebug(`[goCommand][${msg.chat.id}][${_message}][${msg.from.id}]`);
@@ -355,12 +356,11 @@ function goCommand(msg) {
 }
 
 function deletemeCommand(msg) {
-	let message;
 	logAsApp(`[${msg.from.id}][${msg.from.first_name} ${msg.from.last_name}] is trying to unregister.`);
 
 	if (isRegistered(msg.from.id)) {
 		removeUserById(msg.from.id);
-		sendMessage(msg.chat.id, 'You have been unregistered.', msg.message_id);
+		sendMessage(msg.chat.id, "You have been unregistered.", msg.message_id);
 	}
 }
 
@@ -402,20 +402,10 @@ function recieveCommand(msg)
 	}
 }
 
-// function to pick random rarity from list by its weight
-function randomRarity() {
-	const totalWeight = Object.values(rarityData).reduce((acc, rarity) => acc + rarity.dropRate, 0);
-	let random = Math.random() * totalWeight;
-	for (const rarity in rarityData) {
-		random -= rarityData[rarity].weight;
-		if (random <= 0) { return rarity; }
-	}
-}
-
 // function to check if message is command
 function isCommand(msg) {
 	if (!msg.text) { return false; }
-	return msg.text.startsWith('/');
+	return msg.text.startsWith("/");
 }
 
 function isValidCommand(parsedCommand) {
@@ -428,50 +418,43 @@ function isValidCommand(parsedCommand) {
 function parseCommand(msg) 
 {
 	const command = msg.text.split(/[@\s]/)[0];
-	const args = msg.text.split(/[@\s]/).slice(1).join(' ');
+	const args = msg.text.split(/[@\s]/).slice(1).join(" ");
 	logAsDebug(`Parsed command: ${command} ${args}`);
 	return { command, args };
 }
 
-// gets telegram name and last name by id
-async function getChatMemberNameById(chatID, userID) {
-	const chatMember = await bot.getChatMember(chatID, userID);
-	return chatMember.user.first_name + ' ' + chatMember.user.last_name;
-}
-
-
 async function sendMessage(chatID, message, replyID) 
 {
-    // get caller for debug
-    const callerName = new Error().stack.split('\n')[2].trim().split(' ')[1];
-    // basic conditions
-    if (!message || !chatID) { 
-        logAsDebug(`[${callerName}] sendMessage: message or chatID is undefined: ${message} ${chatID}`);
-        return; 
-    }
-    // send message to chat
-    else if (!replyID) {
-        bot.sendMessage(chatID, message, { parse_mode: 'HTML' })
-            .then(() => {
-                logAsBot(`Sent message to chat -> ${chatID}: ${message}`);
-            })
-            .catch((error) => {
-                logAsBot(`[${callerName}] sendMessage: ${error}`);
-            });
-    } else if (replyID) {
-        bot.sendMessage(chatID, message, { reply_to_message_id: replyID, parse_mode: 'HTML'})
-            .then(() => {
-                logAsBot(`Sent message to chat -> ${chatID}: ${message}`);
-            })
-            .catch((error) => {
-                logAsBot(`[${callerName}] sendMessage: ${error}`);
-            });
-    } else {
-        bot.sendMessage(chatID, message)
-            .catch((error) => { 
-                logAsBot(`[${callerName}] sendMessage: ${error}`); 
-            });
-    }
+	// get caller for debug
+	const callerName = new Error().stack.split("\n")[2].trim().split(" ")[1];
+	// basic conditions
+	if (!message || !chatID) { 
+		logAsDebug(`[${callerName}] sendMessage: message or chatID is undefined: ${message} ${chatID}`);
+		return; 
+	}
+	// send message to chat
+	else if (!replyID) {
+		bot.sendMessage(chatID, message, { parse_mode: "HTML" })
+			.then(() => {
+				logAsBot(`Sent message to chat -> ${chatID}: ${message}`);
+			})
+			.catch((error) => {
+				logAsBot(`[${callerName}] sendMessage: ${error}`);
+			});
+	} else if (replyID) {
+		bot.sendMessage(chatID, message, { reply_to_message_id: replyID, parse_mode: "HTML"})
+			.then(() => {
+				logAsBot(`Sent message to chat -> ${chatID}: ${message}`);
+			})
+			.catch((error) => {
+				logAsBot(`[${callerName}] sendMessage: ${error}`);
+			});
+	} else {
+		bot.sendMessage(chatID, message)
+			.catch((error) => { 
+				logAsBot(`[${callerName}] sendMessage: ${error}`); 
+			});
+	}
 }
 //#endregion
 
@@ -479,11 +462,11 @@ async function sendMessage(chatID, message, replyID)
 // function to open or create json file by provided path and data
 // return result
 function openOrCreateJSON(filePath, data) {
-    if (data === undefined) { data = {}; }
-    if (!pathExist(filePath)) { 
-        writeJSON(filePath, data); 
-        logAsUtility(`Can't find ${filePath} -> created empty.`); 
-    }
+	if (data === undefined) { data = {}; }
+	if (!pathExist(filePath)) { 
+		writeJSON(filePath, data); 
+		logAsUtility(`Can't find ${filePath} -> created empty.`); 
+	}
 
 	return JSON.parse(fs.readFileSync(filePath));
 }
@@ -501,18 +484,7 @@ function writeJSON(filePath, data) {
 // function to check if file exist by provided path
 function pathExist(filePath) { return fs.existsSync(filePath); }
 
-// function to save json object to file by provided path and data
-function writeJSON(filePath, data) 
-{	
-	if (!pathExist(filePath)) 
-	{
-		fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-	} 
-	// save data to file
-	fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 
-	logAsUtility(`${filePath} saved.`);
-}
 
 function writeSettings() {
 	writeJSON(settingsPath, { "token": token });
@@ -572,44 +544,32 @@ function writeNewUserToDatabase(userId)
 // prepare string to message about pp by id
 // [Rarity][Number] Description
 function preparePPMessageById(PPId) {
-    const PP = getPPbyID(PPId);
-    if (!PP) { logAsApp(`PPID: ${PPId}, failed to get getPPbyID`); return; }
+	const PP = getPPbyID(PPId);
+	if (!PP) { logAsApp(`PPID: ${PPId}, failed to get getPPbyID`); return; }
 
-    const mesStr = messageStrings[rarityData[PP.rarity].text];
-    if (!mesStr) { logAsApp(`PPID: ${PPId}, failed to get message rarity strings: ${JSON.stringify(PP.rarity, null, 2)}, ${JSON.stringify(messageStrings, null, 2)}`); return; }
+	const mesStr = messageStrings[rarityData[PP.rarity].text];
+	if (!mesStr) { logAsApp(`PPID: ${PPId}, failed to get message rarity strings: ${JSON.stringify(PP.rarity, null, 2)}, ${JSON.stringify(messageStrings, null, 2)}`); return; }
 
-    let message;
+	let message;
 	
-    if (PP && PP.rarity && rarityData[PP.rarity]) { message = `${mesStr.open}[${PP.rarity}][${PP.id}][${PP.description}]${mesStr.close}`; } 
-	else { logAsApp('PP or PP.rarity is undefined, or rarityData[PP.rarity] does not exist'); }
+	if (PP && PP.rarity && rarityData[PP.rarity]) { message = `${mesStr.open}[${PP.rarity}][${PP.id}][${PP.description}]${mesStr.close}`; } 
+	else { logAsApp("PP or PP.rarity is undefined, or rarityData[PP.rarity] does not exist"); }
 
-    if (!message) message = `Fix me: ${this.name} function.`;
+	if (!message) message = `Fix me: ${this.name} function.`;
 
-    return message;
+	return message;
 }
 
-// expose function to add new pp to pp.json
-// params - id, rarity, description
-// usage - addNewPP(1,`Rare`, `Description`);
-function addNewPP(PP) {
-	// check if this id exist in ppList
-	if (ppList.find((PP) => PP.id === id)) {
-		logAsApp(`Tried to add new PP to pp.json with id ${id}, but it already exist.`);
-		return;
-	}
 
-	ppList.push({ id, description, rarity });
-	fs.writeFileSync(path.join(storageFolderPath, '/pp.json'), JSON.stringify(ppList, null, 2));
-}
 
 function readOrFixLastPPTime(userId) {
-	const fixedPPtime = new Date(Date.now() - timeout_pp).toISOString();
+	const fixedPPtime = new Date().setDate(-1).toString();
 	const user = getUserData(userId);
 	if (!user) { return; }
 	
 	if (!user.lastPP.time) { user.lastPP.time = fixedPPtime; } // if no value
-	else if (typeof user.lastPP.time !== 'string') { user.lastPP.time = fixedPPtime; } // if not string
-	else if (new Date(user.lastPP.time) == NaN) { user.lastPP.time = fixedPPtime; } // if not ISO date string
+	else if (typeof user.lastPP.time !== "string") { user.lastPP.time = fixedPPtime; } // if not string
+	else if (isNaN(new Date(user.lastPP.time))) { user.lastPP.time = fixedPPtime; } // if not ISO date string
 
 	writeJSON(userDatabasePath, userDatabase);
 
@@ -639,7 +599,7 @@ function canRecieveNewPP(userId) {
 	const user = getUserData(userId);
 	const lastPP = readOrFixLastPPTime(userId);
 	if (!user) { return false; }
-	if (new Date(lastPP).getTime() + timeout_pp < Date.now()) { return true; }
+	if (new Date(lastPP).getTime() < new Date().setHours(0, 0, 0, 0)) { return true; }
 	return false;
 }
 
@@ -718,33 +678,33 @@ function generateRandomPP() {
 // #region STARTUP
 async function startup() {
     
-    // Check if token exists and request from user
-    await checkToken();
+	// Check if token exists and request from user
+	await checkToken();
 
-    // Create a new instance of the Telegram bot
-    bot = new TelegramBot(token, { polling: true });
+	// Create a new instance of the Telegram bot
+	bot = new TelegramBot(token, { polling: true });
 
-    // Start web backend
-    webBackend = new ExpressBackend();
+	// Start web backend
+	webBackend = new ExpressBackend();
 
-    bot.on('message', (msg) => {
-        //logAsBot(JSON.stringify(msg, null, 2));
-        logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}]: ${msg.text}`);
+	bot.on("message", (msg) => {
+		//logAsBot(JSON.stringify(msg, null, 2));
+		logAsBot(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}]: ${msg.text}`);
 
-        // check if message is command "/"
-        if (isCommand(msg)) {
-            recieveCommand(msg);
-        }
-        // or check if user registered and add to variables 
-        else if (isRegistered(msg.from.id)) {
-            // add +1 to user message counter
-            if(msg.text) addMessageCountByUserId(msg.from.id);
-        }
+		// check if message is command "/"
+		if (isCommand(msg)) {
+			recieveCommand(msg);
+		}
+		// or check if user registered and add to variables 
+		else if (isRegistered(msg.from.id)) {
+			// add +1 to user message counter
+			if(msg.text) addMessageCountByUserId(msg.from.id);
+		}
 
-        return;
-    });
+		return;
+	});
 
-    bot.on('polling_error', (error) => {
+	bot.on("polling_error", (error) => {
 		logAsBot(`Polling error: ${JSON.stringify(error)}`);
 		if (error.stack) {
 			logAsBot(`Error stack: ${error.stack}`);
@@ -759,26 +719,26 @@ async function startup() {
 	});
 	
 
-    webBackend.start();
+	webBackend.start();
 }
 
 async function checkToken() {
-    if (!token) {
-        logAsApp(`Token not found. Please put it to ${settingsPath} with your token or input now:`);
+	if (!token) {
+		logAsApp(`Token not found. Please put it to ${settingsPath} with your token or input now:`);
 
-        const rl = readline.createInterface({
-            input: process.stdin,
-            output: process.stdout
-        });
+		const rl = readline.createInterface({
+			input: process.stdin,
+			output: process.stdout
+		});
 
-        token = await new Promise(resolve => {
-            rl.question('Please enter your bot token from @botfather: ', (input) => {
-                rl.close();
-                resolve(input);
-            });
-        });
-        if (token) { writeSettings(); }
-    }
+		token = await new Promise(resolve => {
+			rl.question("Please enter your bot token from @botfather: ", (input) => {
+				rl.close();
+				resolve(input);
+			});
+		});
+		if (token) { writeSettings(); }
+	}
 }
 
 // check if sender id == in settings.admin, return result
