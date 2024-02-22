@@ -1,16 +1,13 @@
-const express = require("express");
-const path = require("path");
-const fs = require("fs");
+import express from "express";
+import path from "path";
+import fs from "fs";
 
-module.exports = class ExpressBackend {
+export class ExpressBackend {
 	constructor(port) {
-		if (isNaN(port)) {
-			port = 3001;
-		}
-
 		this.app = express();
-		this.port = port;
-		this.filePath = path.join(__dirname, "/storage", "/pp.json");
+		this.port = port || 3001;
+		this.filePath = path.join(path.resolve(), "/storage", "/pp.json");
+		this.start();
 	}
 
 	start() {
@@ -28,13 +25,13 @@ module.exports = class ExpressBackend {
 		});
 
 		this.app.get("/", (req, res) => {
-			res.sendFile(path.join(__dirname, "public", "index.html"));
+			res.sendFile(path.join(path.resolve(), "public", "index.html"));
 		});
 
-		this.app.use(express.static(path.join(__dirname, "public")));
+		this.app.use(express.static(path.join(path.resolve(), "public")));
 
 		this.app.listen(this.port, () => {
 			console.log("\x1b[35m[Express Backend]\x1b[0m: Server is running on port:", this.port);
 		});
 	}
-};
+}

@@ -2,7 +2,10 @@
   "token": "314547287:AAEHdSvYt2olWtF9mFIZkWr2g9OqgND6T5w",
   "admin": 124117375,
   "db" : {
-    "path": "/db"
+    "default": []
+  },
+  "path": {
+    "db": "/storage/db.json"
   },
   "rarity": {
     "normal": {

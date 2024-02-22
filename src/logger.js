@@ -1,4 +1,4 @@
-module.exports = class Logger {
+export class Logger {
 	constructor(levels) {
 		this.levels = levels || ["info", "error", "warning"];
 		this.colors = {
@@ -17,4 +17,4 @@ module.exports = class Logger {
 		const selectedColor = this.colors[color] || this.colors.normal;
 		console.log(`> ${selectedColor}[${callerName}]: ${this.colors.normal + message}`);
 	}
-};
+}

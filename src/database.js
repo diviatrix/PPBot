@@ -1,26 +1,25 @@
-const low = require("lowdb");
-const FileSync = require("lowdb/adapters/FileSync");
+const Database = require("better-sqlite3");
 
-class Database {
-	constructor(filePath) {
-		this.filePath = filePath;
-		this.db = null;
-		this.connect();
+export class DB {
+	constructor(databasePath) {
+		this.db = new Database(databasePath);
 	}
 
-	connect() {
-		const adapter = new FileSync(this.filePath);
-		this.db = low(adapter);
-		// Add any necessary configurations or defaults here
-		this.db.defaults({ users: [] }).write();
+	read(query, params) {
+		return this.db.prepare(query).get(params);
 	}
 
-	getDb() {
-		if (!this.db) {
-			throw new Error("Database not connected. Call connect() first.");
-		}
-		return this.db;
+	write(query, params) {
+		const stmt = this.db.prepare(query);
+		return stmt.run(params);
+	}
+
+	delete(query, params) {
+		const stmt = this.db.prepare(query);
+		return stmt.run(params);
+	}
+
+	close() {
+		this.db.close();
 	}
 }
-
-module.exports = Database;

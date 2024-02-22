@@ -1,20 +1,13 @@
-const TelegramBot = require("node-telegram-bot-api");
-const fs = require("fs");
-require("path");
-const ExpressBackend = require("./ExpressBackend.js");
-const Logger = require("./logger.js");
+import TelegramBot from "node-telegram-bot-api";
+import fs from "fs";
+import path from "path";
+import { ExpressBackend } from "./ExpressBackend.js";
+import { Logger } from "./logger.js";
+import process from "process";
+
 const logger = new Logger("info", "error", "warning");
-require("bluebird");
-require("console");
-require("assert-plus");
-const path = require("path");
-require("es-abstract/es2019.js");
-require("lodash");
-require("request");
-// eslint-disable-next-line no-undef
-const storageFolderPath = path.join(__dirname, "storage");
+const storageFolderPath = path.join(path.resolve(), "storage");
 const settingsPath = path.join(storageFolderPath, "settings.json");
-// eslint-disable-next-line no-undef
 const settings = openOrCreateJSON(settingsPath, { "token": process.env.TOKEN || "", "port": process.env.PORT || 3001});
 const ppList = openOrCreateJSON(path.join(storageFolderPath, "pp.json"), []);
 const userDatabasePath = path.join(storageFolderPath, "userDatabase.json");
