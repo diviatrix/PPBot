@@ -2,6 +2,15 @@
   "token": "",
   "admin": 1,
   "port": 3003,
+  "firebaseConfig": {
+    "apiKey": "",
+    "authDomain": "",
+    "projectId": "",
+    "storageBucket": "",
+    "messagingSenderId": "",
+    "appId": "",
+    "measurementId": ""
+  },
   "loggerLevel": ["info", "error","warning", "debug"],
   "db": {},
   "path": {

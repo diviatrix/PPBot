@@ -7,7 +7,7 @@ class WebBackend {
     constructor(_settings) {
         this.expressApp = express();
         this.settings = _settings;
-        this.port = _settings.port || 3000;
+        this.port = process.env.port || _settings.port || 3000;
         this.pp = null;
         this.logger = new Logger();
         this.server = null;

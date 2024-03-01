@@ -107,7 +107,7 @@ class TGBot {
 
 	async handleMessage(msg) {
 		// log to console
-		this.logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}]: ${msg.text}`);
+		this.logger.log(`[${msg.from.id}][${msg.from.username}][${msg.from.first_name} ${msg.from.last_name}]: ${msg.text}`, "info");
 
 		// check if message is a command type first and need to be parsed or its  just a normal text message
 		if (msg.text.startsWith('/')) {
@@ -121,7 +121,6 @@ class TGBot {
 
 	async parseCmd(msg) {	
 		let _parsedCommand = await this.sliceBySpace(msg.text); // slice by space
-		this.logger.log(` ${_parsedCommand}`, "info");
 
 		if (!_parsedCommand) { this.cmd_incorrect(msg); return;} // not a valid cmd
 
@@ -135,9 +134,11 @@ class TGBot {
 				} catch (err) {
 					this.logger.log(err, "error");
 				}
-				break;
+				return;
 			}
 		}
+
+		this.logger.log(this.settings.locale.console.bot_cmd_search_fail + _parsedCommand[0], "info");
 	}
 
 	async sliceBySpace(_text)
@@ -161,6 +162,10 @@ class TGBot {
 	async cmd_incorrect(_msg)
 	{
 		await this.sendMessage(_msg,  this.settings.locale.console.bot_cmd_read_fail, { reply_to_message_id: _msg.message_id });
+	}
+	async handleNormalMessage(_msg)
+	{
+		if(!_msg) return;
 	}
 
 }

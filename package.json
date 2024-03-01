@@ -66,6 +66,7 @@
     "fast-json-stable-stringify": "^2.1.0",
     "file-type": "^3.9.0",
     "finalhandler": "^1.2.0",
+    "firebase": "^10.8.1",
     "for-each": "^0.3.3",
     "forever-agent": "^0.6.1",
     "form-data": "^2.3.3",
