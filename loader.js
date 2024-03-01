@@ -1,7 +1,6 @@
-import { readFile, writeFile } from 'fs/promises';
-import Logger from './app/logger.js';
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
+const fs = require('fs').promises;
+const path = require('path');
+const Logger = require('./app/logger.js');
 
 class Loader {
   constructor(callback) {
@@ -13,13 +12,12 @@ class Loader {
     })();
   }
 
-
   async loadJSONFromPath(filePath) {
     try {
-      const currentFilePath = fileURLToPath(import.meta.url);
-      const currentDirPath = dirname(currentFilePath);
-      const resolvedPath = resolve(currentDirPath, filePath);
-      const data = await readFile(resolvedPath, 'utf8');
+      const currentFilePath = __filename;
+      const currentDirPath = path.dirname(currentFilePath);
+      const resolvedPath = path.resolve(currentDirPath, filePath);
+      const data = await fs.readFile(resolvedPath, 'utf8');
       this.logger.log("Settings loaded successfully", "info");
       return JSON.parse(data);
     } catch (error) {
@@ -31,7 +29,7 @@ class Loader {
   async saveSettings() {
     try {
       const data = JSON.stringify(this.settings);
-      await writeFile(this.filePath, data, 'utf8');
+      await fs.writeFile(this.filePath, data, 'utf8');
       console.log("Settings saved successfully");
     } catch (error) {
       console.log('Error saving settings:', error);
@@ -39,6 +37,4 @@ class Loader {
   }
 }
 
-export default Loader;
-
-
+module.exports = Loader;

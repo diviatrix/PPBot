@@ -1,0 +1,29 @@
+{
+  "users": {
+    "1234567890": {
+      "username": "Default User",
+      "userID": 0,
+      "messagecount": 0,
+      "gems": 0,
+      "lastPP": {
+        "id": 0,
+        "time": "1706906036417"
+      },
+      "collection": {
+        "PP": {
+          "0": {
+            "id": 0,
+            "amount_recieved": 0,
+            "amount_have": 0
+          }
+        }
+      }
+    }
+  },
+  "chats": {
+    "id": {
+      "name": "Default Chat Data",
+      "messages": 0
+    }
+  }
+}

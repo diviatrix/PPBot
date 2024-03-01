@@ -1,12 +1,11 @@
-import { Telegraf } from 'telegraf';
-import Logger from './logger.js';
+const TelegramBot = require('node-telegram-bot-api');
+const Logger = require('./logger.js');
 
-export default class TGBot {
+class TGBot {
 	constructor(_settings) {
 		this.logger = new Logger();
 		this.settings = _settings;
 		this.commands = _settings.locale.commands;
-		this.run = false;
 		this.bot;
 		this.commandHandlers = [];	
 		this.start();
@@ -16,13 +15,13 @@ export default class TGBot {
 		// check token
 		this.logger.log(this.settings.locale.console.bot_token_verify_start, "info");
 		if (!await this.verifyToken(this.settings.token)) {
-			this.logger.log(this.settings.locale.console.bot_token_verify_invalid, "error");
+			this.logger.log(this.settings.locale.console.bot_token_verify_fail, "error");
 			return;
 		}
 
 		// create commands
 		for (let command in this.settings.locale.commands) {
-			if (this.commands.hasOwnProperty(command)) {
+			if (Object.prototype.hasOwnProperty.call(this.commands, command)) {
 				// Remove the slash from the command name
 				let functionName = "cmd_" + command.slice(1);
 
@@ -30,9 +29,9 @@ export default class TGBot {
 				if (typeof this[functionName] === 'function'){
 					// Bind the function to 'this' and store it along with the command name
 					this.commandHandlers.push({command: command, handler: this[functionName].bind(this)});
-					this.logger.log(command + this.settings.locale.console.bot_command_created + this[functionName].name, "info");
+					this.logger.log(command + this.settings.locale.console.bot_cmd_create_pass + this[functionName].name, "info");
 				} else {
-					this.logger.log(command + this.settings.locale.console.bot_command_func_404, "warning");
+					this.logger.log(command + this.settings.locale.console.bot_cmd_func_404, "warning");
 				}
 				
 			}
@@ -42,41 +41,33 @@ export default class TGBot {
 		
 
 		// start BOT	
-		this.bot = new Telegraf(this.settings.token);		
-		this.run = true;
+		if (!this.bot) this.bot = new TelegramBot(this.settings.token);		
 
-		this.bot.start((ctx) => {
-			ctx.reply('Hello, to start using this bot, please register with /go command');
+		this.bot.on('text', (msg) => {
+			this.handleMessage(msg);	
 		});
 
-		this.bot.on('text', (ctx) => {
-			this.handleMessage(ctx.message);	
-		});
-
-		this.bot.launch();
+		this.bot.startPolling();
 	}
 
 	async stop()
 	{
 		await this.bot?.stop();
 		this.bot = null;
-		this.run = false
 		return true;
 	}
 
-	async verifyToken(token) {		
+	async verifyToken(_token) {		
 		// try to connect, if success disconnect and return true, else disconnect return false
-		const _tempBot = new Telegraf(token);
+		this.bot = new TelegramBot(_token);
 		try {
-			this.run = true;
-			await _tempBot.telegram.getMe();
-			_tempBot.stop();
-			this.logger.log("Token verified", "info");
+			await this.bot.startPolling();
+			await this.bot.stopPolling();
+			this.logger.log(this.settings.locale.console.bot_token_verify_pass, "info");
 			return true;
 		} catch (error) {
-			if (_tempBot.run) _tempBot.stop();
-			this.run = false;
-			this.logger.log("Token verification failed", "error");
+			if (this.bot?.isPolling()) this.bot?.stopPolling();
+			this.logger.log(this.settings.locale.console.bot_token_verify_fail + error, "error");
 			return false;
 		}
 	}
@@ -85,30 +76,30 @@ export default class TGBot {
 	{
 		// basic conditions
 		if (!message || !chatID) { 
-			this.logger.log(bot_message_verify_fail + message + chatID, "error");
+			this.logger.log(this.settings.locale.console.bot_msg_verify_fail + message + chatID, "error");
 			return; 
 		}
 		// send message to chat
 		else if (!replyID) {
-			await this.bot.telegram.sendMessage(chatID, message, { parse_mode: 'HTML' })
+			await this.bot.sendMessage(chatID, message, { parse_mode: 'HTML' })
 				.then(() => {
-					this.logger.log(this.settings.locale.console.bot_message_send_success + chatID + ": " + message, "info");
+					this.logger.log(this.settings.locale.console.bot_msg_send_pass + chatID + ": " + message, "info");
 				})
 				.catch((error) => {
-					this.logger.log(this.settings.locale.console.bot_message_send_fail + error, "error");
+					this.logger.log(this.settings.locale.console.bot_msg_send_fail + error, "error");
 				});
 		} else if (replyID) {
-			await this.bot.telegram.sendMessage(chatID, message, { reply_to_message_id: replyID, parse_mode: 'HTML'})
+			await this.bot.sendMessage(chatID, message, { reply_to_message_id: replyID, parse_mode: 'HTML'})
 				.then(() => {
-					this.logger.log(this.settings.locale.console.bot_message_send_success + chatID + ": " + message, "info");
+					this.logger.log(this.settings.locale.console.bot_msg_send_pass + chatID + ": " + message, "info");
 				})
 				.catch((error) => {
-					this.logger.log(this.settings.locale.console.bot_message_send_fail + error, "error");
+					this.logger.log(this.settings.locale.console.bot_msg_send_fail + error, "error");
 				});
 		} else {
-			await this.bot.telegram.sendMessage(chatID, message)
+			await this.bot.sendMessage(chatID, message)
 				.catch((error) => { 
-					this.logger.log(this.settings.locale.console.bot_message_send_fail + error, "error"); 
+					this.logger.log(this.settings.locale.console.bot_msg_send_fail + error, "error"); 
 				});
 		}
 	}
@@ -130,13 +121,13 @@ export default class TGBot {
 
 	async parseCmd(msg) {	
 		let _parsedCommand = await this.sliceBySpace(msg.text); // slice by space
-		this.logger.log(`Recieved command: ${_parsedCommand}`, "info");
+		this.logger.log(` ${_parsedCommand}`, "info");
 
-		if (!_parsedCommand) { this.cmd_incorrect(msg); return;}; // not a valid cmd
+		if (!_parsedCommand) { this.cmd_incorrect(msg); return;} // not a valid cmd
 
+		this.logger.log(this.settings.locale.console.bot_cmd_search + _parsedCommand[0], "info");
 		// check if commandHandlers have this command and run associated method
 		for (const { command, handler } of this.commandHandlers) {
-			this.logger.log(`Checking command ${command}`, "info");
 			if (_parsedCommand[0] === command) {
 				this.logger.log(`Command ${_parsedCommand[0]} found, calling method`, "info");
 				try {
@@ -169,7 +160,9 @@ export default class TGBot {
 
 	async cmd_incorrect(_msg)
 	{
-		await this.sendMessage(_msg,  "Incorrect command usage or i'm dead", { reply_to_message_id: _msg.message_id });
+		await this.sendMessage(_msg,  this.settings.locale.console.bot_cmd_read_fail, { reply_to_message_id: _msg.message_id });
 	}
 
 }
+
+module.exports = TGBot;

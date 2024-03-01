@@ -1,10 +1,12 @@
+/* eslint-env node */
+const WebBackend = require('./app/webBackend.js');
+const Loader = require('./loader.js');
+const Logger = require('./app/logger.js');
+const TGBot = require('./app/bot.js');
+const DB = require('./app/db.js');
+const readline = require('readline');
+
 // #region IMPORTS
-import WebBackend from './app/webBackend.js';
-import Loader from './loader.js';
-import Logger from './app/logger.js';
-import TGBot from './app/bot.js';
-import DB from './app/db.js';
-import { createInterface } from 'readline';
 // #endregion
 
 // #region VARS
@@ -18,45 +20,40 @@ let db;
 // #endregion
 
 function createLoader() {
-    return new Promise((resolve, reject) => {
-        const loader = new Loader((err) => {
-            if (err) {
-                reject(err);
-            } else {
-                logger.log('Loader ready', "app");
-                resolve(loader);
-            }
-        });
-    });
+	return new Promise((resolve, reject) => {
+		const loader = new Loader((err) => {
+			if (err) {
+				reject(err);
+			} else {
+				logger.log('Loader ready', "app");
+				resolve(loader);
+			}
+		});
+	});
 } 
-
-async function createDBConnector() {
-	if (!loader.settings.defaultLowDBStructure) {
-	  throw new Error('Default LowDB structure is missing in settings');
-	}
-	const db = new DB(loader.settings);
-	await db.connect();
-	logger.log("Database connected", 'db');
-	return db;
-  }
 
 async function initialize() {
 	await start();
-	rl = createInterface({ input: process.stdin, output: process.stdout	});	
+	rl = readline.createInterface({ input: process.stdin, output: process.stdout	});	
 }
 
 async function start() {
+	if (run) {	logger.log("Application is already running", "info"); return; }
 	try {
 		loader = await createLoader();
-		db = await createDBConnector();
+		//db = new DB(loader.settings.path.db);
 		tgBot = new TGBot(loader.settings);
 		webBackend = new WebBackend(loader.settings);
 		run = true;
-		logger.log('Application: Initialization completed successfully', "info");
-		} catch (error) {
-			const errorMessage = `Application: Error initializing at ${error.stack}`;
-			logger.log(errorMessage, "error");
+		logger.log('Application: Initialization completed', "info");
 		}
+		
+	catch (error) {
+		const errorMessage = `Application: Error initializing at ${error.stack}`;
+		logger.log(errorMessage, "error");
+	}
+
+	readInput();
 }
 
 async function stop() {
@@ -76,20 +73,12 @@ async function readInput()
 // parse command from user answer
 async function parseCommand(userAnswer){
 	// exit command
-	if(userAnswer == 'exit'){
-		process.exit(0);
-	}
-	// help command
-	else if(userAnswer == 'help'){
-		logger.log("Available commands: exit, help, reload, status, start, stop", "info");
-	}
-	// reload command, cleanup and reinitialize
-	else if(userAnswer.startsWith('reload')){
-		await reload();
-	} 
-	else if (userAnswer.startsWith('status')) {
-		logger.log("Status: " + (run ? "running" : "stopped"), "info");
-	}
+	if(userAnswer == 'exit'){ process.exit(0); }
+	else if(userAnswer == 'start'){ await start(); logger.log("Application started", "info");}
+	else if(userAnswer == 'stop'){ await stop(); logger.log("Application stopped", "info");}
+	else if(userAnswer == 'help'){ logger.log("Available commands: exit, help, reload, status, start, stop", "info"); }
+	else if(userAnswer.startsWith('reload')){ await reload(); } 
+	else if (userAnswer.startsWith('status')) { logger.log("Status: " + (run ? "running" : "stopped"), "info");	}
 	else logger.log("Unknown command, type 'help' for available commands", "warning");
 }
 

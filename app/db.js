@@ -1,43 +1,41 @@
-import { LowSync } from 'lowdb';
-import { JSONFileSync } from 'lowdb/node';
-import lodash from 'lodash';
+const sqlite3 = require('sqlite3').verbose();
+const Logger = require('./logger.js');
+const path = require('path');
 
-// dirname
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-const __dirname = dirname(fileURLToPath(import.meta.url));
+let logger = new Logger();
 
-// DB class
+
 class DB {
-  constructor(settings) {
-    this.db = new LowSync(new JSONFileSync(join(__dirname, settings.path.db)), settings.defaultLowDBStructure);
-    this.db.read();
-    this.db.write();
-  }
+  constructor(_path) {
+    logger.log(path.resolve(_path), "debug");
+    try {      
+      this.db = new sqlite3.Database(`${_path}`, (err) => {
+        if (err) {
+          throw err;
+        }
+        console.log('Connected to the database.');
+      });
 
-  async read() {
-    await this.db.read();
-    // If data doesn't exist, populate with default
-    this.db.data ||= settings.defaultLowDBStructure;
-  }
-
-  async connect() {
-    await this.db.read();
-    await this.db.write();
-  }
-
-  async initialize(settings) {
-    await this.db.read();
-    // If data doesn't exist, initialize it with default structure
-    if (!this.db.data) {
-      this.db.data = settings.defaultLowDBStructure;
-      await this.db.write();
+      this.run();
+    } catch (err) {
+      console.error(err);
     }
+    return this;
   }
 
-  findUserById(id) {
-    return lodash.chain(this.db.data).get('users').find({ id }).value();
+  run() {
+    this.db.run(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY,
+      name TEXT,
+      email TEXT UNIQUE
+    )
+  `, (err) => {
+      if (err) {
+        console.error(err.message);
+      }
+    });
   }
 }
 
-export default DB;
+module.exports = DB;

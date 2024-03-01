@@ -1,14 +1,9 @@
-import express from 'express';
-import { promises } from 'fs';
-import Logger from './logger.js';
+const express = require('express');
+const fs = require('fs').promises;
+const Logger = require('./logger.js');
+const path = require('path');
 
-// dirname
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-
-export default class WebBackend {
+class WebBackend {
     constructor(_settings) {
         this.expressApp = express();
         this.settings = _settings;
@@ -23,7 +18,7 @@ export default class WebBackend {
     async loadPPAsync() {
         const ppPath = this.settings.path.PP;
         try {
-            const ppData = await promises.readFile(join(__dirname, ppPath), 'utf8');
+            const ppData = await fs.readFile(path.join(__dirname, ppPath), 'utf8');
             this.pp = JSON.parse(ppData);
         } catch (err) {
             console.error(err);
@@ -40,10 +35,10 @@ export default class WebBackend {
         });
 
         this.expressApp.get('/', (req, res) => {
-            res.sendFile(join(__dirname, 'public', 'index.html'));
+            res.sendFile(path.join(__dirname, 'public', 'index.html'));
         });
 
-        this.expressApp.use(express.static(join(__dirname, 'public')));
+        this.expressApp.use(express.static(path.join(__dirname, 'public')));
 
         this.server = this.expressApp.listen(this.port, () => { this.logger.log(`Web backend is running on port: ${this.port}`, "info" ); });
     }
@@ -52,3 +47,5 @@ export default class WebBackend {
         this.server.close();
     }
 }
+
+module.exports = WebBackend;
