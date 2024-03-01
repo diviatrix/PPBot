@@ -1,14 +1,14 @@
 {
-  "token": "1234567890:qwertyuiopASDFGHJKL;'zxcvbnm,./",
-  "admin": 1234567890,
-  "port": 3000,
-  "loggerLevel": ["info", "error", "warning"],
+  "token": "",
+  "admin": 1,
+  "port": 3003,
+  "loggerLevel": ["info", "error","warning", "debug"],
   "db": {},
   "path": {
     "public": "./public",
     "locale": "./storage/locale.json",
     "PP": "./storage/PP.json",
-    "db": "/storage/database.json"
+    "db": "/storage/database.db"
   },
   "defaultLowDBStructure":{
     "users": {
@@ -124,12 +124,16 @@
     "console": {
       "info_is_requesting": "is trying to: ",
       "bot_token_verify_start": "Start verifying token...",
-      "bot_token_verify_invalid": "Token is invalid, cant start TGbot.",
-      "bot_command_created": " command created with function: ",
-      "bot_command_func_404": " does not have an associated function.",
-      "bot_message_verify_fail": "Message or chatID is undefined:",
-      "bot_message_send_fail": "Failed to send: ",
-      "bot_message_send_success": "Sent message: "
+      "bot_token_verify_pass": "Token verified",
+      "bot_token_verify_fail": "Error validating token: ",
+      "bot_cmd_create_pass": " command created with function: ",
+      "bot_cmd_func_404": " does not have an associated function.",
+      "bot_cmd_recieved": "Recieved command:",
+      "bot_cmd_read_fail": "Incorrect command usage",
+      "bot_cmd_search": "Searching command: ",
+      "bot_msg_verify_fail": "Message or chatID is undefined:",
+      "bot_msg_send_fail": "Failed to send: ",
+      "bot_msg_send_pass": "Sent message: "
     },
     "commands": {
       "/go": "Register you in PP System",
