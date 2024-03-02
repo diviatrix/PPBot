@@ -3,7 +3,7 @@ const WebBackend = require('./app/webBackend.js');
 const Loader = require('./loader.js');
 const Logger = require('./app/logger.js');
 const TGBot = require('./app/bot.js');
-const DB = require('./app/db.js');
+const DB = require('./app/firebase.js');
 const readline = require('readline');
 
 // #region IMPORTS

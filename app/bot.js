@@ -118,16 +118,19 @@ class TGBot {
 			this.handleNormalMessage(msg);
 		}
 	}
-
 	async parseCmd(msg) {	
-		let _parsedCommand = await this.sliceBySpace(msg.text); // slice by space
-
+		// Remove '@bot_name' from the command if it exists
+		let command = msg.text.split('@')[0];
+	
+		// Split by space only if there are values after the command
+		let _parsedCommand = command.includes(' ') ? await this.sliceBySpace(command) : [command];
+	
 		if (!_parsedCommand) { this.cmd_incorrect(msg); return;} // not a valid cmd
-
+	
 		this.logger.log(this.settings.locale.console.bot_cmd_search + _parsedCommand[0], "info");
 		// check if commandHandlers have this command and run associated method
-		for (const { command, handler } of this.commandHandlers) {
-			if (_parsedCommand[0] === command) {
+		for (const { command: cmd, handler } of this.commandHandlers) {
+			if (_parsedCommand[0] === cmd) {
 				this.logger.log(`Command ${_parsedCommand[0]} found, calling method`, "info");
 				try {
 					await handler(msg, _parsedCommand); // Call the method with await
@@ -137,9 +140,11 @@ class TGBot {
 				return;
 			}
 		}
-
+	
 		this.logger.log(this.settings.locale.console.bot_cmd_search_fail + _parsedCommand[0], "info");
 	}
+	
+	
 
 	async sliceBySpace(_text)
 	{

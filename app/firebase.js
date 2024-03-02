@@ -40,7 +40,7 @@ class DB {
     const userSnapshot = await userRef.get();
     const userExists = userSnapshot.exists;
     const logMessage = userExists ? this.settings.locale.console.db_user_exists : this.settings.locale.console.db_user_not_exists;
-    this.logger.log(logMessage, "info");
+    this.logger.log(logMessage + msg.from.id, "info");
     return userExists;
   }
 
