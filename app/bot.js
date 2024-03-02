@@ -1,14 +1,14 @@
 const TelegramBot = require('node-telegram-bot-api');
-const Logger = require('./logger.js');
-
 class TGBot {
-	constructor(_settings) {
-		this.logger = new Logger();
+	constructor(_settings, _db, _logger) {
+		this.logger = _logger;
+		this.db = _db;
 		this.settings = _settings;
 		this.commands = _settings.locale.commands;
 		this.bot;
 		this.commandHandlers = [];	
 		this.start();
+		this.logger.log('Bot constructed', "info");
 	}
 
 	async start() {
@@ -155,13 +155,33 @@ class TGBot {
 
 	async cmd_go(_msg)
 	{
-		this.logger.log(`User ${_msg.from.first_name} ${_msg.from.last_name} wants to go!`, "info");
-		this.sendMessage(_msg.chat.id, "Going", _msg.message_id);
+		if (!await this.db.db_user_isRegistered(_msg)) {
+			await this.db.db_user_write(_msg);
+			this.logger.log(this.settings.locale.console.bot_cmd_go_register_pass +  _msg.from.id, "info");
+			this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_go_pass, _msg.message_id);
+		}
+		else {
+			this.logger.log(this.settings.locale.console.bot_cmd_go_register_fail + _msg.from.id, "info");
+			this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_go_fail, _msg.message_id);
+		}
+		
+	}
+
+	async cmd_deleteme(_msg)
+	{
+		if (await this.db.db_user_isRegistered(_msg)) {
+			await this.db.db_user_erase(_msg);
+			this.logger.log(this.settings.locale.console.bot_cmd_deleteme_pass + _msg.from.id, "info");
+			this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_deleteme_pass, _msg.message_id);
+		} else {
+			this.logger.log(this.settings.locale.console.bot_cmd_deleteme_fail + _msg.from.id, "info");
+			this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_deleteme_fail, _msg.message_id);
+		}
 	}
 
 	async cmd_incorrect(_msg)
 	{
-		await this.sendMessage(_msg,  this.settings.locale.console.bot_cmd_read_fail, { reply_to_message_id: _msg.message_id });
+		await this.sendMessage(_msg.chat.id,  this.settings.locale.console.bot_cmd_read_fail, _msg.message_id);
 	}
 	async handleNormalMessage(_msg)
 	{

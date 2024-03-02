@@ -40,10 +40,10 @@ async function initialize() {
 async function start() {
 	if (run) {	logger.log("Application is already running", "info"); return; }
 	try {
-		loader = await createLoader();
-		db = new DB(loader.settings);
-		tgBot = new TGBot(loader.settings);
-		webBackend = new WebBackend(loader.settings);
+		loader = await createLoader(logger);
+		db = new DB(loader.settings, logger);
+		tgBot = new TGBot(loader.settings, db, logger);
+		webBackend = new WebBackend(loader.settings, logger);
 		run = true;
 		logger.log('Application: Initialization completed', "info");
 		}

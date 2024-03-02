@@ -13,15 +13,15 @@
 		{"rarity": "epic", "description":"Binary ON"},
 		{"rarity": "legendary", "description":"🔝🔝🔝"},
 		{"rarity": "1337", "description":"Singleplayer"},
-		{"rarity": "idiot", "description":"Selfish"}
+		{"rarity": "idiot", "description":"Solo-Bolo"}
 	]},
 	{"2" : [
 		{"rarity": "normal", "description":"Pair"},
 		{"rarity": "rare", "description":"Duality, Balance"},
 		{"rarity": "epic", "description":"Binary 10"},
 		{"rarity": "legendary", "description":"🤼🏻‍♀️"},
-		{"rarity": "1337", "description":"Multiplayer"},
-		{"rarity": "idiot", "description":"Selfish"}
+		{"rarity": "1337", "description":"Double-Kill"},
+		{"rarity": "idiot", "description":"Double Penetration"}
 	]},
 	{"3" : [
 		{"rarity": "normal", "description":"Trio"},
@@ -29,22 +29,22 @@
 		{"rarity": "epic", "description":"Binary 11"},
 		{"rarity": "legendary", "description":"👪🏼"},
 		{"rarity": "1337", "description":"Team Player"},
-		{"rarity": "idiot", "description":"Selfish"}
+		{"rarity": "idiot", "description":"Threesome"}
 	]},
 	{"4" : [
 		{"rarity": "normal", "description":"Quartet"},
 		{"rarity": "rare", "description":"Stability, Square"},
 		{"rarity": "epic", "description":"💀死"},
 		{"rarity": "legendary", "description":"☠️死"},
-		{"rarity": "1337", "description":"Squad"},
-		{"rarity": "idiot", "description":"Selfish"}
+		{"rarity": "1337", "description":"Quad Damage"},
+		{"rarity": "idiot", "description":"Foursome"}
 	]},
 	{"5" : [
 		{"rarity": "normal", "description":"Quintet"},
 		{"rarity": "rare", "description":"Pentagon, Balance"},
 		{"rarity": "epic", "description":"♷"},
 		{"rarity": "legendary", "description":"⚄"},
-		{"rarity": "1337", "description":"Team Player"},
+		{"rarity": "1337", "description":"Pentakill"},
 		{"rarity": "idiot", "description":"Selfish"}
 	]},
 	{"6" : [

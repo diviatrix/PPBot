@@ -1,18 +1,18 @@
 const express = require('express');
 const fs = require('fs').promises;
-const Logger = require('./logger.js');
 const path = require('path');
 
 class WebBackend {
-    constructor(_settings) {
+    constructor(_settings, _logger) {
         this.expressApp = express();
         this.settings = _settings;
         this.port = process.env.port || _settings.port || 3000;
         this.pp = null;
-        this.logger = new Logger();
+        this.logger = _logger;
         this.server = null;
         this.loadPPAsync();
         this.start();
+        this.logger.log('WebBackend constructed', "info");
     }
 
     async loadPPAsync() {
@@ -40,7 +40,7 @@ class WebBackend {
 
         this.expressApp.use(express.static(path.join(__dirname, 'public')));
 
-        this.server = this.expressApp.listen(this.port, () => { this.logger.log(`Web backend is running on port: ${this.port}`, "info" ); });
+        this.server = this.expressApp.listen(this.port, () => { this.logger.log(this.settings.locale.console.back_run_pass + this.port, "info" ); });
     }
 
     stop() {
