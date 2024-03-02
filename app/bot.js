@@ -188,6 +188,17 @@ class TGBot {
 	{
 		await this.sendMessage(_msg.chat.id,  this.settings.locale.console.bot_cmd_read_fail, _msg.message_id);
 	}
+	async cmd_commands(_msg)
+	{
+		if (!await this.db.db_user_isRegistered(_msg)) { this.logger.log(this.settings.locale.console.bot_cmd_requirement_register);  return; }
+
+		let message = this.settings.locale.base.bot_cmd_commands + "\n";
+		for (const { command } of this.commandHandlers) {
+			message += command + "\n";
+		}
+		await this.sendMessage(_msg.chat.id, message, _msg.message_id);
+		this.logger.log(this.settings.locale.console.bot_cmd_commands, "info");
+	}
 	async handleNormalMessage(_msg)
 	{
 		if(!_msg) return;

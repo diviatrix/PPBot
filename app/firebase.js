@@ -23,8 +23,9 @@ class DB {
     user.first_name = msg.from.first_name || "";
     user.last_name = msg.from.last_name || "";
     user.chatId = msg.chat.id;
-    user.log = this.settings.model.log;
-    user.log.account.time_register = admin.firestore.Timestamp.fromDate(new Date());
+    user.stats = this.settings.model.stats;
+    await this.setObjectByPath(user, this.settings.path.db.user.time_register, admin.firestore.Timestamp.fromDate(new Date()));
+    //user.stats.account.time_register = admin.firestore.Timestamp.fromDate(new Date());
     await this.db.collection(this.settings.path.db.users).doc(user.id.toString()).set(user);
     return true;
   }
@@ -55,6 +56,39 @@ class DB {
       start_time: admin.firestore.Timestamp.fromDate(new Date()),
     };
     await this.db_push(this.settings.path.db.session, data);
+  }
+
+  async getObjectByPath(_target, _search) {
+    let parts = _search.split('/');
+    let current = _target;
+
+    for (let part of parts) {
+        if (current[part] === undefined) {
+            return undefined;
+        }
+        current = current[part];
+    }
+
+    return current;
+  }
+
+  async setObjectByPath(_target, _path, _value) {
+    let parts = _path.split('/');
+    let current = _target;
+
+    for (let i = 0; i < parts.length; i++) {
+      // If we're at the last part of the path, set the value
+      if (i === parts.length - 1) {
+          current[parts[i]] = _value;
+      } else {
+          // If the next part of the path doesn't exist in the object, create an empty object
+          if (current[parts[i]] === undefined) {
+              current[parts[i]] = {};
+          }
+          // Move to the next part of the path
+          current = current[parts[i]];
+      }
+    }
   }
 }
 

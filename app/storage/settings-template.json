@@ -1,51 +1,68 @@
 {
   "token": "",
-  "admin": 1,
+  "admin": 0,
   "port": 3003,
-  "firebaseConfig": {
-    "apiKey": "",
-    "authDomain": "",
-    "projectId": "",
-    "storageBucket": "",
-    "messagingSenderId": "",
-    "appId": "",
-    "measurementId": ""
-  },
   "loggerLevel": ["info", "error","warning", "debug"],
-  "db": {},
+  "db": {
+    "serviceAccount": {}
+  },
   "path": {
     "public": "./public",
     "locale": "./storage/locale.json",
     "PP": "./storage/PP.json",
-    "db": "/storage/database.db"
+    "db": {
+      "session": "app/session/records",
+      "users": "app/users/records",
+      "user":{
+        "time_register": "stats/account/time_register"
+      }
+    }
   },
-  "defaultLowDBStructure":{
-    "users": {
-      "1234567890": {
-        "username": "Default User",
-        "userID": 0,
-        "messagecount": 0,
-        "gems": 0,
-        "lastPP": {
-          "id": 0,
-          "time": "1706906036417"
-        },
-        "collection": {
-          "PP": {
-            "0": {
-              "id": 0,
-              "amount_recieved": 0,
-              "amount_have": 0
-            }
-          }
-        }
-      }
+  "model":{
+    "user": {      
+      "id": 0,
+      "username": "username",
+      "first_name": "User",
+      "last_name": "Name",
+      "chatId": 0,
+      "isAdmin": false,        
+      "wallet": {
+        "experience": 0,
+        "level": 0,
+        "balance": 0,
+        "ticket": 0,
+        "records": [] 
+      },
+      "stats": {}
     },
-    "chats": {
-      "id": {
-        "name": "Default Chat Data",
+    "stats": {
+      "account": {
+        "time_register": "",
         "messages": 0
-      }
+      },      
+      "roll": [],
+      "collectible_last": {}
+    },
+    "record": {
+      "roll": {
+        "id": 0,
+        "time": "",
+        "amount": 0,
+        "rarity": "normal"
+      },
+      "wallet": {
+        "id": 0,
+        "amount": 0,
+        "from": {
+          "id": 0,
+          "time": "",
+          "message": ""
+        }        
+      },
+      "collectible_last": {
+        "id": 0,
+        "time": ""
+      }     
     }
   },
   "messageStrings": {
@@ -111,24 +128,16 @@
       "weight": 0.1
     }
   },
-  "defaultUser": {
-    "id": 0,
-    "username": "string",
-    "chatId": 0,
-    "messagesCount": 0,
-    "gemsCount": 0,
-    "lastPP": {
-      "id": 0,
-      "time": "1706906036417"
-    },
-    "collection": {}
-  },
   "locale": {
     "base": {
-      "register_success": "Welcome",
       "suggest_no_args": "Do not forget to provide suggestion itself 🗿\nUse <code>/add 2077 - Wake the fuck up, samurai!</code>",
       "suggest_success": "Thank you for your suggestion.",
-      "suggest_already_submitted": "You have already suggested this."
+      "suggest_already_submitted": "You have already suggested this.",
+      "cmd_go_pass": "🫡 Congratulations! 🫡\nYou've been successfully registered in PP bot system.\nStart off with <code>/commands</code>.\n\n💰GL, collector!💰",
+      "cmd_go_fail": "You are already registered, or registration is disabled.",
+      "bot_cmd_commands": "List of all available commands",
+      "cmd_deleteme_pass": "Your data fully deleted without restoraion: ",
+      "cmd_deleteme_fail": "Error deleting your account: "
     },
     "console": {
       "info_is_requesting": "is trying to: ",
@@ -140,9 +149,21 @@
       "bot_cmd_recieved": "Recieved command:",
       "bot_cmd_read_fail": "Incorrect command usage",
       "bot_cmd_search": "Searching command: ",
+      "bot_cmd_search_fail": "No matching handlers for commmands found: ",
+      "bot_cmd_go_register_pass": "Successfully registered user: ",
+      "bot_cmd_go_register_fail": "Can not register user: ",
+      "bot_cmd_deleteme_pass": "User data fully deleted: ",
+      "bot_cmd_deleteme_fail": "Can not delete user: ",
+      "bot_cmd_commands": "List of all commands: ",
+      "bot_cmd_requirement_register": "User have to be registered to use this command: ",
       "bot_msg_verify_fail": "Message or chatID is undefined:",
       "bot_msg_send_fail": "Failed to send: ",
-      "bot_msg_send_pass": "Sent message: "
+      "bot_msg_send_pass": "Sent message: ",
+      "db_write_pass": "Document written to DB: ",
+      "db_user_exists": "User exists: ",
+      "db_user_not_exists": "User does not exist: ",
+      "db_user_erase_pass": "User data fully deleted: ",
+      "back_run_pass": "Web backend is running on port: "
     },
     "commands": {
       "/go": "Register you in PP System",
