@@ -160,6 +160,7 @@
       "bot_msg_send_fail": "Failed to send: ",
       "bot_msg_send_pass": "Sent message: ",
       "db_write_pass": "Document written to DB: ",
+      "db_delete_pass": "Document deleted from DB: ",
       "db_user_exists": "User exists: ",
       "db_user_not_exists": "User does not exist: ",
       "db_user_erase_pass": "User data fully deleted: ",

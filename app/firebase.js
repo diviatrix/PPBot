@@ -30,10 +30,13 @@ class DB {
     return true;
   }
 
-  async db_user_erase(msg)
-  {
-    let userRef = this.db.collection(this.settings.path.db.users).doc(msg.from.id.toString());
-    userRef.delete().then(() => { this.logger.log(`${this.settings.locale.console.db_user_erase_pass} ${msg.from.id}`, "info"); }).catch((error) => { this.logger.log(`${this.settings.locale.console.db_user_erase_fail} ${msg.from.id} : ${error}`, "error"); });
+  async db_user_erase(msg) {
+    try {
+      await this.db_delete(this.settings.path.db.users, msg.from.id.toString());
+      this.logger.log(`${this.settings.locale.console.db_user_erase_pass} ${msg.from.id}`, "info");
+    } catch (error) {
+      this.logger.log(`${this.settings.locale.console.db_user_erase_fail} ${msg.from.id} : ${error}`, "error");
+    }
   }
 
   async db_user_isRegistered(msg){
@@ -53,6 +56,11 @@ class DB {
       const res = await this.db.collection(_path).add(_data);
       this.logger.log(this.settings.locale.console.db_write_pass + _path + "/" + res.id, "info" );
     }
+  }
+  async db_delete(_path, _id){
+    const doc = this.db.collection(_path).doc(_id);
+    await doc.delete();
+    this.logger.log(this.settings.locale.console.db_delete_pass + _path + "/" + _id, "info" );
   }
 
   async start() {
