@@ -53,7 +53,7 @@ async function start() {
 		logger.log(errorMessage, "error");
 	}
 
-	readInput();
+	await readInput();
 }
 
 async function stop() {

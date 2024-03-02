@@ -72,82 +72,42 @@ class TGBot {
 		}
 	}
 
-	async sendMessage(chatID, message, replyID) 
-	{
-		// basic conditions
+	async sendMessage(chatID, message, replyID) {
 		if (!message || !chatID) { 
 			this.logger.log(this.settings.locale.console.bot_msg_verify_fail + message + chatID, "error");
 			return; 
 		}
-		// send message to chat
-		else if (!replyID) {
-			await this.bot.sendMessage(chatID, message, { parse_mode: 'HTML' })
-				.then(() => {
-					this.logger.log(this.settings.locale.console.bot_msg_send_pass + chatID + ": " + message, "info");
-				})
-				.catch((error) => {
-					this.logger.log(this.settings.locale.console.bot_msg_send_fail + error, "error");
-				});
-		} else if (replyID) {
-			await this.bot.sendMessage(chatID, message, { reply_to_message_id: replyID, parse_mode: 'HTML'})
-				.then(() => {
-					this.logger.log(this.settings.locale.console.bot_msg_send_pass + chatID + ": " + message, "info");
-				})
-				.catch((error) => {
-					this.logger.log(this.settings.locale.console.bot_msg_send_fail + error, "error");
-				});
-		} else {
-			await this.bot.sendMessage(chatID, message)
-				.catch((error) => { 
-					this.logger.log(this.settings.locale.console.bot_msg_send_fail + error, "error"); 
-				});
-		}
-	}
 	
+		const options = replyID ? { reply_to_message_id: replyID, parse_mode: 'HTML' } : { parse_mode: 'HTML' };
+	
+		await this.bot.sendMessage(chatID, message, options)
+			.then(() => { this.logger.log(this.settings.locale.console.bot_msg_send_pass + chatID + ": " + message, "info");})
+			.catch((error) => { this.logger.log(this.settings.locale.console.bot_msg_send_fail + error, "error"); });
+	}	
 
 	async handleMessage(msg) {
-		// log to console
 		this.logger.log(`[${msg.from.id}][${msg.from.username}][${msg.from.first_name} ${msg.from.last_name}]: ${msg.text}`, "info");
-
-		// check if message is a command type first and need to be parsed or its  just a normal text message
-		if (msg.text.startsWith('/')) {
-			this.parseCmd(msg);
-
-		} else {
-			// normal message
-			this.handleNormalMessage(msg);
-		}
+		if (msg.text.startsWith('/')) { this.parseCmd(msg);	} 
+		else { this.handleNormalMessage(msg); }
 	}
-	async parseCmd(msg) {	
-		// Remove '@bot_name' from the command if it exists
+	async parseCmd(msg) {
 		let command = msg.text.split('@')[0];
-	
-		// Split by space only if there are values after the command
 		let _parsedCommand = command.includes(' ') ? await this.sliceBySpace(command) : [command];
-	
-		if (!_parsedCommand) { this.cmd_incorrect(msg); return;} // not a valid cmd
-	
-		this.logger.log(this.settings.locale.console.bot_cmd_search + _parsedCommand[0], "info");
-		// check if commandHandlers have this command and run associated method
-		for (const { command: cmd, handler } of this.commandHandlers) {
-			if (_parsedCommand[0] === cmd) {
-				this.logger.log(`Command ${_parsedCommand[0]} found, calling method`, "info");
-				try {
-					await handler(msg, _parsedCommand); // Call the method with await
-				} catch (err) {
-					this.logger.log(err, "error");
-				}
-				return;
-			}
-		}
-	
-		this.logger.log(this.settings.locale.console.bot_cmd_search_fail + _parsedCommand[0], "info");
-	}
-	
-	
 
-	async sliceBySpace(_text)
-	{
+		if (!_parsedCommand) { this.cmd_incorrect(msg); return;	}
+
+		this.logger.log(this.settings.locale.console.bot_cmd_search + _parsedCommand[0], "info");
+
+		const commandHandler = this.commandHandlers.find(({ command: cmd }) => _parsedCommand[0] === cmd);
+
+		if (commandHandler) {
+			this.logger.log(`Command ${_parsedCommand[0]} found, calling method`, "info");
+			try { await commandHandler.handler(msg, _parsedCommand); }
+			catch (err) { this.logger.log(err, "error"); }}
+		else { this.logger.log(this.settings.locale.console.bot_cmd_search_fail + _parsedCommand[0], "info"); }
+	}
+
+	async sliceBySpace(_text){
 		// command is divided by spacce, result is an array
 		let command = _text.split(' ');
 		for (var key in this.commands) {
@@ -168,12 +128,10 @@ class TGBot {
 		else {
 			this.logger.log(this.settings.locale.console.bot_cmd_go_register_fail + _msg.from.id, "info");
 			this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_go_fail, _msg.message_id);
-		}
-		
+		}		
 	}
 
-	async cmd_deleteme(_msg)
-	{
+	async cmd_deleteme(_msg){
 		if (await this.db.db_user_isRegistered(_msg)) {
 			await this.db.db_user_erase(_msg);
 			this.logger.log(this.settings.locale.console.bot_cmd_deleteme_pass + _msg.from.id, "info");
@@ -184,8 +142,7 @@ class TGBot {
 		}
 	}
 
-	async cmd_incorrect(_msg)
-	{
+	async cmd_incorrect(_msg){
 		await this.sendMessage(_msg.chat.id,  this.settings.locale.console.bot_cmd_read_fail, _msg.message_id);
 	}
 	async cmd_commands(_msg)
@@ -199,11 +156,7 @@ class TGBot {
 		await this.sendMessage(_msg.chat.id, message, _msg.message_id);
 		this.logger.log(this.settings.locale.console.bot_cmd_commands, "info");
 	}
-	async handleNormalMessage(_msg)
-	{
-		if(!_msg) return;
-	}
-
+	async handleNormalMessage(_msg){ if(!_msg) return; }
 }
 
 module.exports = TGBot;

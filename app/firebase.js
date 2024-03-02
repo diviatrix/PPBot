@@ -59,8 +59,13 @@ class DB {
   }
   async db_delete(_path, _id){
     const doc = this.db.collection(_path).doc(_id);
-    await doc.delete();
-    this.logger.log(this.settings.locale.console.db_delete_pass + _path + "/" + _id, "info" );
+    const docSnapshot = await doc.get();
+    if (docSnapshot.exists) {
+      await doc.delete();
+      this.logger.log(this.settings.locale.console.db_delete_pass + _path + "/" + _id, "info" );
+    } else {
+      this.logger.log(this.settings.locale.console.db_delete_fail + _path + "/" + _id, "info" );
+    }
   }
 
   async start() {
