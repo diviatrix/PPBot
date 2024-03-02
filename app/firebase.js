@@ -26,7 +26,7 @@ class DB {
     user.stats = this.settings.model.stats;
     await this.setObjectByPath(user, this.settings.path.db.user.time_register, admin.firestore.Timestamp.fromDate(new Date()));
     //user.stats.account.time_register = admin.firestore.Timestamp.fromDate(new Date());
-    await this.db.collection(this.settings.path.db.users).doc(user.id.toString()).set(user);
+    await this.db_push(this.settings.path.db.users, user, user.id.toString());
     return true;
   }
 
@@ -45,9 +45,14 @@ class DB {
     return userExists;
   }
 
-  async db_push(_path, _data){
-    const res = await this.db.collection(_path).add(_data);
-    this.logger.log(this.settings.locale.console.db_write_pass + _path + "/" + res.id, "info" );
+  async db_push(_path, _data, _id){
+    if (_id) {
+      await this.db.collection(_path).doc(_id).set(_data);
+      this.logger.log(this.settings.locale.console.db_write_pass + _path + "/" + _id, "info" );
+    } else {
+      const res = await this.db.collection(_path).add(_data);
+      this.logger.log(this.settings.locale.console.db_write_pass + _path + "/" + res.id, "info" );
+    }
   }
 
   async start() {
