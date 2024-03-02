@@ -1,34 +1,20 @@
-const Logger = require('./logger.js');
-const { initializeApp } = require("firebase/app");
-const { getAnalytics } = require("firebase/analytics");
-const { getFirestore, doc, getDoc, setDoc, collection, addDoc, Timestamp } = require("firebase/firestore");
-
-let logger = new Logger();
+const admin = require('firebase-admin');
 
 class DB {
-  constructor(_settings) {
+  constructor(_settings, _logger) {
     try {
-      this.app = initializeApp(_settings.firebaseConfig);
-      this.db = getFirestore(this.app);
       this.settings = _settings;
-      if (getAnalytics.isSupported) {
-        this.analytics = getAnalytics(this.app);
-      }
+      this.logger = _logger;
+      admin.initializeApp({
+        credential: admin.credential.cert(this.settings.db.serviceAccount)
+      });
+      this.db = admin.firestore();
       this.start();
     } catch (error) {
-      logger.log(error, "error");
+      this.logger.log(error, "error");
     }
   }
 
-  async db_session_write(){
-    const data = {
-      start_time: Timestamp.fromDate(new Date()),
-    };
-    const res = addDoc(collection(this.db, this.settings.path.db.session), data).id;
-    logger.log(this.settings.locale.console.db_write_pass + JSON.stringify(res, null, 2), "info" );
-  }
-
-  // very dangerous : write to db without checking if user is registered
   async db_user_write(msg)
   {
     const user = this.settings.model.user;
@@ -38,35 +24,38 @@ class DB {
     user.last_name = msg.from.last_name || "";
     user.chatId = msg.chat.id;
     user.log = this.settings.model.log;
-    user.log.account.time_register = Timestamp.fromDate(new Date());
-    await setDoc(doc(this.db, this.settings.path.db.users, user.id.toString()), user);
+    user.log.account.time_register = admin.firestore.Timestamp.fromDate(new Date());
+    await this.db.collection(this.settings.path.db.users).doc(user.id.toString()).set(user);
     return true;
   }
 
   async db_user_erase(msg)
   {
-    // delete record in database
     let userRef = this.db.collection(this.settings.path.db.users).doc(msg.from.id.toString());
-    userRef.delete().then(() => { logger.log(`${this.settings.locale.console.db_user_erase_pass} ${msg.from.id}`, "info"); }).catch((error) => { logger.log(`${this.settings.locale.console.db_user_erase_fail} ${msg.from.id} : ${error}`, "error"); });
+    userRef.delete().then(() => { this.logger.log(`${this.settings.locale.console.db_user_erase_pass} ${msg.from.id}`, "info"); }).catch((error) => { this.logger.log(`${this.settings.locale.console.db_user_erase_fail} ${msg.from.id} : ${error}`, "error"); });
   }
 
   async db_user_isRegistered(msg){
-    const userRef = doc(this.db, this.settings.path.db.users, msg.from.id.toString());
-    const userSnapshot = await getDoc(userRef);
-    const userExists = userSnapshot.exists();
+    const userRef = this.db.collection(this.settings.path.db.users).doc(msg.from.id.toString());
+    const userSnapshot = await userRef.get();
+    const userExists = userSnapshot.exists;
     const logMessage = userExists ? this.settings.locale.console.db_user_exists : this.settings.locale.console.db_user_not_exists;
-    logger.log(logMessage, "info");
+    this.logger.log(logMessage, "info");
     return userExists;
   }
 
-
-  async start() {
-    logger.log("Firebase initialized", "info");
-    //logger.log(JSON.stringify(this.db, null, 2), "info");
-    this.db_session_write();
+  async db_push(_path, _data){
+    const res = await this.db.collection(_path).add(_data);
+    this.logger.log(this.settings.locale.console.db_write_pass + _path + "/" + res.id, "info" );
   }
 
-  
+  async start() {
+    this.logger.log("Firebase initialized", "info");
+    const data = {
+      start_time: admin.firestore.Timestamp.fromDate(new Date()),
+    };
+    await this.db_push(this.settings.path.db.session, data);
+  }
 }
 
 module.exports = DB;
