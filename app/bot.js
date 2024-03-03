@@ -30,28 +30,20 @@ class TGBot {
 					// Bind the function to 'this' and store it along with the command name
 					this.commandHandlers.push({command: command, handler: this[functionName].bind(this)});
 					this.logger.log(command + this.settings.locale.console.bot_cmd_create_pass + this[functionName].name, "info");
-				} else {
-					this.logger.log(command + this.settings.locale.console.bot_cmd_func_404, "warning");
-				}
-				
+				} else { this.logger.log(command + this.settings.locale.console.bot_cmd_func_404, "warning"); }				
 			}
 		}
 		this.logger.log(`CommandHanlers:\n ${JSON.stringify(this.commandHandlers)}`, "debug");
 		this.logger.log('Commands initialized', "info");
 		
-
 		// start BOT	
 		if (!this.bot) this.bot = new TelegramBot(this.settings.token);		
 
-		this.bot.on('text', (msg) => {
-			this.handleMessage(msg);	
-		});
-
+		this.bot.on('text', (msg) => { this.handleMessage(msg);	});
 		this.bot.startPolling();
 	}
 
-	async stop()
-	{
+	async stop() {
 		await this.bot?.stop();
 		this.bot = null;
 		return true;
@@ -118,8 +110,7 @@ class TGBot {
 		return null;
 	}
 
-	async cmd_go(_msg)
-	{
+	async cmd_go(_msg) {
 		if (!await this.db.db_user_isRegistered(_msg)) {
 			await this.db.db_user_write(_msg);
 			this.logger.log(this.settings.locale.console.bot_cmd_go_register_pass +  _msg.from.id, "info");
@@ -131,7 +122,7 @@ class TGBot {
 		}		
 	}
 
-	async cmd_deleteme(_msg){
+	async cmd_deleteme(_msg) {
 		if (await this.db.db_user_isRegistered(_msg)) {
 			await this.db.db_user_erase(_msg);
 			this.logger.log(this.settings.locale.console.bot_cmd_deleteme_pass + _msg.from.id, "info");
@@ -142,11 +133,8 @@ class TGBot {
 		}
 	}
 
-	async cmd_incorrect(_msg){
-		await this.sendMessage(_msg.chat.id,  this.settings.locale.console.bot_cmd_read_fail, _msg.message_id);
-	}
-	async cmd_commands(_msg)
-	{
+	async cmd_incorrect(_msg) { await this.sendMessage(_msg.chat.id,  this.settings.locale.console.bot_cmd_read_fail, _msg.message_id); }
+	async cmd_commands(_msg) {
 		if (!await this.db.db_user_isRegistered(_msg)) { this.logger.log(this.settings.locale.console.bot_cmd_requirement_register);  return; }
 
 		let message = this.settings.locale.base.bot_cmd_commands + "\n";

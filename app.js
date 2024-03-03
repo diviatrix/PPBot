@@ -64,10 +64,12 @@ async function stop() {
 
 async function readInput()
 {	
-	rl?.question("> ", async (answer) => {
-		await parseCommand(answer);
-		readInput();
-	});
+	if (rl) {
+		rl.question("> ", async (answer) => {
+			await parseCommand(answer);
+			readInput();
+		});
+	}
 }
 
 // parse command from user answer
