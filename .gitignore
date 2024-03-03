@@ -136,3 +136,4 @@ storage/userDatabase.json
 src/storage/userDatabase.json
 src/storage/token.json
 src/storage/suggestion.json
+src/storage/settings.json

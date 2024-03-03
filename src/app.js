@@ -1,12 +1,12 @@
 import TelegramBot from "node-telegram-bot-api";
 import fs from "fs";
 import path from "path";
-import { ExpressBackend } from "./ExpressBackend.js";
+//import { ExpressBackend } from "./ExpressBackend.js";
 import { Logger } from "./logger.js";
 import process from "process";
 
 const logger = new Logger("info", "error", "warning");
-const storageFolderPath = path.join(path.resolve(), "storage");
+const storageFolderPath = path.join(path.resolve(),"src", "storage");
 const settingsPath = path.join(storageFolderPath, "settings.json");
 const settings = openOrCreateJSON(settingsPath, { "token": process.env.TOKEN || "", "port": process.env.PORT || 3001});
 const ppList = openOrCreateJSON(path.join(storageFolderPath, "pp.json"), []);
@@ -54,7 +54,7 @@ const commands =
 };
 
 let bot;
-let webBackend = new ExpressBackend();
+//let webBackend = new ExpressBackend();
 // eslint-disable-next-line no-undef
 let token = process.env.TOKEN || settings.token;
 
@@ -124,11 +124,13 @@ function dailyPP(msg) {
 
 	readOrFixLastPPTime(msg.from.id);
 
-	if (_lastPP?.id == 0) 
+	if (!_lastPP?.id) 
 	{
 		// send message to user with greets
-		_lastPP.time = new Date().setDate(_lastPP.time.getDate() - 1);
-		_lastPP.time = _lastPP.time.toISOString();
+		//_lastPP.time = new Date().setDate(_lastPP.time.getDate() - 1);
+		const date = new Date();
+		date.setDate(date.getDate() - 1);
+		_lastPP.time = date.toISOString();
 
 		sendMessage(msg.chat.id, "Everybody Starts with something..\nWelcome to PP club \u2764", msg.message_id);
 	}
@@ -345,7 +347,7 @@ function preparePPMessageById(PPId) {
 	if (!PP) { logger.log(`PPID: ${PPId}, failed to get getPPbyID`); return; }
 
 	const mesStr = settings.messageStrings[settings.rarity[PP.rarity].text];
-	if (!mesStr) { logger.log(`PPID: ${PPId}, failed to get message rarity strings: ${JSON.stringify(PP.rarity, null, 2)}, ${JSON.stringify(messageStrings, null, 2)}`); return; }
+	if (!mesStr) { logger.log(`PPID: ${PPId}, failed to get message rarity strings: ${JSON.stringify(PP.rarity, null, 2)}, ${JSON.stringify(settings.messageStrings, null, 2)}`); return; }
 
 	let message;
 	
@@ -451,7 +453,7 @@ function generateRandomPP() {
 
 async function startup() {
 	bot = new TelegramBot(token, { polling: true });
-	webBackend.start();
+	//webBackend.start();
 
 	bot.on("text", (msg) => {
 		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}]: ${msg.text}`);
