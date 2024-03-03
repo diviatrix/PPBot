@@ -94,13 +94,9 @@ async function reload(){
 
 async function cleanUp(){
 	// stop and cleanup tgbot
-	await tgBot?.stop();
-	tgBot = null;
+	await tgBot.stop();
 	// stop and cleanup webbackend
 	await webBackend?.stop();
-	webBackend = null;
-	// remove loader
-	loader = null;
 	return;
 }
 
