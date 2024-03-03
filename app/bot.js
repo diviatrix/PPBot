@@ -58,7 +58,7 @@ class TGBot {
 			this.logger.log(this.settings.locale.console.bot_token_verify_pass, "info");
 			return true;
 		} catch (error) {
-			if (this.bot?.isPolling()) this.bot?.stopPolling();
+			if (this.bot.isPolling()) this.bot.stopPolling();
 			this.logger.log(this.settings.locale.console.bot_token_verify_fail + error, "error");
 			return false;
 		}
