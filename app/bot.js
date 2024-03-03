@@ -44,7 +44,7 @@ class TGBot {
 	}
 
 	async stop() {
-		await this.bot?.stop();
+		await this.bot.stop();
 		this.bot = null;
 		return true;
 	}
