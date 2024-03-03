@@ -96,7 +96,7 @@ async function cleanUp(){
 	// stop and cleanup tgbot
 	await tgBot.stop();
 	// stop and cleanup webbackend
-	await webBackend?.stop();
+	await webBackend.stop();
 	return;
 }
 
