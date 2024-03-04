@@ -8,13 +8,19 @@
   },
   "path": {
     "public": "./public",
-    "locale": "./storage/locale.json",
     "PP": "./storage/PP.json",
     "db": {
       "session": "app/session/records",
       "users": "app/users/records",
       "user":{
-        "time_register": "stats/account/time_register"
+        "register": "stats/register",
+        "messages": "stats/messages",
+        "experience": "stats/experience",
+        "level": "stats/level",
+        "roll": "stats/roll",
+        "balance": "wallet/balance",
+        "ticket": "wallet/ticket",
+        "collectible": "wallet/collectible"
       }
     }
   },
@@ -23,15 +29,10 @@
       "id": 0,
       "username": "username",
       "first_name": "User",
-      "last_name": "Name",
-      "chatId": 0,
+      "last_name": "Name",      
       "isAdmin": false,      
-      "achievement": {
-        "list": []
-      },       
+      "achievement": [],       
       "wallet": {
-        "experience": 0,
-        "level": 0,
         "balance": 0,
         "ticket": 0,
         "collectible": []
@@ -39,13 +40,16 @@
       "stats": {}
     },
     "stats": {
-      "account": {
-        "time_register": "",
-        "messages": 0
-      },      
-      "roll": [],
+      "experience": 0,
+      "level": 0,
+      "roll": [],        
+      "messages": 0,
       "last": {
         "collectible": {}
+      },
+      "register":{
+        "chatId": 0,
+        "time": ""
       }
     },
     "roll": {
@@ -54,16 +58,8 @@
       "amount": 0,
       "rarity": "normal"
     },
-    "transaction": {
-      "id": 0,
-      "amount": 0,
-      "from": {
-        "id": 0,
-        "time": "",
-        "message": ""
-      }        
-    },
     "collectible": {
+      "guid": "",
       "id": 0,
       "rarity": "",
       "time": ""
@@ -175,6 +171,7 @@
       "db_user_exists": "User exists: ",
       "db_user_not_exists": "User does not exist: ",
       "db_user_erase_pass": "User data fully deleted: ",
+      "ach_register_check": "Checking for register event achievements: ",
       "back_run_pass": "Web backend is running on port: "
     },
     "commands": {

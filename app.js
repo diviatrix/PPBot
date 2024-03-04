@@ -7,6 +7,7 @@ const DB = require('./app/firebase.js');
 const Achievement = require('./app/achievement.js');
 const readline = require('readline');
 const settings = require('./app/storage/settings.json');
+const eventBus = require('./app/eventBus.js');
 
 // #region IMPORTS
 // #endregion
