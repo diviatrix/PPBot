@@ -1,4 +1,5 @@
 const admin = require('firebase-admin');
+const os = require('os');
 
 class DB {
   constructor(_settings, _logger) {
@@ -70,10 +71,17 @@ class DB {
 
   async start() {
     this.logger.log("Firebase initialized", "info");
+    const startTime = admin.firestore.Timestamp.fromDate(new Date());
     const data = {
-      start_time: admin.firestore.Timestamp.fromDate(new Date()),
+      start_time: startTime,
+      hostname: os.hostname(),
+      platform: os.platform(),
+      release: os.release(),
+      type: os.type(),
+      uptime: os.uptime(),
+      version: os.version()
     };
-    await this.db_push(this.settings.path.db.session, data);
+    await this.db_push(this.settings.path.db.session, data, startTime.toDate().toISOString());
   }
 
   async getObjectByPath(_target, _search) {

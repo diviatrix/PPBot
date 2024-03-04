@@ -1,6 +1,6 @@
 [
 	{"0" : [
-		{"rarity": "normal", "description":"nothing"},
+		{"rarity": "normal", "description":"The beginning"},
 		{"rarity": "rare", "description":"The Void"},
 		{"rarity": "epic", "description":"Binary OFF"},
 		{"rarity": "legendary", "description":"🌌🌌🌌THE VOID🌌🌌🌌"},
@@ -80,8 +80,8 @@
 		{"rarity": "idiot", "description":"Selfish"}
 	]},
 	{"10" : [
-		{"rarity": "normal", "description":"Decade"},
-		{"rarity": "rare", "description":"Perfection, Completion"},
+		{"rarity": "normal", "description":"Perfection, Completion"},
+		{"rarity": "rare", "description":"Decade"},
 		{"rarity": "epic", "description":"10 out of 10"},
 		{"rarity": "legendary", "description":"🔟"},
 		{"rarity": "1337", "description":"Perfect Player"},

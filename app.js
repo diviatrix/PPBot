@@ -1,17 +1,19 @@
 /* eslint-env node */
+process.noDeprecation = true;
 const WebBackend = require('./app/webBackend.js');
-const Loader = require('./loader.js');
 const Logger = require('./app/logger.js');
 const TGBot = require('./app/bot.js');
 const DB = require('./app/firebase.js');
+const Achievement = require('./app/achievement.js');
 const readline = require('readline');
+const settings = require('./app/storage/settings.json');
 
 // #region IMPORTS
 // #endregion
 
 // #region VARS
-let loader; // needs to be created first and async
 let logger = new Logger(); // can be initialized without any requirements
+let achievementHandler;
 let webBackend; // will be created later
 let tgBot; // will be created later after token check
 let run = false; // used for checking if the app is running or not (used in stop function)
@@ -19,38 +21,29 @@ let rl = null;
 let db;
 // #endregion
 
-function createLoader() {
-	return new Promise((resolve, reject) => {
-		const loader = new Loader((err) => {
-			if (err) {
-				reject(err);
-			} else {
-				logger.log('Loader ready', "app");
-				resolve(loader);
-			}
-		});
-	});
-} 
 
 async function initialize() {
 	await start();
-	rl = readline.createInterface({ input: process.stdin, output: process.stdout	});	
+	rl = readline.createInterface({ input: process.stdin, output: process.stdout});	
 }
 
 async function start() {
 	if (run) {	logger.log("Application is already running", "info"); return; }
 	try {
-		loader = await createLoader(logger);
-		db = new DB(loader.settings, logger);
-		tgBot = new TGBot(loader.settings, db, logger);
-		webBackend = new WebBackend(loader.settings, logger);
-		run = true;
-		logger.log('Application: Initialization completed', "info");
-		}
-		
+			db = new DB(settings, logger);
+			achievementHandler = new Achievement(settings, db, logger);
+			tgBot = new TGBot(settings, db, logger);
+			webBackend = new WebBackend(settings, logger);
+			run = true;
+			logger.log('Application: Initialization completed', "info");
+	}		
 	catch (error) {
+		if (error.name === 'DeprecationWarning' && error.message.includes('punycode')) {
+			logger.log("Fix is waiting for telegram-node-bot and eslint remove punycode dependency", "warning");
+		} else {
 		const errorMessage = `Application: Error initializing at ${error.stack}`;
 		logger.log(errorMessage, "error");
+		}
 	}
 
 	await readInput();
