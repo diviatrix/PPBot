@@ -6,17 +6,25 @@ class TGBot {
 		this.settings = _settings;
 		this.commands = _settings.locale.commands;
 		this.bot;
+		this.username;
 		this.commandHandlers = [];	
 		this.start();
 		this.logger.log('Bot constructed', "info");
 	}
 
 	async start() {
-		// check token
-		this.logger.log(this.settings.locale.console.bot_token_verify_start, "info");
-		if (!await this.verifyToken(this.settings.token)) {
-			this.logger.log(this.settings.locale.console.bot_token_verify_fail, "error");
-			return;
+		if(this.settings.verifyToken)
+		{
+			this.logger.log(this.settings.locale.console.bot_token_verify_start, "info");
+
+			if (!await this.verifyToken(this.settings.token)) {
+				this.logger.log(this.settings.locale.console.bot_token_verify_fail, "error");
+				return;
+			}
+			else 
+			{
+				this.logger.log(this.settings.locale.console.bot_token_verify_pass, "info");
+			}
 		}
 
 		// create commands
@@ -40,7 +48,10 @@ class TGBot {
 		if (!this.bot) this.bot = new TelegramBot(this.settings.token);		
 
 		this.bot.on('text', (msg) => { this.handleMessage(msg);	});
-		this.bot.startPolling();
+		await this.bot.startPolling();
+		await this.bot.getMe().then(botInfo => {
+			this.username = botInfo.username;
+		});
 	}
 
 	async stop() {
@@ -78,58 +89,76 @@ class TGBot {
 	}	
 
 	async handleMessage(msg) {
-		this.logger.log(`[${msg.from.id}][${msg.from.username}][${msg.from.first_name} ${msg.from.last_name}]: ${msg.text}`, "info");
-		if (msg.text.startsWith('/')) { this.parseCmd(msg);	} 
+		// if chat is not private or not from the bot itself, check if chat is in chatId whitelist
+		if (msg.chat.id != msg.from.id && msg.chat.id != this.bot.id && !this.settings.chatId.includes(msg.chat.id)) {
+			this.logger.log("Message from : [" + msg.from.id + "][" + msg.chat.id + "] is not from allowed chat list", "warning"); 
+			return; 
+		}
+		
+		this.logger.log(`[${msg.chat.id}][${msg.from.id}][${msg.from.username}][${msg.from.first_name} ${msg.from.last_name}]: ${msg.text}`, "info");
+		if (msg.text.startsWith('/')) {
+			try {
+				this.logger.log(`Run execution: ${msg.text}`, "info");
+				this.parseCmd(msg);
+			} catch (error) {
+				this.logger.log(`Error parsing command: ${error}`, "error");
+			}	
+		} 
 		else { this.handleNormalMessage(msg); }
 	}
 	async parseCmd(msg) {
-		let command = msg.text.split('@')[0];
-		let _parsedCommand = command.includes(' ') ? await this.sliceBySpace(command) : [command];
-
-		if (!_parsedCommand) { this.cmd_incorrect(msg); return;	}
-
-		this.logger.log(this.settings.locale.console.bot_cmd_search + _parsedCommand[0], "info");
-
-		const commandHandler = this.commandHandlers.find(({ command: cmd }) => _parsedCommand[0] === cmd);
-
-		if (commandHandler) {
-			this.logger.log(`Command ${_parsedCommand[0]} found, calling method`, "info");
-			try { await commandHandler.handler(msg, _parsedCommand); }
-			catch (err) { this.logger.log(err, "error"); }}
-		else { this.logger.log(this.settings.locale.console.bot_cmd_search_fail + _parsedCommand[0], "info"); }
-	}
-
-	async sliceBySpace(_text){
-		// command is divided by spacce, result is an array
-		let command = _text.split(' ');
-		for (var key in this.commands) {
-			if (key == command[0]) {
-				return command;
+		this.logger.log(`Parsing command: ${msg.text}`, "debug");
+		// if command has @ parse only before @ and ignore everything after it, this in no parameter command
+		let parsedCmd;
+		let params;
+		if (msg.text.includes('@'))	{ 
+			let _split = await msg.text.split("@");
+			this.logger.log(`Command split: ${_split}`, "debug");
+			parsedCmd = _split[0]; 
+			if (_split[1] != this.username) 
+			{
+				this.logger.log(this.username + ": Command ran for another user: " + _split[1], "info");
+				return;
 			}
 		}
-		return null;
+		else if (msg.text.includes(" ")) { parsedCmd = msg.text.split(" ")[0]; params = msg.text.split(" ").slice(1); }
+		else { parsedCmd = msg.text; }
+		
+		if (!parsedCmd) { this.cmd_incorrect(msg); this.logger.log("Command not found: ", "warn"); return; }
+		this.logger.log(`Command parsed: ${parsedCmd}`, "debug");
+		if (this.commandHandlers.find(({ command: cmd }) => parsedCmd === cmd)) {
+			this.logger.log(`Command found: ${parsedCmd}`, "debug");
+			const commandHandler = this.commandHandlers.find(({ command: cmd }) => parsedCmd === cmd);
+			try {
+				if (params) { await commandHandler.handler(msg, params); }
+				else { await commandHandler.handler(msg); }
+			}
+			catch (error) { this.logger.log(`Error executing command ${parsedCmd}: ${error}`, "error"); }
+		} else { this.cmd_incorrect(msg); }
 	}
-
-	async cmd_go(_msg) {
-		if (!await this.db.db_user_isRegistered(_msg)) {
-			await this.db.db_user_write(_msg);
-			this.logger.log(this.settings.locale.console.bot_cmd_go_register_pass +  _msg.from.id, "info");
-			this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_go_pass, _msg.message_id);
-		}
-		else {
-			this.logger.log(this.settings.locale.console.bot_cmd_go_register_fail + _msg.from.id, "info");
-			this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_go_fail, _msg.message_id);
+	async cmd_go(_msg, _params) {
+		try {
+			if (!await this.db.db_user_isRegistered(_msg)) {
+				await this.db.db_user_write(_msg);
+				this.logger.log(this.settings.locale.console.bot_cmd_go_register_pass +  _msg.from.id, "info");
+				this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_go_pass, _msg.message_id);
+			}
+			else {
+				this.logger.log(this.settings.locale.console.bot_cmd_go_register_fail + _msg.from.id, "info");
+				this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_go_fail, _msg.message_id);
+			}
+		} catch (error) {
+			this.logger.log(`Error executing cmd_go: ${error}`, "error");
 		}		
 	}
 
 	async cmd_deleteme(_msg) {
-		if (await this.db.db_user_isRegistered(_msg)) {
+		if (!await this.db.db_user_isRegistered(_msg)) {
+			return;
+		} else {
 			await this.db.db_user_erase(_msg);
 			this.logger.log(this.settings.locale.console.bot_cmd_deleteme_pass + _msg.from.id, "info");
 			this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_deleteme_pass, _msg.message_id);
-		} else {
-			this.logger.log(this.settings.locale.console.bot_cmd_deleteme_fail + _msg.from.id, "info");
-			this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_deleteme_fail, _msg.message_id);
 		}
 	}
 

@@ -18,19 +18,20 @@ class DB {
 
   async db_user_write(msg)
   {
-    const user = this.settings.model.user;
-    user.id = msg.from.id;
-    user.username = msg.from.username;
-    user.first_name = msg.from.first_name || "";
-    user.last_name = msg.from.last_name || "";
-    user.chatId = msg.chat.id;
-    user.stats = this.settings.model.stats;
-    await this.setObjectByPath(user, this.settings.path.db.user.time_register, admin.firestore.Timestamp.fromDate(new Date()));
-    //user.stats.account.time_register = admin.firestore.Timestamp.fromDate(new Date());
-    await this.db_push(this.settings.path.db.users, user, user.id.toString());
-    return true;
+    try {
+      const user = this.settings.model.user;
+      user.id = msg.from.id;
+      user.username = msg.from.username;
+      user.first_name = msg.from.first_name || "";
+      user.last_name = msg.from.last_name || "";
+      this.setObjectByPath(user, this.settings.path.db.user.register, { chatId: msg.chat.id || msg.from.id, time : admin.firestore.Timestamp.fromDate(new Date()) });
+      await this.db_push(this.settings.path.db.users, user, user.id.toString());
+      return true;
+    } catch (error) {
+      this.logger.log(error, "error");
+      return false;
+    }
   }
-
   async db_user_erase(msg) {
     try {
       await this.db_delete(this.settings.path.db.users, msg.from.id.toString());
@@ -41,31 +42,45 @@ class DB {
   }
 
   async db_user_isRegistered(msg){
-    const userRef = this.db.collection(this.settings.path.db.users).doc(msg.from.id.toString());
-    const userSnapshot = await userRef.get();
-    const userExists = userSnapshot.exists;
-    const logMessage = userExists ? this.settings.locale.console.db_user_exists : this.settings.locale.console.db_user_not_exists;
-    this.logger.log(logMessage + msg.from.id, "info");
-    return userExists;
+    try {
+      const userRef = this.db.collection(this.settings.path.db.users).doc(msg.from.id.toString());
+      const userSnapshot = await userRef.get();
+      const userExists = userSnapshot.exists;
+      const logMessage = userExists ? this.settings.locale.console.db_user_exists : this.settings.locale.console.db_user_not_exists;
+      this.logger.log(logMessage + msg.from.id, "info");
+      return userExists;
+    } catch (error) {
+      this.logger.log(error, "error");
+      return false;
+    }
   }
 
   async db_push(_path, _data, _id){
-    if (_id) {
-      await this.db.collection(_path).doc(_id).set(_data);
-      this.logger.log(this.settings.locale.console.db_write_pass + _path + "/" + _id, "info" );
-    } else {
-      const res = await this.db.collection(_path).add(_data);
-      this.logger.log(this.settings.locale.console.db_write_pass + _path + "/" + res.id, "info" );
+    try {
+      if (_id) {
+        await this.db.collection(_path).doc(_id).set(_data);
+        this.logger.log(this.settings.locale.console.db_write_pass + _path + "/" + _id, "info" );
+      } else {
+        const res = await this.db.collection(_path).add(_data);
+        this.logger.log(this.settings.locale.console.db_write_pass + _path + "/" + res.id, "info" );
+      }
+    } catch (error) {
+      this.logger.log(error.stack, "error");
     }
   }
+  
   async db_delete(_path, _id){
-    const doc = this.db.collection(_path).doc(_id);
-    const docSnapshot = await doc.get();
-    if (docSnapshot.exists) {
-      await doc.delete();
-      this.logger.log(this.settings.locale.console.db_delete_pass + _path + "/" + _id, "info" );
-    } else {
-      this.logger.log(this.settings.locale.console.db_delete_fail + _path + "/" + _id, "info" );
+    try {
+      const doc = this.db.collection(_path).doc(_id);
+      const docSnapshot = await doc.get();
+      if (docSnapshot.exists) {
+        await doc.delete();
+        this.logger.log(this.settings.locale.console.db_delete_pass + _path + "/" + _id, "info" );
+      } else {
+        this.logger.log(this.settings.locale.console.db_delete_fail + _path + "/" + _id, "info" );
+      }
+    } catch (error) {
+      this.logger.log(error, "error");
     }
   }
 

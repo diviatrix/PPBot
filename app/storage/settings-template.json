@@ -1,6 +1,8 @@
 {
   "token": "",
+  "verifyToken" : false,
   "admin": 0,
+  "chatId": [],
   "port": 3003,
   "loggerLevel": ["info", "error","warning", "debug"],
   "db": {
@@ -20,7 +22,8 @@
         "roll": "stats/roll",
         "balance": "wallet/balance",
         "ticket": "wallet/ticket",
-        "collectible": "wallet/collectible"
+        "collectible": "wallet/collectible",
+        "collectible_last": "stats/last/collectible"
       }
     }
   },
@@ -29,28 +32,10 @@
       "id": 0,
       "username": "username",
       "first_name": "User",
-      "last_name": "Name",      
-      "isAdmin": false,      
+      "last_name": "Name",
       "achievement": [],       
-      "wallet": {
-        "balance": 0,
-        "ticket": 0,
-        "collectible": []
-      },
+      "wallet": {},
       "stats": {}
-    },
-    "stats": {
-      "experience": 0,
-      "level": 0,
-      "roll": [],        
-      "messages": 0,
-      "last": {
-        "collectible": {}
-      },
-      "register":{
-        "chatId": 0,
-        "time": ""
-      }
     },
     "roll": {
       "id": 0,
