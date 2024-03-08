@@ -7,19 +7,20 @@ class DB {
       this.settings = _settings;
       this.logger = _logger;
       admin.initializeApp({
-        credential: admin.credential.cert(this.settings.db.serviceAccount)
+        credential: admin.credential.cert(this.settings.db.serviceAccount),
+        databaseURL: this.settings.db.databaseURL
       });
-      this.db = admin.firestore();
+      this.db = admin.database();
       this.start();
     } catch (error) {
       this.logger.log(error.stack, "error");
     }
   }
 
-  async db_userPush(_msg, _path, _value) {
+  async db_user_push(_msg, _path, _value) {
     try {
       if (await this.db_user_isRegistered(_msg)) {
-        await this.db_push(this.settings.path.db.users + "/" + _msg.from.id + _path, _value);
+        await this.db.ref(this.settings.path.db.users + "/" + _msg.from.id + _path).push(_value);
         this.logger.log(this.settings.locale.console.db_user_push_record + _msg.from.id, "debug");
         return true;
       }
@@ -38,8 +39,8 @@ class DB {
       user.username = msg.from.username;
       user.first_name = msg.from.first_name || "";
       user.last_name = msg.from.last_name || "";
-      user[this.settings.path.db.user.register] = { chatId: msg.chat.id || msg.from.id, time : admin.firestore.Timestamp.fromDate(new Date()) };
-      await this.db_push(this.settings.path.db.users, user, user.id.toString());
+      user.register = { chatId: msg.chat.id || msg.from.id, time : admin.database.ServerValue.TIMESTAMP };
+      await this.db.ref(this.settings.path.db.users + "/" + user.id).set(user);
       return user;
     } 
     catch (error) {
@@ -47,6 +48,7 @@ class DB {
       return undefined;
     }
   }
+
   async db_get_messages(_msg) {
     try {
       let messages = 0;
@@ -55,12 +57,12 @@ class DB {
       return messages;
     } catch (e) {
       throw new Error("[DB] Can't get messages from user: " + e.stack);
-      }
     }
+  }
 
   async db_user_erase(msg) {
     try {
-      await this.db_delete(this.settings.path.db.users, msg.from.id.toString());
+      await this.db.ref(this.settings.path.db.users + "/" + msg.from.id).remove();
       this.logger.log(`${this.settings.locale.console.db_user_erase_pass} ${msg.from.id}`, "debug");
     } catch (error) {
       this.logger.log(`${this.settings.locale.console.db_user_erase_fail} ${msg.from.id} : ${error}`, "error");
@@ -70,10 +72,10 @@ class DB {
   async db_user(_msg)
   {
     try {
-      const userRef = this.db.collection(this.settings.path.db.users).doc(_msg.from.id.toString());
-      const userSnapshot = await userRef.get();
-      this.logger.log(JSON.stringify(userSnapshot.data(), null, 2), "debug");
-      return userSnapshot.data();       
+      const userRef = this.db.ref(this.settings.path.db.users + "/" + _msg.from.id);
+      const userSnapshot = await userRef.once('value');
+      this.logger.log(JSON.stringify(userSnapshot.val(), null, 2), "debug");
+      return userSnapshot.val();       
     } 
     catch (error) {
       this.logger.log(error.stack, "error");
@@ -83,9 +85,9 @@ class DB {
 
   async db_user_isRegistered(msg){
     try {
-      const userRef = this.db.collection(this.settings.path.db.users).doc(msg.from.id.toString());
-      const userSnapshot = await userRef.get();
-      const userExists = userSnapshot.exists;
+      const userRef = this.db.ref(this.settings.path.db.users + "/" + msg.from.id);
+      const userSnapshot = await userRef.once('value');
+      const userExists = userSnapshot.exists();
       const logMessage = userExists ? this.settings.locale.console.db_user_exists : this.settings.locale.console.db_user_not_exists;
       this.logger.log(logMessage + msg.from.id, "debug");
       return userExists;
@@ -95,30 +97,29 @@ class DB {
     }
   }
 
-  async db_push(_path, _data, _id){
+  async db_push(_path, _data){
     try {
-      if (_id) {
-        await this.db.collection(_path).doc(_id).set(_data);
-        this.logger.log(this.settings.locale.console.db_write_pass + _path + "/" + _id, "debug" );
-      } else {
-        const res = await this.db.collection(_path).add(_data);
-        this.logger.log(this.settings.locale.console.db_write_pass + _path + "/" + res.id, "debug" );
-      }
+      const res = await this.db.ref(_path).push(_data);
+      this.logger.log(this.settings.locale.console.db_write_pass + _path + "/" + res.key, "debug" );
+    } catch (error) {
+      this.logger.log(error.stack, "error");
+    }
+  }
+
+  async db_set(_path, _data)
+  {
+    try {
+      await this.db.ref(_path).set(_data);
+      this.logger.log(this.settings.locale.console.db_write_pass + _path, "debug" );
     } catch (error) {
       this.logger.log(error.stack, "error");
     }
   }
   
-  async db_delete(_path, _id){
+  async db_delete(_path){
     try {
-      const doc = this.db.collection(_path).doc(_id);
-      const docSnapshot = await doc.get();
-      if (docSnapshot.exists) {
-        await doc.delete();
-        this.logger.log(this.settings.locale.console.db_delete_pass + _path + "/" + _id, "debug" );
-      } else {
-        this.logger.log(this.settings.locale.console.db_delete_fail + _path + "/" + _id, "debug" );
-      }
+      await this.db.ref(_path).remove();
+      this.logger.log(this.settings.locale.console.db_delete_pass + _path, "debug" );
     } catch (error) {
       this.logger.log(error.stack, "error");
     }
@@ -126,9 +127,8 @@ class DB {
 
   async start() {
     this.logger.log("Firebase initialized", "info");
-    const startTime = admin.firestore.Timestamp.fromDate(new Date());
     const data = {
-      start_time: startTime,
+      start_time: admin.database.ServerValue.TIMESTAMP,
       hostname: os.hostname(),
       platform: os.platform(),
       release: os.release(),
@@ -136,7 +136,7 @@ class DB {
       uptime: os.uptime(),
       version: os.version()
     };
-    await this.db_push(this.settings.path.db.session, data, startTime.toDate().toISOString());
+    await this.db.ref(this.settings.path.db.session).push(data);
   }
 
   async getObjectByPath(_target, _search) {

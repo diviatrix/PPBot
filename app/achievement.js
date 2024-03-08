@@ -51,7 +51,7 @@ class Achievement {
 		
 		try {
 			_achievement.time = admin.firestore.Timestamp.fromDate(new Date());
-			if (await this.db.db_userPush(_msg, this.settings.path.db.user.achievement, _achievement)) {
+			if (await this.db.db_user_push(_msg, this.settings.path.db.user.achievement, _achievement)) {
 				this.achievementMessage(_msg, _achievement);
 				return true;
 			} else {
