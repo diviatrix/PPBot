@@ -1,4 +1,5 @@
 const TelegramBot = require('node-telegram-bot-api');
+const Achievement = require('./achievement.js');
 class TGBot {
 	constructor(_settings, _db, _logger) {
 		this.logger = _logger;
@@ -6,6 +7,7 @@ class TGBot {
 		this.settings = _settings;
 		this.commands = _settings.locale.commands;
 		this.bot;
+		this.achievement = new Achievement(this, _settings, _db, _logger);
 		this.username;
 		this.commandHandlers = [];	
 		this.start();
@@ -75,17 +77,26 @@ class TGBot {
 		}
 	}
 
+	async styleMessage(_text, _style){
+		//if style is in this.settings.messageStrings, apply messageStrings.open before and messageStrings.close after string, else use "normal" style
+		if (this.settings.messageStrings[_style]) return this.settings.messageStrings[_style].open + _text + this.settings.messageStrings[_style].close;
+		else return this.settings.messageStrings.normal.open + _text + this.settings.messageStrings.normal.close;	
+	}
+
 	async sendMessage(chatID, message, replyID) {
-		if (!message || !chatID) { 
-			this.logger.log(this.settings.locale.console.bot_msg_verify_fail + message + chatID, "error");
-			return; 
+		try {
+			if (!message || !chatID) { 
+				this.logger.log(this.settings.locale.console.bot_msg_verify_fail + message + chatID, "error");
+				return; 
+			}
+		
+			const options = replyID ? { reply_to_message_id: replyID, parse_mode: 'HTML' } : { parse_mode: 'HTML' };
+		
+			await this.bot.sendMessage(chatID, message, options);
+			this.logger.log(this.settings.locale.console.bot_msg_send_pass + chatID + ": " + message, "info");
+		} catch (error) {
+			this.logger.log(this.settings.locale.console.bot_msg_send_fail + error.stack, "error");
 		}
-	
-		const options = replyID ? { reply_to_message_id: replyID, parse_mode: 'HTML' } : { parse_mode: 'HTML' };
-	
-		await this.bot.sendMessage(chatID, message, options)
-			.then(() => { this.logger.log(this.settings.locale.console.bot_msg_send_pass + chatID + ": " + message, "info");})
-			.catch((error) => { this.logger.log(this.settings.locale.console.bot_msg_send_fail + error, "error"); });
 	}	
 
 	async handleMessage(msg) {
@@ -139,19 +150,35 @@ class TGBot {
 	async cmd_go(_msg, _params) {
 		try {
 			if (!await this.db.db_user_isRegistered(_msg)) {
-				await this.db.db_user_write(_msg);
-				this.logger.log(this.settings.locale.console.bot_cmd_go_register_pass +  _msg.from.id, "info");
-				this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_go_pass, _msg.message_id);
+				let user = await this.db.db_user_new_write(_msg);
+				await this.logger.log(this.settings.locale.console.bot_cmd_go_register_pass +  _msg.from.id, "info");
+				await this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_go_pass, _msg.message_id);
+				this.achievement.h_register(_msg, user);
 			}
 			else {
-				this.logger.log(this.settings.locale.console.bot_cmd_go_register_fail + _msg.from.id, "info");
-				this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_go_fail, _msg.message_id);
+				await this.logger.log(this.settings.locale.console.bot_cmd_go_register_fail + _msg.from.id, "warning");
+				await this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_go_fail, _msg.message_id);
 			}
 		} catch (error) {
-			this.logger.log(`Error executing cmd_go: ${error}`, "error");
+			this.logger.log(`Error executing cmd_go: ${error.call}`, "error");
 		}		
 	}
 
+	async cmd_me(_msg, _params) {	
+		if (!await this.db.db_user_isRegistered(_msg)) {
+			this.logger.log(this.settings.locale.console.bot_cmd_registered_fail + _msg.from.id, "debug");
+			return;
+		} else {
+			// read user data from db
+			const user = await this.db.getObjectByPath(this.settings.path.db.users, _msg.from.id.toString());
+			let message = this.styleMessage(JSON.stringify(user, null, 2), "code");
+			this.logger.log(message + _msg.from.id, "debug");
+			this.sendMessage(_msg.chat.id,message, _msg.message_id);
+		}
+		
+	}
+
+	// todo : move commands methods to command.js, load commands there also
 	async cmd_deleteme(_msg) {
 		if (!await this.db.db_user_isRegistered(_msg)) {
 			return;

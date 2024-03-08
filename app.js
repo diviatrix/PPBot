@@ -4,17 +4,14 @@ const WebBackend = require('./app/webBackend.js');
 const Logger = require('./app/logger.js');
 const TGBot = require('./app/bot.js');
 const DB = require('./app/firebase.js');
-const Achievement = require('./app/achievement.js');
 const readline = require('readline');
 const settings = require('./app/storage/settings.json');
-const eventBus = require('./app/eventBus.js');
 
 // #region IMPORTS
 // #endregion
 
 // #region VARS
-let logger = new Logger(); // can be initialized without any requirements
-let achievementHandler;
+let logger = new Logger(settings.loggerLevel); // can be initialized without any requirements
 let webBackend; // will be created later
 let tgBot; // will be created later after token check
 let run = false; // used for checking if the app is running or not (used in stop function)
@@ -32,7 +29,6 @@ async function start() {
 	if (run) {	logger.log("Application is already running", "info"); return; }
 	try {
 			db = new DB(settings, logger);
-			achievementHandler = new Achievement(settings, db, logger);
 			tgBot = new TGBot(settings, db, logger);
 			webBackend = new WebBackend(settings, logger);
 			run = true;

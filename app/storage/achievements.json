@@ -5,15 +5,16 @@
 		"description": "Thank you for joining PP community.",
 		"requirements": [
 			{
-				"type": "this.settings.locale.console.achieve_register",
+				"type": "register",
 				"value": 1
 			}
 		],
 		"reward": [ 
 			{
+				"type": "collectible",
 				"id": 0,
 				"rarity": "normal",
-				"amount": 1
+				"value": 1
 			}
 		]
 	},
@@ -23,7 +24,7 @@
 		"description": "You sent first 10 messages after registration in chats where FXTV PP system work.\n🙏Thank you for your activity🙏: ",
 		"requirements": [
 			{
-				"path": "stats/messages",
+				"type": "messages",
 				"value": 10
 			}
 		],
@@ -31,7 +32,7 @@
 			{
 				"id": 10,
 				"rarity": "normal",
-				"amount": 1
+				"value": 1
 			}
 		]
 	}
