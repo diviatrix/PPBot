@@ -1,13 +1,11 @@
 const TelegramBot = require('node-telegram-bot-api');
-const Achievement = require('./achievement.js');
 class TGBot {
-	constructor(_settings, _db, _logger) {
-		this.logger = _logger;
-		this.db = _db;
-		this.settings = _settings;
-		this.commands = _settings.locale.commands;
+	constructor(_app) {
+		this.app = _app;
+		this.logger = _app.logger;
+		this.settings = _app.settings;
+		this.commands = _app.settings.locale.commands;
 		this.bot;
-		this.achievement = new Achievement(this, _settings, _db, _logger);
 		this.username;
 		this.commandHandlers = [];	
 		this.start();
@@ -118,80 +116,91 @@ class TGBot {
 		else { this.handleNormalMessage(msg); }
 	}
 	async parseCmd(msg) {
-		this.logger.log(`Parsing command: ${msg.text}`, "debug");
-		// if command has @ parse only before @ and ignore everything after it, this in no parameter command
-		let parsedCmd;
-		let params;
-		if (msg.text.includes('@'))	{ 
-			let _split = await msg.text.split("@");
-			this.logger.log(`Command split: ${_split}`, "debug");
-			parsedCmd = _split[0]; 
-			if (_split[1] != this.username) 
-			{
-				this.logger.log(this.username + ": Command ran for another user: " + _split[1], "info");
-				return;
+		try {
+			this.logger.log(`Parsing command: ${msg.text}`, "debug");
+			// if command has @ parse only before @ and ignore everything after it, this in no parameter command
+			let parsedCmd;
+			let params;
+			if (msg.text.includes('@'))	{ 
+				let _split = await msg.text.split("@");
+				this.logger.log(`Command split: ${_split}`, "debug");
+				parsedCmd = _split[0]; 
+				if (_split[1] != this.username) 
+				{
+					this.logger.log(this.username + ": Command ran for another user: " + _split[1], "info");
+					return;
+				}
 			}
+			else if (msg.text.includes(" ")) { parsedCmd = msg.text.split(" ")[0]; params = msg.text.split(" ").slice(1); }
+			else { parsedCmd = msg.text; }
+			
+			if (!parsedCmd) { this.cmd_incorrect(msg); this.logger.log("Command not found: ", "warn"); return; }
+			this.logger.log(`Command parsed: ${parsedCmd}`, "debug");
+			if (this.commandHandlers.find(({ command: cmd }) => parsedCmd === cmd)) {
+				this.logger.log(`Command found: ${parsedCmd}`, "debug");
+				const commandHandler = this.commandHandlers.find(({ command: cmd }) => parsedCmd === cmd);
+				try {
+					if (params) { await commandHandler.handler(msg, params); }
+					else { await commandHandler.handler(msg); }
+				}
+				catch (error) { this.logger.log(`Error executing command ${parsedCmd}: ${error.stack}`, "error"); }
+			} else { this.cmd_incorrect(msg); }
+		} catch (error) {
+			this.logger.log(`Error parsing command: ${error}`, "error");
 		}
-		else if (msg.text.includes(" ")) { parsedCmd = msg.text.split(" ")[0]; params = msg.text.split(" ").slice(1); }
-		else { parsedCmd = msg.text; }
-		
-		if (!parsedCmd) { this.cmd_incorrect(msg); this.logger.log("Command not found: ", "warn"); return; }
-		this.logger.log(`Command parsed: ${parsedCmd}`, "debug");
-		if (this.commandHandlers.find(({ command: cmd }) => parsedCmd === cmd)) {
-			this.logger.log(`Command found: ${parsedCmd}`, "debug");
-			const commandHandler = this.commandHandlers.find(({ command: cmd }) => parsedCmd === cmd);
-			try {
-				if (params) { await commandHandler.handler(msg, params); }
-				else { await commandHandler.handler(msg); }
-			}
-			catch (error) { this.logger.log(`Error executing command ${parsedCmd}: ${error}`, "error"); }
-		} else { this.cmd_incorrect(msg); }
 	}
 	async cmd_go(_msg, _params) {
 		try {
-			if (!await this.db.db_user_isRegistered(_msg)) {
-				let user = await this.db.db_user_new_write(_msg);
+			if (!await this.app.db.db_user_isRegistered(_msg)) {
+				let user = await this.app.db.db_user_new_write(_msg);
 				await this.logger.log(this.settings.locale.console.bot_cmd_go_register_pass +  _msg.from.id, "info");
 				await this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_go_pass, _msg.message_id);
-				this.achievement.h_register(_msg, user);
+				await this.app.achievement.h_register(_msg, user);
 			}
 			else {
 				await this.logger.log(this.settings.locale.console.bot_cmd_go_register_fail + _msg.from.id, "warning");
 				await this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_go_fail, _msg.message_id);
 			}
 		} catch (error) {
-			this.logger.log(`Error executing cmd_go: ${error.call}`, "error");
+			this.logger.log(`Error executing cmd_go: ${error.stack}`, "error");
 		}		
 	}
 
 	async cmd_me(_msg, _params) {	
-		if (!await this.db.db_user_isRegistered(_msg)) {
+		if (!await this.app.db.db_user_isRegistered(_msg)) {
 			this.logger.log(this.settings.locale.console.bot_cmd_registered_fail + _msg.from.id, "debug");
 			return;
 		} else {
 			// read user data from db
-			const user = await this.db.getObjectByPath(this.settings.path.db.users, _msg.from.id.toString());
-			let message = this.styleMessage(JSON.stringify(user, null, 2), "code");
+			const user = await this.app.db.db_user(_msg);
+			let message = this.settings.locale.base.cmd_me_pass + "\n";
+			message += this.settings.locale.base.cmd_me_messages + (user.messages || 0) + "\n";
+			message += this.settings.locale.base.cmd_me_achievements + (user.achievement ? Object.keys(user.achievement).length : 0) + "\n";
+			message += this.settings.locale.base.cmd_me_collectibles + (user.wallet && user.wallet.collectible ? Object.keys(user.wallet.collectible).length : 0) + "\n";
+
 			this.logger.log(message + _msg.from.id, "debug");
 			this.sendMessage(_msg.chat.id,message, _msg.message_id);
 		}
-		
 	}
 
 	// todo : move commands methods to command.js, load commands there also
 	async cmd_deleteme(_msg) {
-		if (!await this.db.db_user_isRegistered(_msg)) {
-			return;
-		} else {
-			await this.db.db_user_erase(_msg);
-			this.logger.log(this.settings.locale.console.bot_cmd_deleteme_pass + _msg.from.id, "info");
-			this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_deleteme_pass, _msg.message_id);
+		try {
+			if (!await this.app.db.db_user_isRegistered(_msg)) {
+				return;
+			} else {
+				await this.app.db.db_user_erase(_msg);
+				await this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_deleteme_pass, _msg.message_id);
+				this.logger.log(this.settings.locale.console.bot_cmd_pass  + _msg.from.id, "info");
+			}
+		} catch (error) {
+			this.logger.log(`Error executing: ${error.stack}`, "error");
 		}
 	}
 
-	async cmd_incorrect(_msg) { await this.sendMessage(_msg.chat.id,  this.settings.locale.console.bot_cmd_read_fail, _msg.message_id); }
+	async cmd_incorrect(_msg) { await this.sendMessage(_msg.chat.id,  this.settings.locale.console.bot_cmd_fail, _msg.message_id); }
 	async cmd_commands(_msg) {
-		if (!await this.db.db_user_isRegistered(_msg)) { this.logger.log(this.settings.locale.console.bot_cmd_requirement_register);  return; }
+		if (!await this.app.db.db_user_isRegistered(_msg)) { this.logger.log(this.settings.locale.console.bot_cmd_requirement_register);  return; }
 
 		let message = this.settings.locale.base.bot_cmd_commands + "\n";
 		for (const { command } of this.commandHandlers) {

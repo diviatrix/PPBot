@@ -1,34 +1,22 @@
 const express = require('express');
-const fs = require('fs').promises;
 const path = require('path');
 
 class WebBackend {
-    constructor(_settings, _logger) {
+    constructor(_app) {
         this.expressApp = express();
-        this.settings = _settings;
-        this.port = process.env.port || _settings.port || 3000;
-        this.pp = null;
-        this.logger = _logger;
+        this.settings = _app.settings;
+        this.port = process.env.port || _app.settings.port || 3000;
+        this.collectibles = _app.collectibles;
+        this.logger = _app.logger;
         this.server = null;
-        this.loadPPAsync();
         this.start();
         this.logger.log('WebBackend constructed', "info");
     }
 
-    async loadPPAsync() {
-        const ppPath = this.settings.path.PP;
-        try {
-            const ppData = await fs.readFile(path.join(__dirname, ppPath), 'utf8');
-            this.pp = JSON.parse(ppData);
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
     start() {
         this.expressApp.get('/pp', (req, res) => {
-            if (this.pp) {
-                res.json(this.pp);
+            if (this.collectibles) {
+                res.json(this.collectibles);
             } else {
                 res.status(500).send('Internal Server Error: cant load PP');
             }

@@ -1,33 +1,44 @@
 const admin = require('firebase-admin');
 const os = require('os');
 
-class DB {
-  constructor(_settings, _logger) {
+class FirebaseConnector {
+  constructor(_app) {
     try {
-      this.settings = _settings;
-      this.logger = _logger;
+      this.app = _app;
+      this.settings = _app.settings;
+      this.logger = _app.logger;
       admin.initializeApp({
-        credential: admin.credential.cert(this.settings.db.serviceAccount),
-        databaseURL: this.settings.db.databaseURL
+        credential: admin.credential.cert(_app.settings.db.serviceAccount),
+        databaseURL: _app.settings.db.databaseURL
       });
       this.db = admin.database();
       this.start();
     } catch (error) {
-      this.logger.log(error.stack, "error");
+      if (_app && _app.logger) {
+        _app.logger.log(error.stack, "error");
+      } else {
+        console.error(error.stack);
+      }
     }
+  }
+
+  async time () {
+    return admin.database.ServerValue.TIMESTAMP;
   }
 
   async db_user_push(_msg, _path, _value) {
     try {
       if (await this.db_user_isRegistered(_msg)) {
-        await this.db.ref(this.settings.path.db.users + "/" + _msg.from.id + _path).push(_value);
-        this.logger.log(this.settings.locale.console.db_user_push_record + _msg.from.id, "debug");
+        const ref = this.db.ref(this.settings.path.db.users + "/" + _msg.from.id + _path);
+        const snapshot = await ref.push(_value);
+        this.logger.log(`Record pushed successfully with id: ${snapshot.key}`, "info");
         return true;
       }
-      else { this.logger.log("User not found: " + _msg.from.id, "error"); }
+      else { this.logger.log("User not found: " + _msg.from.id, "error"); return false; }
     } 
     catch (error) {
       this.logger.log(error.stack, "error");
+      return false;
     }
   }
 
@@ -39,7 +50,7 @@ class DB {
       user.username = msg.from.username;
       user.first_name = msg.from.first_name || "";
       user.last_name = msg.from.last_name || "";
-      user.register = { chatId: msg.chat.id || msg.from.id, time : admin.database.ServerValue.TIMESTAMP };
+      user.register = { chatId: msg.chat.id || msg.from.id, time : this.time() };
       await this.db.ref(this.settings.path.db.users + "/" + user.id).set(user);
       return user;
     } 
@@ -128,7 +139,7 @@ class DB {
   async start() {
     this.logger.log("Firebase initialized", "info");
     const data = {
-      start_time: admin.database.ServerValue.TIMESTAMP,
+      start_time: this.time(),
       hostname: os.hostname(),
       platform: os.platform(),
       release: os.release(),
@@ -154,4 +165,4 @@ class DB {
   }
 }
 
-module.exports = DB;
+module.exports = FirebaseConnector;

@@ -2,7 +2,7 @@
 	{
 		"id": "start",
 		"name": "The Beginning",
-		"description": "Thank you for joining PP community.",
+		"description": "Спасибо что с нами",
 		"requirements": [
 			{
 				"type": "register",
@@ -21,7 +21,7 @@
 	{
 		"id": "firstTenMessages",
 		"name": "First Impact",
-		"description": "You sent first 10 messages after registration in chats where FXTV PP system work.\n🙏Thank you for your activity🙏: ",
+		"description": "Первые 10 сообщений после регистрации в чатах, где работает система 1337.plus\n🙏Спасибо за твою активность🙏: ",
 		"requirements": [
 			{
 				"type": "messages",
@@ -30,6 +30,7 @@
 		],
 		"reward": [ 
 			{
+				"type": "collectible",
 				"id": 10,
 				"rarity": "normal",
 				"value": 1
