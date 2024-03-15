@@ -14,22 +14,17 @@ class Achievement {
 	}
 
 	async h_messages(_msg) {
-		// check if there are achievements with any requirement with type - messages in list
-		// if so - parse them and see if the user has reached the required amount from _data
-		// if so - add the achievement to the user
-
 		if (this.achievements && this.achievements.length > 0) {
 			for (const achievement of this.achievements) {
 				if (achievement.requirements && achievement.requirements.length > 0) {
-					if (achievement.requirements.find(r => r.type == "messages")) {
+					if (achievement.requirements.find(r => r.type == "message")) {
 						if (await this.requirementsMet(_msg, achievement)) {
 							this.achievementAdd(_msg, achievement);
-							this.achievementMessage(_msg, achievement);
 						}
 					}
 				}
 			}
-		}	
+		}   
 	}
 	
 	async h_register(_msg, _data) {
@@ -53,6 +48,8 @@ class Achievement {
 		this.logger.log(this.settings.locale.console.ach_add + _achievement.name + " to user: " + _msg.from.id + ":\n" + _achievement.id, "info");
 		
 		try {
+			
+
 			_achievement.time = this.app.db.time();
 			if (await this.app.db.db_user_push(_msg, this.settings.path.db.user.achievement, _achievement)) {
 				this.achievementMessage(_msg, _achievement);
@@ -65,6 +62,11 @@ class Achievement {
 			this.logger.log(`Error adding achievement: ${error.stack}`, "error");
 			return false;
 		}
+	}
+
+	async user_achievements(_msg) {
+		let user = await this.app.db.db_user(_msg);
+		return user.achievement;
 	}
 
 	async achievementMessage(_msg, _achievement) {
@@ -89,22 +91,28 @@ class Achievement {
 	async requirementsMet(_msg, _achievement) {
 		let requirements = _achievement.requirements;
 		this.logger.log("Checking requirements for " + this.converter.str_style(_achievement.name, "bold") + " for user: " + _msg.from.id + ": " + requirements.length , "debug");
-		let result = true;
+		let result = false;
 		for (const requirement of requirements) {
 			if (requirement.type == "message") {
-				result = result && await this.messageRequirementMet(_msg, requirement);
+				result = await this.messageRequirementMet(_msg, requirement) || result;
 			} else if (requirement.type == "register") {
-				result = result && await this.app.db.db_user_isRegistered(_msg);
+				result = await this.app.db.db_user_isRegistered(_msg) || result;
 			}
 		}
 		return result;	
 	}
 
 	async messageRequirementMet(_msg, _requirement) {
-		let result = false;
-		let messages = await this.app.db.db_get_messages(_msg);
-		if ( _requirement.value <= messages) { result = true; }
-		return result;	
+		try {
+			let result = false;
+			let messages = await this.app.db.db_get_messages(_msg);
+			this.logger.log("Checking message requirement for user: " + _msg.from.id + " with value: " + _requirement.value + " and messages: " + messages, "debug");
+			if ( _requirement.value == messages) { result = true; }
+			return result;	
+		} catch (error) {
+			this.logger.log(`Error checking message requirement: ${error.stack}`, "error");
+			return false;
+		}
 	}
 }
 

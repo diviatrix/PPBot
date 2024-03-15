@@ -42,12 +42,54 @@ class FirebaseConnector {
     }
   }
 
+  async incrementValue(refPath) {
+    const ref = this.db.ref(refPath);
+    await ref.transaction((currentValue) => {
+        // Если currentValue еще не установлено, то оно будет равно 0
+        return (currentValue || 0) + 1;
+    }); 
+  }
+
+  async db_user_get(_msg, _path) {
+    try {
+      if (await this.db_user_isRegistered(_msg)) {
+        const ref = this.db.ref(this.settings.path.db.users + "/" + _msg.from.id + _path);
+        let data = await ref.once('value');
+        return data.val();
+      }
+      else { this.logger.log("User not found: " + _msg.from.id, "error"); return undefined; }
+    }  
+    catch (error) {
+      this.logger.log(error.stack, "error");
+      return error;
+    }
+  }
+
+  async db_user_set(_msg, _path, _value) {
+    try {
+      if (await this.db_user_isRegistered(_msg)) {
+        const ref = this.db.ref(this.settings.path.db.users + "/" + _msg.from.id + _path);
+        await ref.set(_value);
+        this.logger.log(`Record set successfully at path: ${_path}`, "info");
+        return true;
+      }
+      else { 
+        this.logger.log("User not found: " + _msg.from.id, "error"); 
+        return false; 
+      }
+    } 
+    catch (error) {
+      this.logger.log(error.stack, "error");
+      return false;
+    }
+  }
+
   async db_user_new_write(msg)
   {
     try {
       const user = this.settings.model.user;
       user.id = msg.from.id;
-      user.username = msg.from.username;
+      user.username = msg.from.username || "";
       user.first_name = msg.from.first_name || "";
       user.last_name = msg.from.last_name || "";
       user.register = { chatId: msg.chat.id || msg.from.id, time : this.time() };
@@ -63,8 +105,8 @@ class FirebaseConnector {
   async db_get_messages(_msg) {
     try {
       let messages = 0;
-      const user = await this.db_user_read(_msg);
-      if (user.messages) { messages = user.messages; }
+      const user = await this.db_user(_msg);
+      if (user.stats.messages) { messages = user.stats.messages; }
       return messages;
     } catch (e) {
       throw new Error("[DB] Can't get messages from user: " + e.stack);
@@ -84,13 +126,12 @@ class FirebaseConnector {
   {
     try {
       const userRef = this.db.ref(this.settings.path.db.users + "/" + _msg.from.id);
-      const userSnapshot = await userRef.once('value');
-      this.logger.log(JSON.stringify(userSnapshot.val(), null, 2), "debug");
+      const userSnapshot = await userRef.once('value'); //this.logger.log(JSON.stringify(userSnapshot.val(), null, 2), "debug");
       return userSnapshot.val();       
     } 
     catch (error) {
       this.logger.log(error.stack, "error");
-      return false;
+      return undefined;
     }
   }
 
@@ -148,20 +189,6 @@ class FirebaseConnector {
       version: os.version()
     };
     await this.db.ref(this.settings.path.db.session).push(data);
-  }
-
-  async getObjectByPath(_target, _search) {
-    let parts = _search.split('/');
-    let _targetCopy = _target;
-
-    for (let part of parts) {
-        if (_targetCopy[part] === undefined) {
-            return undefined;
-        }
-        _targetCopy = _targetCopy[part];
-    }
-
-    return _targetCopy;
   }
 }
 

@@ -13,21 +13,33 @@ class TGBot {
 	}
 
 	async start() {
+		await this.token_verify();
+		await this.attach_cmd_handlers();
+		await this.bot_start();
+	}
+
+	async bot_start() {
+		// start BOT	
+		if (!this.bot) this.bot = new TelegramBot(this.settings.token);		
+
+		this.bot.on('text', (msg) => { this.handleMessage(msg);	});
+		await this.bot.startPolling();
+		await this.bot.getMe().then(botInfo => {
+			this.username = botInfo.username;
+		});
+	}
+
+	async token_verify() {
 		if(this.settings.verifyToken)
 		{
 			this.logger.log(this.settings.locale.console.bot_token_verify_start, "info");
 
-			if (!await this.verifyToken(this.settings.token)) {
-				this.logger.log(this.settings.locale.console.bot_token_verify_fail, "error");
-				return;
-			}
-			else 
-			{
-				this.logger.log(this.settings.locale.console.bot_token_verify_pass, "info");
-			}
+			if (!await this.token_verify_connect(this.settings.token)) { this.logger.log(this.settings.locale.console.bot_token_verify_fail, "error"); return false; }
+			else { this.logger.log(this.settings.locale.console.bot_token_verify_pass, "info"); return true;	}
 		}
-
-		// create commands
+	}
+	async attach_cmd_handlers()
+	{
 		for (let command in this.settings.locale.commands) {
 			if (Object.prototype.hasOwnProperty.call(this.commands, command)) {
 				// Remove the slash from the command name
@@ -41,17 +53,9 @@ class TGBot {
 				} else { this.logger.log(command + this.settings.locale.console.bot_cmd_func_404, "warning"); }				
 			}
 		}
+
 		this.logger.log(`CommandHanlers:\n ${JSON.stringify(this.commandHandlers)}`, "debug");
 		this.logger.log('Commands initialized', "info");
-		
-		// start BOT	
-		if (!this.bot) this.bot = new TelegramBot(this.settings.token);		
-
-		this.bot.on('text', (msg) => { this.handleMessage(msg);	});
-		await this.bot.startPolling();
-		await this.bot.getMe().then(botInfo => {
-			this.username = botInfo.username;
-		});
 	}
 
 	async stop() {
@@ -60,7 +64,7 @@ class TGBot {
 		return true;
 	}
 
-	async verifyToken(_token) {		
+	async token_verify_connect(_token) {		
 		// try to connect, if success disconnect and return true, else disconnect return false
 		this.bot = new TelegramBot(_token);
 		try {
@@ -75,46 +79,35 @@ class TGBot {
 		}
 	}
 
-	async styleMessage(_text, _style){
-		//if style is in this.settings.messageStrings, apply messageStrings.open before and messageStrings.close after string, else use "normal" style
-		if (this.settings.messageStrings[_style]) return this.settings.messageStrings[_style].open + _text + this.settings.messageStrings[_style].close;
-		else return this.settings.messageStrings.normal.open + _text + this.settings.messageStrings.normal.close;	
-	}
-
 	async sendMessage(chatID, message, replyID) {
 		try {
-			if (!message || !chatID) { 
-				this.logger.log(this.settings.locale.console.bot_msg_verify_fail + message + chatID, "error");
-				return; 
-			}
+			if (!message || !chatID) { this.logger.log(this.settings.locale.console.bot_msg_verify_fail + message + chatID, "error"); return; }
 		
 			const options = replyID ? { reply_to_message_id: replyID, parse_mode: 'HTML' } : { parse_mode: 'HTML' };
-		
 			await this.bot.sendMessage(chatID, message, options);
+
 			this.logger.log(this.settings.locale.console.bot_msg_send_pass + chatID + ": " + message, "info");
-		} catch (error) {
-			this.logger.log(this.settings.locale.console.bot_msg_send_fail + error.stack, "error");
-		}
+		} 
+		catch (error) { this.logger.log(this.settings.locale.console.bot_msg_send_fail + error.stack, "error");	}
 	}	
 
 	async handleMessage(msg) {
 		// if chat is not private or not from the bot itself, check if chat is in chatId whitelist
-		if (msg.chat.id != msg.from.id && msg.chat.id != this.bot.id && !this.settings.chatId.includes(msg.chat.id)) {
+		if (!this.whitelist_check(msg)) { return; }
+		
+		this.logger.log(`[${msg.chat.id}][${msg.from.id}][${msg.from.username}][${msg.from.first_name} ${msg.from.last_name}]: ${msg.text}`, "info");
+
+		if (msg.text.startsWith('/') && msg.text.length > 1) {	this.parseCmd(msg);	} 
+		else { this.handleNormalMessage(msg); }
+	}
+
+	async whitelist_check(msg){
+		if (msg.chat.id != msg.from.id && !this.settings.chatId.includes(msg.chat.id)) {
 			this.logger.log("Message from : [" + msg.from.id + "][" + msg.chat.id + "] is not from allowed chat list", "warning"); 
 			return; 
 		}
-		
-		this.logger.log(`[${msg.chat.id}][${msg.from.id}][${msg.from.username}][${msg.from.first_name} ${msg.from.last_name}]: ${msg.text}`, "info");
-		if (msg.text.startsWith('/')) {
-			try {
-				this.logger.log(`Run execution: ${msg.text}`, "info");
-				this.parseCmd(msg);
-			} catch (error) {
-				this.logger.log(`Error parsing command: ${error}`, "error");
-			}	
-		} 
-		else { this.handleNormalMessage(msg); }
 	}
+
 	async parseCmd(msg) {
 		try {
 			this.logger.log(`Parsing command: ${msg.text}`, "debug");
@@ -174,13 +167,16 @@ class TGBot {
 			// read user data from db
 			const user = await this.app.db.db_user(_msg);
 			let message = this.settings.locale.base.cmd_me_pass + "\n";
-			message += this.settings.locale.base.cmd_me_messages + (user.messages || 0) + "\n";
+			message += this.settings.locale.base.cmd_me_messages + (user.stats.messages || 0) + "\n";
 			message += this.settings.locale.base.cmd_me_achievements + (user.achievement ? Object.keys(user.achievement).length : 0) + "\n";
 			message += this.settings.locale.base.cmd_me_collectibles + (user.wallet && user.wallet.collectible ? Object.keys(user.wallet.collectible).length : 0) + "\n";
 
-			this.logger.log(message + _msg.from.id, "debug");
 			this.sendMessage(_msg.chat.id,message, _msg.message_id);
 		}
+	}
+
+	async cmd_start(_msg){
+		await this.sendMessage(_msg.chat.id, this.settings.locale.base.cmd_start, _msg.message_id);	
 	}
 
 	// todo : move commands methods to command.js, load commands there also
@@ -201,15 +197,24 @@ class TGBot {
 	async cmd_incorrect(_msg) { await this.sendMessage(_msg.chat.id,  this.settings.locale.console.bot_cmd_fail, _msg.message_id); }
 	async cmd_commands(_msg) {
 		if (!await this.app.db.db_user_isRegistered(_msg)) { this.logger.log(this.settings.locale.console.bot_cmd_requirement_register);  return; }
-
 		let message = this.settings.locale.base.bot_cmd_commands + "\n";
-		for (const { command } of this.commandHandlers) {
-			message += command + "\n";
-		}
+		for (const { command } of this.commandHandlers) { message += command + "\n"; }
 		await this.sendMessage(_msg.chat.id, message, _msg.message_id);
 		this.logger.log(this.settings.locale.console.bot_cmd_commands, "info");
 	}
-	async handleNormalMessage(_msg){ if(!_msg) return; }
+	async handleNormalMessage(_msg) {
+		try {
+			// Check if the user is registered
+			if (_msg.from.id == _msg.chat.id || !await this.app.db.db_user_isRegistered(_msg)) { return; }
+			else await this.app.db.incrementValue(this.settings.path.db.users + _msg.from.id + this.settings.path.db.user.messages);
+			
+			// Handle achievements related to messages
+			await this.app.achievement.h_messages(_msg);
+		} catch (error) {
+			this.logger.log(`Error handling normal message: ${error.stack}`, "error");
+		}
+	}
+	
 }
 
 module.exports = TGBot;
