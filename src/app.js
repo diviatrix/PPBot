@@ -4,6 +4,7 @@ import path from "path";
 //import { ExpressBackend } from "./ExpressBackend.js";
 import { Logger } from "./logger.js";
 import process from "process";
+process.noDeprecation = true;
 
 const logger = new Logger("info", "error", "warning");
 const storageFolderPath = path.join(path.resolve(),"src", "storage");
@@ -66,7 +67,7 @@ async function aCommand(msg) {
 }
 
 async function allPPCommand(msg) {
-	let _message = "All PP Here: <a href='https://github.com/diviatrix/PPBot/blob/baza/storage/pp.json'>https://github.com/diviatrix/PPBot/blob/baza/storage/pp.json</a>";
+	let _message = "All PP Here: <a href='https://github.com/diviatrix/PPBot/blob/baza/src/storage/pp.json'>https://github.com/diviatrix/PPBot/blob/baza/src/storage/pp.json</a>";
 	sendMessage(msg.chat.id, _message, msg.message_id, { parse_mode: "HTML" });
 }
 
@@ -260,7 +261,7 @@ async function sendMessage(chatID, message, replyID)
 	else if (!replyID) {
 		bot.sendMessage(chatID, message, { parse_mode: "HTML" })
 			.then(() => {
-				logger.log(`Sent message to chat -> ${chatID}: ${message}`);
+				logger.log(`Sent message to chat -> ${chatID}: ${message},`);
 			})
 			.catch((error) => {
 				logger.log(`[${callerName}] sendMessage: ${error}`);
@@ -268,7 +269,7 @@ async function sendMessage(chatID, message, replyID)
 	} else if (replyID) {
 		bot.sendMessage(chatID, message, { reply_to_message_id: replyID, parse_mode: "HTML"})
 			.then(() => {
-				logger.log(`Sent message to chat -> ${chatID}: ${message}`);
+				logger.log(`Sent message to chat -> ${chatID}: ${message} : ${replyID}`);
 			})
 			.catch((error) => {
 				logger.log(`[${callerName}] sendMessage: ${error}`);
