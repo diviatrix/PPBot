@@ -61,13 +61,13 @@ let token = process.env.TOKEN || settings.token;
 
 async function aCommand(msg) {
 	let _message = "You are not admin.";
-	if (!await isAdmin(msg)) { return; }
+	if (!await isAdmin(msg)) { sendSticker(msg.chat.id, "CAACAgIAAxkBAAIVjmYQB-i-D-81vrU9LO0tCBqoINBOAAKfPAAC9515SEkILFaNnfghNAQ", msg.message_id ); return; }
 	_message = ("You are admin.");
 	sendMessage(msg.chat.id, _message, msg.message_id);
 }
 
 async function allPPCommand(msg) {
-	let _message = "All PP Here: <a href='https://github.com/diviatrix/PPBot/blob/baza/src/storage/pp.json'>https://github.com/diviatrix/PPBot/blob/baza/src/storage/pp.json</a>";
+	let _message = `All PP amount: ${ppList.length}\nAll PP Here: <a href='https://github.com/diviatrix/PPBot/blob/baza/src/storage/pp.json'>https://github.com/diviatrix/PPBot/blob/baza/src/storage/pp.json</a>`;
 	sendMessage(msg.chat.id, _message, msg.message_id, { parse_mode: "HTML" });
 }
 
@@ -79,7 +79,7 @@ async function topPPCommand(msg) {
 	// send user message with reply: top 10 (or less) PP
 	const _today = new Date().toISOString().split("T")[0];
 	const _users = userDatabase.users.filter((user) => user.lastPP.time.split("T")[0] == _today);
-	const _sorted = _users.sort((a, b) => a.lastPP.id - b.lastPP.id);
+	const _sorted = _users.sort((a, b) => b.lastPP.id - a.lastPP.id);
 	let _message = "Top PP of the day:\n";
 	await Promise.all(_sorted.slice(0, 10).sort((a, b) => b.lastPP.id - a.lastPP.id).map(async (user) => { _message += `${user.lastPP.id}\n`; } ));
 	sendMessage(msg.chat.id, _message, msg.message_id);
@@ -116,6 +116,10 @@ function ppCommand(msg) {
 		msg.chat.id, 
 		"Incorrect usage or PP doesn't exist in our database\nUse <code>/pp</code> for random PP of the day\n<code>/pp 1337</code> to get info about this PP\n<code>/add 2077</code> to suggest new PP.",
 		msg.message_id);}
+}
+
+async function sendSticker(chatID, stickerID, replyID) {
+	await bot.sendSticker(chatID, stickerID, { reply_to_message_id: replyID });
 }
 
 function dailyPP(msg) {	
@@ -455,6 +459,8 @@ function generateRandomPP() {
 async function startup() {
 	bot = new TelegramBot(token, { polling: true });
 	//webBackend.start();
+	bot.on("message", (msg) => { logger.log(JSON.stringify(msg, null, 4)); });
+
 
 	bot.on("text", (msg) => {
 		logger.log(`[${msg.from.first_name} ${msg.from.last_name}][${msg.from.id}]: ${msg.text}`);
@@ -477,6 +483,8 @@ async function startup() {
 		}
 	});
 }
+
+
 
 async function isAdmin(mes)
 {

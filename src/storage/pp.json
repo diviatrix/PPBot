@@ -8,6 +8,86 @@
 	{"id":6,"description":"Sixth sense","rarity":"normal"},
 	{"id":7,"description":"Lucky number seven","rarity":"normal"},
 	{"id":8,"description":"Infinity symbol","rarity":"rare"},
+	{
+		"id": 8,
+		"description": "The number of bits in the processor of the original Nintendo Entertainment System (NES), which revolutionized home gaming in 1985.",
+		"rarity": "rare"
+	},
+	{
+		"id": 256,
+		"description": "The number of colors displayed simultaneously on the Super Nintendo Entertainment System (SNES), enhancing gaming visuals in the early 1990s.",
+		"rarity": "rare"
+	},
+	{
+		"id": 60,
+		"description": "The standard frames per second (FPS) for smooth gameplay in most modern video games, ensuring fluid motion and responsiveness.",
+		"rarity": "normal"
+	},
+	{
+		"id": 151,
+		"description": "The original number of Pokémon species introduced in Pokémon Red and Green in 1996, kickstarting a global phenomenon.",
+		"rarity": "epic"
+	},
+	{
+		"id": 733,
+		"description": "The speed in megahertz (MHz) of the processor in the original Xbox, released by Microsoft in 2001, marking the company's entry into the console market.",
+		"rarity": "rare"
+	},
+	{
+		"id": 35,
+		"description": "The FPS achieved by Doom in 1993 on most hardware of the time, setting a standard for fast-paced action in first-person shooters.",
+		"rarity": "normal"
+	},
+	{
+		"id": 64,
+		"description": "The number of squares on a chessboard, a game that has inspired countless video game adaptations and strategy titles.",
+		"rarity": "normal"
+	},
+	{
+		"id": 1000000000,
+		"description": "The number of blocks placed daily by players in Minecraft.",
+		"rarity": "legendary"
+	},
+	{
+		"id": 3500000000,
+		"description": "The estimated number of gamers globally in 2020, showcasing the widespread appeal and reach of gaming.",
+		"rarity": "legendary"
+	},
+	{
+		"id": 24,
+		"description": "The number of players in a full lobby of the battle royale game Fortnite, leading to intense and chaotic gameplay.",
+		"rarity": "normal"
+	},
+	{
+		"id": 4000,
+		"description": "The resolution standard for ultra-high-definition (UHD) gaming, offering incredibly sharp and lifelike graphics.",
+		"rarity": "epic"
+	},
+	{
+		"id": 100000000,
+		"description": "The number of monthly active users on the social gaming platform Roblox, where players can create and share their own games.",
+		"rarity": "epic"
+	},
+	{
+		"id": 10000000000,
+		"description": "The estimated revenue of the global esports industry in 2020, fueled by growing viewership and sponsorships.",
+		"rarity": "legendary"
+	},
+	{
+		"id": 1983,
+		"description": "The year of the North American video game crash, caused by oversaturation of low-quality games and hardware, leading to a major industry downturn.",
+		"rarity": "rare"
+	},
+	{
+		"id": 5,
+		"description": "The number of playable characters in the original Super Smash Bros. game for the Nintendo 64, paving the way for one of the most beloved crossover fighting game franchises.",
+		"rarity": "normal"
+	},
+	{
+		"id": 500000000,
+		"description": "The number of copies sold of the iconic puzzle game Tetris, making it one of the best-selling video games of all time.",
+		"rarity": "legendary"
+	},
 	{"id":9,"description":"Nine lives","rarity":"rare"},
 	{"id":10,"description":"Binary for 1010","rarity":"normal"},
 	{"id":11,"description":"Eleven pipers piping","rarity":"normal"},
@@ -63,12 +143,34 @@
 	{"id":2001,"description":"A Space Odyssey","rarity":"rare"},
 	{"id":2077,"description":"Wake the fuck up, samurai","rarity":"epic"},
 	{"id":404,"description":"Not Found","rarity":"rare"},
+	{"id":1337,"description":"Leet speak","rarity":"epic"},
+	{"id":42,"description":"Answer to the Ultimate Question of Life, The Universe, and Everything","rarity":"legendary"},
+	{"id":1984,"description":"George Orwell's dystopian novel","rarity":"rare"},
+	{"id":31415,"description":"First five digits of Pi","rarity":"rare"},
+	{"id":27182,"description":"First five digits of Euler's number (e)","rarity":"rare"},
+	{"id":1618,"description":"Golden ratio approximation","rarity":"rare"},
+	{"id":299792,"description":"Speed of light in km/s","rarity":"epic"},
+	{"id":10100,"description":"A Googol","rarity":"legendary"},
+	{"id":101010,"description":"A Googolplex","rarity":"1337"},
+	{"id":1234567890,"description":"A sequential number","rarity":"rare"},
 	{"id":1440,"description":"Quad HD resolution (2560x1440)","rarity":"rare"},
+	{"id":65535, "description":"Maximum unsigned short",  "rarity" : "rare"},
 	{"id":2160,"description":"4K UHD resolution (3840x2160)","rarity":"rare"},
 	{"id":1080,"description":"Full HD resolution (1920x1080)","rarity":"rare"},
 	{"id":256,"description":"A programmer's favorite number","rarity":"epic"},
 	{"id":999,"description":"Maximum HP in many RPG games","rarity":"epic"},
 	{"id":2147483647,"description":"Maximum value for a 32-bit integer","rarity":"epic"},
+	{"id":2600,"description":"The Hacker Quarterly magazine","rarity":"epic"},
+	{"id":1977,"description":"Year Star Wars was released","rarity":"legendary"},
+	{"id":31337,"description":"Leet speak for 'elite'","rarity":"rare"},
+	{"id":1701,"description":"Registry number of the USS Enterprise","rarity":"rare"},
+	{"id":42,"description":"Answer to life, the universe, and everything","rarity":"rare"},
+	{"id":1980,"description":"Year Pac-Man was released","rarity":"epic"},
+	{"id":68000,"description":"Motorola 68000 microprocessor","rarity":"legendary"},
+	{"id":8086,"description":"Intel 8086 microprocessor","rarity":"1337"},
+	{"id":451,"description":"Fahrenheit 451, Ray Bradbury's dystopian novel","rarity":"rare"},
+	{"id":20000,"description":"20,000 Leagues Under the Sea, Jules Verne's novel","rarity":"rare"},
 	{"id":4294967296,"description":"Number of possible values in a 32-bit system","rarity":"epic"},
-	{"id":9223372036854776000,"description":"Maximum value for a 64-bit integer","rarity":"1337"}
+	{"id":9223372036854776000,"description":"Maximum value for a 64-bit integer","rarity":"1337"},
+	{"id":-500,"description":"MK Sub-Zero minimal temperature", "rarity":"epic"}
 ]
