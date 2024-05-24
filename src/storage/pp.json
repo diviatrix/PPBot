@@ -1,7 +1,7 @@
 [
 	{"id":0,"description":"The void","rarity":"normal"},
 	{"id":1,"description":"The loneliest number","rarity":"normal"},
-	{"id":2,"description":"Binary for 10","rarity":"normal"},
+	{"id":2,"description":"Два","rarity":"normal"},
 	{"id":3,"description":"Magic number","rarity":"normal"},
 	{"id":4,"description":"Four-leaf clover","rarity":"rare"},
 	{"id":5,"description":"High five!","rarity":"normal"},
@@ -55,12 +55,17 @@
 	},
 	{
 		"id": 24,
-		"description": "The number of players in a full lobby of the battle royale game Fortnite, leading to intense and chaotic gameplay.",
+		"description": "Периодический элемент N24 - Chromium",
 		"rarity": "normal"
 	},
 	{
+		"id": 3840,
+		"description": "The wide side of standard for ultra-high-definition (UHD) gaming, offering incredibly sharp and lifelike graphics.",
+		"rarity": "epic"
+	},
+	{
 		"id": 4000,
-		"description": "The resolution standard for ultra-high-definition (UHD) gaming, offering incredibly sharp and lifelike graphics.",
+		"description": "The Great Mage Return after 4000 years, top-notch fantasy Manhwa",
 		"rarity": "epic"
 	},
 	{
@@ -88,6 +93,26 @@
 		"description": "The number of copies sold of the iconic puzzle game Tetris, making it one of the best-selling video games of all time.",
 		"rarity": "legendary"
 	},
+	{"id":8008135,"description":"Boobies (. )( .)","rarity":"1337"},
+	{
+		"id": 3310,
+		"description": "The unbreakable pp\nhttps://youtu.be/xoaarlsQ_lU",
+		"rarity": "epic"
+	},
+	{
+		"id": 314159,
+		"description": "Pi (P)",
+		"rarity": "idiot"
+	},
+	{
+		"id": 1984,
+		"description": "Big pp is watching you",
+		"rarity": "rare"
+	},
+	{"id":5600,"description":"Repairman says","rarity":"idiot"},
+	{"id":112358,"description":"Fibonacci","rarity":"rare"},
+	{"id":1616,"description":"PP by Alphabet Index","rarity":"normal"},
+	{"id":88005553535,"description":"Проще позвонить чем у кого-то занимать\nhttps://youtu.be/F1nl8wOp0Ow","rarity":"epic"},
 	{"id":9,"description":"Nine lives","rarity":"rare"},
 	{"id":10,"description":"Binary for 1010","rarity":"normal"},
 	{"id":11,"description":"Eleven pipers piping","rarity":"normal"},

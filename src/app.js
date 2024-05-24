@@ -64,6 +64,7 @@ async function aCommand(msg) {
 	if (!await isAdmin(msg)) { sendSticker(msg.chat.id, "CAACAgIAAxkBAAIVjmYQB-i-D-81vrU9LO0tCBqoINBOAAKfPAAC9515SEkILFaNnfghNAQ", msg.message_id ); return; }
 	_message = ("You are admin.");
 	sendMessage(msg.chat.id, _message, msg.message_id);
+	sendSticker(msg.chat.id, "CAACAgIAAxkBAAIVjmYQB-i-D-81vrU9LO0tCBqoINBOAAKfPAAC9515SEkILFaNnfghNAQ", msg.message_id);
 }
 
 async function allPPCommand(msg) {
