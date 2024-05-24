@@ -7,8 +7,9 @@ const settings = require('./app/storage/settings.json');
 const Reward = require('./app/reward.js');
 const Achievement = require('./app/achievement.js');
 const achievements = require('./app/storage/achievements.json');
-const Converter = require('./app/converter.js');
+const Helper = require('./app/helper.js');
 const collectibles = require('./app/storage/collectible.json');
+const Commands = require('./app/commands.js');
 
 /* eslint-env node */
 process.noDeprecation = true;
@@ -24,8 +25,7 @@ this.run = false; // used for checking if the app is running or not (used in sto
 this.rl = null;
 this.db;
 this.reward;
-// this.achievement = new Achievement(this); // Moved to start function
-this.converter = new Converter(this.logger);
+this.helper = new Helper(this.logger);
 
 // Add settings to the context
 this.settings = settings;
@@ -39,12 +39,13 @@ const initialize = async () => {
 
 const start = async () => {
 	if (this.run) {this.logger.log("Application is already running", "info"); return; }
-	try {
+	try {			
 			this.db = new FirebaseConnector(this);
+			this.commands = new Commands(this, this.logger); 
 			this.tgBot = new TGBot(this);
 			this.webBackend = new WebBackend(this);
 			this.reward = new Reward(this);
-			this.achievement = new Achievement(this);
+			this.achievement = new Achievement(this);			
 
 			this.run = true;
 			this.logger.log('Application: Initialization completed', "info");

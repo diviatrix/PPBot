@@ -1,14 +1,14 @@
 const settings = require('./storage/settings.json');
 
-class Converter {
+class Helper {
   constructor(_logger) {
 	this.logger = _logger;
 	this.settings = settings;
-	this.logger.log('Converter constructed', "debug");
+	this.logger.log('Helper constructed', "debug");
   }
 
   start() {
-	this.logger.log('Converter started', "debug");
+	this.logger.log('Helper started', "debug");
   }
 
   str_style(_string, _style) {
@@ -22,5 +22,10 @@ class Converter {
 	}
 	return result;
   }
+
+  is_today(_date) {
+	const today = new Date();
+	return (_date.getDate() == today.getDate() && _date.getYear() == today.getYear())
+  }
 }
-module.exports = Converter;
+module.exports = Helper;

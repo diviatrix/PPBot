@@ -2,7 +2,7 @@ class Achievement {
 	constructor (_app) {
 		this.app = _app;
 		this.logger = _app.logger;
-		this.converter = _app.converter;
+		this.helper = _app.helper;
 		this.settings = _app.settings;
 		this.achievements = _app.achievements;
 		this.logger.log('Achievement constructed', "info");
@@ -73,8 +73,8 @@ class Achievement {
 		try {
 			this.logger.log(this.settings.locale.console.ach_message_prepare + _achievement.name + " to user: " + _msg.from.id, "info");
 			let message = this.settings.locale.base.ach_recieved + "\n";
-			message += this.app.converter.str_style(_achievement.name, "bold") + "\n";
-			message += this.app.converter.str_style(_achievement.description, "italic") + "\n";
+			message += this.app.helper.str_style(_achievement.name, "bold") + "\n";
+			message += this.app.helper.str_style(_achievement.description, "italic") + "\n";
 
 			// if there are rewards
 			if (_achievement.reward) {
@@ -90,7 +90,7 @@ class Achievement {
 
 	async requirementsMet(_msg, _achievement) {
 		let requirements = _achievement.requirements;
-		this.logger.log("Checking requirements for " + this.converter.str_style(_achievement.name, "bold") + " for user: " + _msg.from.id + ": " + requirements.length , "debug");
+		this.logger.log("Checking requirements for " + this.helper.str_style(_achievement.name, "bold") + " for user: " + _msg.from.id + ": " + requirements.length , "debug");
 		let result = false;
 		for (const requirement of requirements) {
 			if (requirement.type == "message") {

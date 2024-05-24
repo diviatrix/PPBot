@@ -1,29 +1,49 @@
 {
   "token": "",
   "verifyToken" : false,
-  "admin": 0,
-  "chatId": [],
+  "admin": 1234567890,
+  "chatId": [
+    -1001234567890,
+    -1001234567890,
+    -1001234567890
+  ],
   "port": 3003,
   "loggerLevel": ["info", "error","warning", "debug"],
   "db": {
-    "serviceAccount": {}
+    "databaseURL": "https://mydatabase.firebasedatabase.app/",
+    "serviceAccount": {
+      "type": "service_account",
+      "project_id": "myProject",
+      "private_key_id": "myPrivateKeyID",
+      "private_key": "myPrivateKey",
+      "client_email": "myFirebaseEmail.iam.gserviceaccount.com",
+      "client_id": "myID",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": "https://oauth2.googleapis.com/token",
+      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url": "",
+      "universe_domain": "googleapis.com"
+    }
   },
   "path": {
     "public": "./public",
     "PP": "./storage/PP.json",
     "db": {
-      "session": "app/session/records",
-      "users": "app/users/records",
+      "session": "/app/session/",
+      "users": "/app/users/",
+      "suggestions": "/app/suggestions/",
       "user":{
-        "register": "stats/register",
-        "messages": "stats/messages",
-        "experience": "stats/experience",
-        "level": "stats/level",
-        "roll": "stats/roll",
-        "balance": "wallet/balance",
-        "ticket": "wallet/ticket",
-        "collectible": "wallet/collectible",
-        "collectible_last": "stats/last/collectible"
+        "register": "/stats/register",
+        "messages": "/stats/messages",
+        "experience": "/stats/experience",
+        "level": "/stats/level",
+        "balance": "/wallet/balance",
+        "ticket": "/wallet/ticket",
+        "collectible": "/wallet/collectible/",
+        "achievement": "/achievement/",
+        "stats": "/stats/",
+        "lastRoll": "/stats/roll/last",
+        "rollCount": "/stats/roll/count"
       }
     }
   },
@@ -37,17 +57,17 @@
       "wallet": {},
       "stats": {}
     },
+    "stats": {
+      "roll": {
+        "last": { "time": 0 },
+        "count": 0
+      }
+    },
     "roll": {
       "id": 0,
       "time": "",
       "amount": 0,
       "rarity": "normal"
-    },
-    "collectible": {
-      "guid": "",
-      "id": 0,
-      "rarity": "",
-      "time": ""
     },
     "achievement": {
       "id": 0,
@@ -57,27 +77,27 @@
     }
   },
   "messageStrings": {
-    "Normal": {
+    "normal": {
       "open": "",
       "close": ""
     },
-    "Italic": {
+    "italic": {
       "open": "<i>",
       "close": "</i>"
     },
-    "Bold": {
+    "bold": {
       "open": "<b>",
       "close": "</b>"
     },
-    "Code": {
+    "code": {
       "open": "<code>",
       "close": "</code>"
     },
-    "StrikeThrough": {
+    "strikethrough": {
       "open": "<s>",
       "close": "</s>"
     },
-    "Underline": {
+    "underline": {
       "open": "<u>",
       "close": "</u>"
     }
@@ -85,50 +105,53 @@
   "rarity": {
     "normal": {
       "color": "#808080",
-      "text": "Normal",
-      "weight": 0.5
+      "text": "normal",
+      "weight": 0.75
     },
     "rare": {
       "color": "#008000",
-      "text": "Italic",
-      "weight": 0.2
+      "text": "italic",
+      "weight": 0.15
     },
     "epic": {
       "color": "#800080",
-      "text": "Bold",
-      "weight": 0.1
+      "text": "bold",
+      "weight": 0.05
     },
     "legendary": {
       "color": "#FFD700",
-      "text": "Code",
-      "weight": 0.05
+      "text": "code",
+      "weight": 0.01
     },
     "1337": {
       "color": "#FFA500",
-      "text": "StrikeThrough",
+      "text": "strikethrough",
       "weight": 0.01
-    },
-    "KS": {
-      "color": "#FF0000",
-      "text": "Underline",
-      "weight": 0.1
     },
     "idiot": {
       "color": "#0000FF",
-      "text": "Italic",
-      "weight": 0.1
+      "text": "italic",
+      "weight": 0.10
     }
   },
   "locale": {
     "base": {
-      "suggest_no_args": "Do not forget to provide suggestion itself 🗿\nUse <code>/add 2077 - Wake the fuck up, samurai!</code>",
-      "suggest_success": "Thank you for your suggestion.",
-      "suggest_already_submitted": "You have already suggested this.",
-      "cmd_go_pass": "🫡 Congratulations! 🫡\nYou've been successfully registered in PP bot system.\nStart off with <code>/commands</code>.\n\n💰GL, collector!💰",
-      "cmd_go_fail": "You are already registered, or registration is disabled.",
-      "bot_cmd_commands": "List of all available commands",
-      "cmd_deleteme_pass": "Your data fully deleted without restoraion: ",
-      "cmd_deleteme_fail": "Error deleting your account: "
+      "cmd_start": "Используй /go для регистрации в системе 1337.plus",
+      "cmd_go_pass": "🫡 Поздравляю! 🫡\nТы успешно зарегистрирован в 1337.plus\nНачни с <code>/commands</code>.\n\n💰Удачи!💰",
+      "cmd_go_fail": "Уже зарегистрирован.",
+      "bot_cmd_commands": "Список всех доступных комманд",
+      "cmd_deleteme_pass": "🪦 Аккаунт удалён без возможности восстановления 🪦",
+      "cmd_fail": "Не получилось :( ",
+      "ach_recieved":"🏆 Ачивочка, грац! 🏆",
+      "ach_reward": "🎁 Награда: ",
+      "cmd_me_pass": "👤 Инфа:",
+      "cmd_me_messages": "📨 Сообщения: ",
+      "cmd_me_achievements":  "🏆 Ачивки: ",
+      "cmd_me_collectibles":  "💰 Коллекция: ",
+      "cmd_roll_fail_already": "🎲 Сегодня roll уже использован: ",
+      "cmd_roll_success": "🎲 Твой рандом сегодня: ",
+      "bot_cmd_requirement_register": "Для использования этой комманды нужно зарегистрироваться - /start ",
+      "cmd_add_fail_empty": "🚫 Нельзя добавлять пустые предложения 🚫"
     },
     "console": {
       "info_is_requesting": "is trying to: ",
@@ -137,8 +160,11 @@
       "bot_token_verify_fail": "Error validating token: ",
       "bot_cmd_create_pass": " command created with function: ",
       "bot_cmd_func_404": " does not have an associated function.",
+      "bot_cmd_fail": "Failed to execute command: ",
       "bot_cmd_recieved": "Recieved command:",
       "bot_cmd_read_fail": "Incorrect command usage",
+      "bot_cmd_registered_fail": "User is not registered: ",
+      "bot_cmd_registered_pass": "User is registered: ",
       "bot_cmd_search": "Searching command: ",
       "bot_cmd_search_fail": "No matching handlers for commmands found: ",
       "bot_cmd_go_register_pass": "Successfully registered user: ",
@@ -146,30 +172,47 @@
       "bot_cmd_deleteme_pass": "User data fully deleted: ",
       "bot_cmd_deleteme_fail": "Can not delete user: ",
       "bot_cmd_commands": "List of all commands: ",
-      "bot_cmd_requirement_register": "User have to be registered to use this command: ",
+      "bot_cmd_requirement_register": "User have to be registered: ",
       "bot_msg_verify_fail": "Message or chatID is undefined:",
       "bot_msg_send_fail": "Failed to send: ",
       "bot_msg_send_pass": "Sent message: ",
+      "bot_cmd_roll_start": "Starting /roll for: ",
+      "bot_cmd_roll_time": "Checking if last /roll was today: ",
+      "bot_cmd_roll_new": "Rolling new reward",
+      "bot_cmd_roll_new_success": "Rolled new reward: ",
+      "bot_cmd_roll_last_update": "Updating last roll for user: ",
+      "bot_cmd_roll_last_update_success": "Successfully updated last roll for user: ",
+      "bot_cmd_roll_count_update_success": "Successfully increased roll count for user:",
       "db_write_pass": "Document written to DB: ",
       "db_delete_pass": "Document deleted from DB: ",
       "db_delete_fail": "Can not delete document from DB: ",
       "db_user_exists": "User exists: ",
       "db_user_not_exists": "User does not exist: ",
       "db_user_erase_pass": "User data fully deleted: ",
+      "db_user_push_record": "Pushed record to user: ",
+      "ach_add": "Adding achievement: ",
       "ach_register_check": "Checking for register event achievements: ",
-      "back_run_pass": "Web backend is running on port: "
+      "ach_recieved": "Achievement recieved: ",
+      "back_run_pass": "Web backend is running on port: ",
+      "bot_cmd_pass": "Command completed",
+      "reward_fail": "Adding reward failed",
+      "ach_message_prepare": "Preparing achievement message: ",
+      "reward_add": "Adding reward: ",
+      "reward_success": "Reward added: ",
+      "reward_add_check": "Checking for reward: "
     },
     "commands": {
-      "/go": "Register you in PP System",
-      "/deleteme": "Delete your account (you will lose all of your data)",
-      "/me": "Shows information about user",
-      "/pp": "Randomize PP once a day, check your PP stats\n if used as <code>/pp 1337</code>, shows information about PP",
-      "/add": "Send suggestion to admin, suggestion will be checked in time",
-      "/rar": "Show list of existing rarities",
-      "/a": "Checks if you are admin",
-      "/toppp": "Top 10 lagest recieved PP today",
-      "/allpp": "List of all existing PP",
-      "/commands": "List of all commands"
+      "/go": "Зарегистрироваться",
+      "/deleteme": "Безвозвратно выпилиться",
+      "/me": "О себе",
+      "/roll": "Роллит PP",
+      "/add": "Предложка",
+      "/rar": "Рарности",
+      "/a": "Админ",
+      "/top": "Дневной топ",
+      "/allс": "Список коллектиблов",
+      "/commands": "Список доступных команд",
+      "/start": "Юзлесс"
     }
   }
 }

@@ -36,35 +36,59 @@ class Reward {
 		return Object.keys(user['collectible']);
 	}
 
-	async rewardAdd(_msg, _reward)
-	{
-		this.logger.log(JSON.stringify(_reward, null, 2), "debug");
+	async rewardAdd(_msg, _reward) {
+		const collectible = await this.collectible(_reward.id, _reward.rarity);
+		if (!collectible) {
+			this.logger.log(`Collectible with id ${_reward.id} not found`, "error");
+			return false;
+		}
 
+		const rewardRecord = {
+			id: collectible.id,
+			name: collectible.name,
+			rarity: _reward.rarity,
+			time: await this.app.db.time(),
+			from: "1337.plus",
+		};
+
+		if (await this.app.db.db_user_push(_msg, this.settings.path.db.user.collectible, rewardRecord)){
+			this.logger.log(`Reward stored to user profile: ${JSON.stringify(rewardRecord, null, 2)}`, "info");
+			return rewardRecord;
+		}		
+	}
+	async randomReward(_rarity) {
 		try {
-			this.logger.log(_msg.from.id +" " + _msg.from.username + ": " + this.settings.locale.console.reward_add_check, "debug");
-			let _collectible = await this.collectible(_reward.id, _reward.rarity);
-
-			this.logger.log(`Collectible: ${JSON.stringify(_collectible, null, 2)}`, "debug");
-
-			let rewardRecord = {};
-
-			if (_collectible) {
-				rewardRecord.id = _collectible.id;
-				rewardRecord.name = _collectible.name;
-				rewardRecord.rarity = _reward.rarity;
-				rewardRecord.time = await this.app.db.time();
-				rewardRecord.from = "1337.plus";
-				this.logger.log(`Reward record: ${JSON.stringify(rewardRecord, null, 2)}`, "debug");
-				if (await this.app.db.db_user_push(_msg, this.settings.path.db.user.collectible, rewardRecord))
-				{
-					this.app.tgBot.sendMessage(_msg.chat.id, this.settings.locale.base.ach_reward + " " + this.app.converter.str_style(`[${_collectible.id}][${_collectible.rarity}][${_collectible.name}]`, this.settings.rarity[_reward.rarity].text), _msg.message_id);
-				}
+			let _rewardList = this.collectibles.filter(collectible => collectible.rarity == _rarity);
+			if (_rewardList.length > 0) {
+				let _result = _rewardList[Math.floor(Math.random() * _rewardList.length)];
+				this.logger.log(`Random reward: ${JSON.stringify(_result, null, 2)}`, "debug");
+				return _result;
 			} else {
-				this.logger.log(`Collectible with id ${_reward.id} not found`, "error");
-				return false;
+				this.logger.log(`No rewards found with rarity ${_rarity}`, "error");
+				return null;
 			}
 		} catch (error) {
-			this.logger.log(`Error in rewardAdd: ${error.stack}`, "error");
+			this.logger.log(`Error in randomReward: ${error.stack}`, "error");
+		}
+	}
+
+	async randomRarity() {
+		try {
+			let _rarityList = Object.keys(this.settings.rarity);
+			let _totalWeight = _rarityList.reduce((total, rarity) => total + this.settings.rarity[rarity].weight, 0);
+			let _randomNum = Math.random() * _totalWeight;
+			let _weightSum = 0;
+
+			for (const rarity of _rarityList) {
+				_weightSum += this.settings.rarity[rarity].weight;
+				if (_randomNum <= _weightSum) {
+					this.logger.log(`Random rarity: ${rarity}`, "debug");
+					return rarity;
+				}
+			}
+		} catch (error) {
+			this.logger.log(`Error in randomRarity: ${error.stack}`, "error");
+			return undefined;
 		}
 	}
 
@@ -77,7 +101,7 @@ class Reward {
 
 			if (rewardObject) {
 				if (await this.rewardAdd(_msg, reward)) {
-					message += `\n[${reward.type}][ID: ${reward.rarity}][${this.app.converter.str_style(rewardObject.description, this.settings.rarity[reward.rarity].text)}]: ${reward.value}`;
+					message += `\n[${reward.type}][ID: ${reward.rarity}][${this.app.Helper.str_style(rewardObject.description, this.settings.rarity[reward.rarity].text)}]: ${reward.value}`;
 					this.app.tgBot.sendMessage(_msg.chat.id, message, _msg.message_id);
 				}
 			} else {
