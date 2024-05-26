@@ -3,7 +3,7 @@ class Achievement {
 		this.app = _app;
 		this.logger = _app.logger;
 		this.helper = _app.helper;
-		this.settings = _app.settings;
+		this.SETTINGS = _app.SETTINGS;
 		this.achievements = _app.achievements;
 		this.logger.log('Achievement constructed', "info");
 		this.start();
@@ -29,7 +29,7 @@ class Achievement {
 	
 	async h_register(_msg, _data) {
 		try {
-			this.logger.log(_msg.from.id +" " + _data.username + ": " + this.settings.locale.console.ach_register_check, "info");
+			this.logger.log(_msg.from.id +" " + _data.username + ": " + this.SETTINGS.locale.console.ach_register_check, "info");
 			let achievement = this.achievements.find(a => a.id == "start");
 			if (achievement) {
 				let result = await this.requirementsMet(_msg, achievement);
@@ -45,17 +45,17 @@ class Achievement {
 	}	
 
 	async achievementAdd(_msg, _achievement) {
-		this.logger.log(this.settings.locale.console.ach_add + _achievement.name + " to user: " + _msg.from.id + ":\n" + _achievement.id, "info");
+		this.logger.log(this.SETTINGS.locale.console.ach_add + _achievement.name + " to user: " + _msg.from.id + ":\n" + _achievement.id, "info");
 		
 		try {
 			
 
 			_achievement.time = this.app.db.time();
-			if (await this.app.db.db_user_push(_msg, this.settings.path.db.user.achievement, _achievement)) {
+			if (await this.app.db.db_user_push(_msg, this.SETTINGS.path.db.user.achievement, _achievement)) {
 				this.achievementMessage(_msg, _achievement);
 				return true;
 			} else {
-				this.logger.log(this.settings.locale.console.ach_add_error + _msg.from.id + ":\n" + JSON.stringify(_achievement,null,2), "error");
+				this.logger.log(this.SETTINGS.locale.console.ach_add_error + _msg.from.id + ":\n" + JSON.stringify(_achievement,null,2), "error");
 				return false;
 			}
 		} catch (error) {
@@ -71,8 +71,8 @@ class Achievement {
 
 	async achievementMessage(_msg, _achievement) {
 		try {
-			this.logger.log(this.settings.locale.console.ach_message_prepare + _achievement.name + " to user: " + _msg.from.id, "info");
-			let message = this.settings.locale.base.ach_recieved + "\n";
+			this.logger.log(this.SETTINGS.locale.console.ach_message_prepare + _achievement.name + " to user: " + _msg.from.id, "info");
+			let message = this.SETTINGS.locale.base.ach_recieved + "\n";
 			message += this.app.helper.str_style(_achievement.name, "bold") + "\n";
 			message += this.app.helper.str_style(_achievement.description, "italic") + "\n";
 

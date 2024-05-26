@@ -4,9 +4,9 @@ const path = require('path');
 class WebBackend {
     constructor(_app) {
         this.expressApp = express();
-        this.settings = _app.settings;
-        this.port = process.env.port || _app.settings.port || 3000;
-        this.collectibles = _app.collectibles;
+        this.SETTINGS = _app.SETTINGS;
+        this.port = process.env.port || _app.SETTINGS.port || 3000;
+        this.COLLECTIBLES = _app.COLLECTIBLES;
         this.logger = _app.logger;
         this.server = null;
         this.start();
@@ -15,8 +15,8 @@ class WebBackend {
 
     start() {
         this.expressApp.get('/pp', (req, res) => {
-            if (this.collectibles) {
-                res.json(this.collectibles);
+            if (this.COLLECTIBLES) {
+                res.json(this.COLLECTIBLES);
             } else {
                 res.status(500).send('Internal Server Error: cant load PP');
             }
@@ -28,7 +28,7 @@ class WebBackend {
 
         this.expressApp.use(express.static(path.join(__dirname, 'public')));
 
-        this.server = this.expressApp.listen(this.port, () => { this.logger.log(this.settings.locale.console.back_run_pass + this.port, "info" ); });
+        this.server = this.expressApp.listen(this.port, () => { this.logger.log(this.SETTINGS.locale.console.back_run_pass + this.port, "info" ); });
     }
 
     stop() {

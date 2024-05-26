@@ -3,7 +3,7 @@ class TGBot {
 	constructor(_app) {
 		this.app = _app;
 		this.logger = _app.logger;
-		this.settings = _app.settings;		
+		this.SETTINGS = _app.SETTINGS;		
 		this.commands = _app.commands;
 		this.bot;
 		this.username;
@@ -19,7 +19,7 @@ class TGBot {
 
 	async bot_start() {
 		// start BOT	
-		if (!this.bot) this.bot = new TelegramBot(this.settings.token);		
+		if (!this.bot) this.bot = new TelegramBot(this.SETTINGS.token);		
 
 		this.bot.on('text', (msg) => { this.handleMessage(msg);	});
 		await this.bot.startPolling();
@@ -29,12 +29,12 @@ class TGBot {
 	}
 
 	async token_verify() {
-		if(this.settings.verifyToken)
+		if(this.SETTINGS.verifyToken)
 		{
-			this.logger.log(this.settings.locale.console.bot_token_verify_start, "info");
+			this.logger.log(this.SETTINGS.locale.console.bot_token_verify_start, "info");
 
-			if (!await this.token_verify_connect(this.settings.token)) { this.logger.log(this.settings.locale.console.bot_token_verify_fail, "error"); return false; }
-			else { this.logger.log(this.settings.locale.console.bot_token_verify_pass, "info"); return true;	}
+			if (!await this.token_verify_connect(this.SETTINGS.token)) { this.logger.log(this.SETTINGS.locale.console.bot_token_verify_fail, "error"); return false; }
+			else { this.logger.log(this.SETTINGS.locale.console.bot_token_verify_pass, "info"); return true;	}
 		}
 	}
 	
@@ -51,25 +51,25 @@ class TGBot {
 		try {
 			await this.bot.startPolling();
 			await this.bot.stopPolling();
-			this.logger.log(this.settings.locale.console.bot_token_verify_pass, "info");
+			this.logger.log(this.SETTINGS.locale.console.bot_token_verify_pass, "info");
 			return true;
 		} catch (error) {
 			if (this.bot.isPolling()) this.bot.stopPolling();
-			this.logger.log(this.settings.locale.console.bot_token_verify_fail + error, "error");
+			this.logger.log(this.SETTINGS.locale.console.bot_token_verify_fail + error, "error");
 			return false;
 		}
 	}
 
 	async sendMessage(chatID, message, replyID) {
 		try {
-			if (!message || !chatID) { this.logger.log(this.settings.locale.console.bot_msg_verify_fail + `Message: ${message}, Chat ID: ${chatID}`, "error"); return; }
+			if (!message || !chatID) { this.logger.log(this.SETTINGS.locale.console.bot_msg_verify_fail + `Message: ${message}, Chat ID: ${chatID}`, "error"); return; }
 		
 			const options = replyID ? { reply_to_message_id: replyID, parse_mode: 'HTML' } : { parse_mode: 'HTML' };
 			await this.bot.sendMessage(chatID, message, options);
 
-			this.logger.log(this.settings.locale.console.bot_msg_send_pass + `Chat ID: ${chatID}, Message: ${message}`, "info");
+			this.logger.log(this.SETTINGS.locale.console.bot_msg_send_pass + `Chat ID: ${chatID}, Message: ${message}`, "info");
 		} 
-		catch (error) { this.logger.log(this.settings.locale.console.bot_msg_send_fail + `Error: ${error.message}, Stack: ${error.stack}`, "error");	}
+		catch (error) { this.logger.log(this.SETTINGS.locale.console.bot_msg_send_fail + `Error: ${error.message}, Stack: ${error.stack}`, "error");	}
 	}	
 
 	async handleMessage(msg) {
@@ -83,7 +83,7 @@ class TGBot {
 	}
 
 	async whitelist_check(msg){
-		if (msg.chat.id != msg.from.id && !this.settings.chatId.includes(msg.chat.id)) {
+		if (msg.chat.id != msg.from.id && !this.SETTINGS.chatId.includes(msg.chat.id)) {
 			this.logger.log("Message from : [" + msg.from.id + "][" + msg.chat.id + "] is not from allowed chat list", "warning"); 
 			return; 
 		}
@@ -92,7 +92,7 @@ class TGBot {
 		try {
 			// Check if the user is registered
 			if (_msg.from.id == _msg.chat.id || !await this.app.db.db_user_isRegistered(_msg)) { return; }
-			else await this.app.db.db_user_increment(_msg, this.settings.path.db.user.messages);
+			else await this.app.db.db_user_increment(_msg, this.SETTINGS.path.db.user.messages);
 			
 			// Handle achievements related to messages
 			await this.app.achievement.h_messages(_msg);

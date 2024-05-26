@@ -32,6 +32,13 @@
       "session": "/app/session/",
       "users": "/app/users/",
       "suggestions": "/app/suggestions/",
+      "stats":{
+        "lastRoll": "/stats/roll/last",
+        "rollCount": "/stats/roll/count",
+        "top":{
+          "daily": "/stats/top/daily"
+        }
+      },     
       "user":{
         "register": "/stats/register",
         "messages": "/stats/messages",
@@ -40,10 +47,7 @@
         "balance": "/wallet/balance",
         "ticket": "/wallet/ticket",
         "collectible": "/wallet/collectible/",
-        "achievement": "/achievement/",
-        "stats": "/stats/",
-        "lastRoll": "/stats/roll/last",
-        "rollCount": "/stats/roll/count"
+        "achievement": "/achievement/"
       }
     }
   },
@@ -147,7 +151,7 @@
       "cmd_me_pass": "👤 Инфа:",
       "cmd_me_messages": "📨 Сообщения: ",
       "cmd_me_achievements":  "🏆 Ачивки: ",
-      "cmd_me_collectibles":  "💰 Коллекция: ",
+      "cmd_me_COLLECTIBLES":  "💰 Коллекция: ",
       "cmd_roll_fail_already": "🎲 Сегодня roll уже использован: ",
       "cmd_roll_success": "🎲 Твой рандом сегодня: ",
       "bot_cmd_requirement_register": "Для использования этой комманды нужно зарегистрироваться - /start ",

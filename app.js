@@ -3,13 +3,13 @@ const Logger = require('./app/logger.js');
 const TGBot = require('./app/bot.js');
 const FirebaseConnector = require('./app/firebase.js');
 const readline = require('readline');
-const settings = require('./app/storage/settings.json');
+const SETTINGS = require('./app/storage/settings.json');
 const Reward = require('./app/reward.js');
 const Achievement = require('./app/achievement.js');
 const achievements = require('./app/storage/achievements.json');
 const Helper = require('./app/helper.js');
-const collectibles = require('./app/storage/collectible.json');
-const Commands = require('./app/commands.js');
+const COLLECTIBLES = require('./app/storage/collectible.json');
+const COMMANDS = require('./app/commands.js');
 
 /* eslint-env node */
 process.noDeprecation = true;
@@ -18,7 +18,7 @@ process.noDeprecation = true;
 // #endregion
 
 // #region VARS
-this.logger = new Logger(settings.loggerLevel); // can be initialized without any requirements
+this.logger = new Logger(SETTINGS.loggerLevel); // can be initialized without any requirements
 this.webBackend; // will be created later
 this.tgBot; // will be created later after token check
 this.run = false; // used for checking if the app is running or not (used in stop function)
@@ -27,10 +27,10 @@ this.db;
 this.reward;
 this.helper = new Helper(this.logger);
 
-// Add settings to the context
-this.settings = settings;
+// Add SETTINGS to the context
+this.SETTINGS = SETTINGS;
 this.achievements = achievements;
-this.collectibles = collectibles;
+this.COLLECTIBLES = COLLECTIBLES;
 
 const initialize = async () => {
 	await start();
@@ -40,16 +40,15 @@ const initialize = async () => {
 const start = async () => {
 	if (this.run) {this.logger.log("Application is already running", "info"); return; }
 	try {			
-			this.db = new FirebaseConnector(this);
-			this.commands = new Commands(this, this.logger); 
-			this.tgBot = new TGBot(this);
-			this.webBackend = new WebBackend(this);
-			this.reward = new Reward(this);
-			this.achievement = new Achievement(this);			
-
-			this.run = true;
-			this.logger.log('Application: Initialization completed', "info");
-	}        
+		this.db = new FirebaseConnector(this);
+		this.commands = new COMMANDS(this, this.logger); 
+		this.tgBot = new TGBot(this);
+		this.webBackend = new WebBackend(this);
+		this.reward = new Reward(this);
+		this.achievement = new Achievement(this);
+		this.run = true;
+		this.logger.log('Application: Initialization completed', "info");
+	}
 	catch (error) {
 		if (error.name === 'DeprecationWarning' && error.message.includes('punycode')) {
 			this.logger.log("Fix is waiting for telegram-node-bot and eslint remove punycode dependency", "warning");

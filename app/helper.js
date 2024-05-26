@@ -1,9 +1,9 @@
-const settings = require('./storage/settings.json');
+const SETTINGS = require('./storage/SETTINGS.json');
 
 class Helper {
   constructor(_logger) {
 	this.logger = _logger;
-	this.settings = settings;
+	this.SETTINGS = SETTINGS;
 	this.logger.log('Helper constructed', "debug");
   }
 
@@ -14,8 +14,8 @@ class Helper {
   str_style(_string, _style) {
 	this.logger.log(`Styling sting [${_string}] to [${_style}]`, "debug");
 	let result = _string;
-	if (this.settings.messageStrings[_style]) {
-		let style = this.settings.messageStrings[_style];
+	if (this.SETTINGS.messageStrings[_style]) {
+		let style = this.SETTINGS.messageStrings[_style];
 		result = `${style.open}${_string}${style.close}`;
 	} else {
 		this.logger.log("Invalid style: " + _style, "warning");

@@ -5,11 +5,11 @@ class FirebaseConnector {
   constructor(_app) {
     try {
       this.app = _app;
-      this.settings = _app.settings;
+      this.SETTINGS = _app.SETTINGS;
       this.logger = _app.logger;
       admin.initializeApp({
-        credential: admin.credential.cert(_app.settings.db.serviceAccount),
-        databaseURL: _app.settings.db.databaseURL
+        credential: admin.credential.cert(_app.SETTINGS.db.serviceAccount),
+        databaseURL: _app.SETTINGS.db.databaseURL
       });
       this.db = admin.database();
       this.start();
@@ -37,7 +37,7 @@ class FirebaseConnector {
   async db_user_push(_msg, _path, _value) {
     try {
       if (await this.db_user_isRegistered(_msg)) {
-        const ref = this.db.ref(this.settings.path.db.users + "/" + _msg.from.id + _path);
+        const ref = this.db.ref(this.SETTINGS.path.db.users + "/" + _msg.from.id + _path);
         const snapshot = await ref.push(_value);
         this.logger.log(`Record pushed successfully with id: ${snapshot.key}`, "info");
         return { success: true, key: snapshot.key };
@@ -56,7 +56,7 @@ class FirebaseConnector {
   async db_user_override(_msg, _path, _value) {
     try {
       if (await this.db_user_isRegistered(_msg)) {
-        const ref = this.db.ref(this.settings.path.db.users + "/" + _msg.from.id + _path);
+        const ref = this.db.ref(this.SETTINGS.path.db.users + "/" + _msg.from.id + _path);
         await ref.set(_value);
         return { success: true };
       }
@@ -73,7 +73,7 @@ class FirebaseConnector {
 
   db_user_path(_msg)
   {
-    return this.settings.path.db.users + "/" + _msg.from.id;
+    return this.SETTINGS.path.db.users + "/" + _msg.from.id;
   }
 
   async db_increment(refPath) {
@@ -92,7 +92,7 @@ class FirebaseConnector {
   async db_user_get(_msg, _path) {
     try {
       if (await this.db_user_isRegistered(_msg)) {
-        const ref = this.db.ref(this.settings.path.db.users + "/" + _msg.from.id + _path);
+        const ref = this.db.ref(this.SETTINGS.path.db.users + "/" + _msg.from.id + _path);
         let data = await ref.once('value');
         return data.val();
       }
@@ -107,15 +107,15 @@ class FirebaseConnector {
   async db_user_new_write(msg)
   {
     try {
-      const user = this.settings.model.user;
-      const stats = this.settings.model.stats;
+      const user = this.SETTINGS.model.user;
+      const stats = this.SETTINGS.model.stats;
       user.id = msg.from.id;
       user.username = msg.from.username || "";
       user.first_name = msg.from.first_name || "";
       user.last_name = msg.from.last_name || "";
       user.register = { chatId: msg.chat.id || msg.from.id, time : this.time() };
       user.stats = stats;
-      await this.db.ref(this.settings.path.db.users + "/" + user.id).set(user);
+      await this.db.ref(this.SETTINGS.path.db.users + "/" + user.id).set(user);
       return user;
     } 
     catch (error) {
@@ -136,7 +136,7 @@ class FirebaseConnector {
         userId: msg.from.id || 0,
         name: msg.from.first_name + msg.from.last_name
       }
-       return await this.db_push(this.settings.path.db.suggestions, record);
+       return await this.db_push(this.SETTINGS.path.db.suggestions, record);
     }
     catch (error) {
       this.logger.log(error.stack, "error");
@@ -180,17 +180,17 @@ class FirebaseConnector {
 
   async db_user_erase(msg) {
     try {
-      await this.db.ref(this.settings.path.db.users + "/" + msg.from.id).remove();
-      this.logger.log(`${this.settings.locale.console.db_user_erase_pass} ${msg.from.id}`, "debug");
+      await this.db.ref(this.SETTINGS.path.db.users + "/" + msg.from.id).remove();
+      this.logger.log(`${this.SETTINGS.locale.console.db_user_erase_pass} ${msg.from.id}`, "debug");
     } catch (error) {
-      this.logger.log(`${this.settings.locale.console.db_user_erase_fail} ${msg.from.id} : ${error}`, "error");
+      this.logger.log(`${this.SETTINGS.locale.console.db_user_erase_fail} ${msg.from.id} : ${error}`, "error");
     }
   }
 
   async db_user(_msg)
   {
     try {
-      const userRef = this.db.ref(this.settings.path.db.users + "/" + _msg.from.id);
+      const userRef = this.db.ref(this.SETTINGS.path.db.users + "/" + _msg.from.id);
       const userSnapshot = await userRef.once('value'); //this.logger.log(JSON.stringify(userSnapshot.val(), null, 2), "debug");
       return userSnapshot.val();       
     } 
@@ -202,10 +202,10 @@ class FirebaseConnector {
 
   async db_user_isRegistered(msg){
     try {
-      const userRef = this.db.ref(this.settings.path.db.users + "/" + msg.from.id);
+      const userRef = this.db.ref(this.SETTINGS.path.db.users + "/" + msg.from.id);
       const userSnapshot = await userRef.once('value');
       const userExists = userSnapshot.exists();
-      const logMessage = userExists ? this.settings.locale.console.db_user_exists : this.settings.locale.console.db_user_not_exists;
+      const logMessage = userExists ? this.SETTINGS.locale.console.db_user_exists : this.SETTINGS.locale.console.db_user_not_exists;
       this.logger.log(logMessage + msg.from.id, "debug");
       return userExists;
     } catch (error) {
@@ -217,7 +217,7 @@ class FirebaseConnector {
   async db_push(_path, _data){
     try {
       const res = await this.db.ref(_path).push(_data);
-      this.logger.log(this.settings.locale.console.db_write_pass + _path + "/" + res.key, "debug" );
+      this.logger.log(this.SETTINGS.locale.console.db_write_pass + _path + "/" + res.key, "debug" );
     } catch (error) {
       this.logger.log(error.stack, "error");
     }
@@ -227,7 +227,18 @@ class FirebaseConnector {
   {
     try {
       await this.db.ref(_path).set(_data);
-      this.logger.log(this.settings.locale.console.db_write_pass + _path, "debug" );
+      this.logger.log(this.SETTINGS.locale.console.db_write_pass + _path, "debug" );
+    } catch (error) {
+      this.logger.log(error.stack, "error");
+    }
+  }
+
+  async db_get(_path)
+  {
+    try {
+      const ref = await this.db.ref(_path);
+      const userSnapshot = await ref.once('value'); 
+      return userSnapshot.val(); 
     } catch (error) {
       this.logger.log(error.stack, "error");
     }
@@ -236,7 +247,7 @@ class FirebaseConnector {
   async db_delete(_path){
     try {
       await this.db.ref(_path).remove();
-      this.logger.log(this.settings.locale.console.db_delete_pass + _path, "debug" );
+      this.logger.log(this.SETTINGS.locale.console.db_delete_pass + _path, "debug" );
     } catch (error) {
       this.logger.log(error.stack, "error");
     }
@@ -253,7 +264,7 @@ class FirebaseConnector {
       uptime: os.uptime(),
       version: os.version()
     };
-    await this.db.ref(this.settings.path.db.session).push(data);
+    await this.db.ref(this.SETTINGS.path.db.session).push(data);
   }
 }
 
