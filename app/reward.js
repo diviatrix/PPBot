@@ -2,7 +2,6 @@ class Reward {
 	constructor (_app) {
 		this.app = _app;
 		this.logger = _app.logger;
-		this.SETTINGS = _app.SETTINGS;
 		this.COLLECTIBLES = _app.COLLECTIBLES;
 		this.logger.log('Collectible constructed', "info");
 		this.start();
@@ -36,14 +35,17 @@ class Reward {
 		return Object.keys(user['collectible']);
 	}
 
-	async rewardAdd(_msg, _reward) {
+	async rewardAdd(_msg, _reward, _sendMessage) {
 		const collectible = await this.collectible(_reward.id, _reward.rarity);
 		if (!collectible) {
 			this.logger.log(`Collectible with id ${_reward.id} not found`, "error");
 			return false;
 		}
 
-		const rewardRecord = {
+		const record = {
+			username: _msg.from.username,
+			userid: _msg.from.id,
+			usernickname: `${_msg.from.first_name || ''} ${_msg.from.last_name || ''}`.trim(),
 			id: collectible.id,
 			name: collectible.name,
 			rarity: _reward.rarity,
@@ -51,10 +53,15 @@ class Reward {
 			from: "1337.plus",
 		};
 
-		if (await this.app.db.db_user_push(_msg, this.SETTINGS.path.db.user.collectible, rewardRecord)){
-			this.logger.log(`Reward stored to user profile: ${JSON.stringify(rewardRecord, null, 2)}`, "info");
-			return rewardRecord;
-		}		
+		let message = "\n" + this.app.HELPER.str_style(`[${record.id}][${record.rarity}][${record.name}]`, this.app.SETTINGS.rarity[record.rarity].text);
+		if(_sendMessage) this.app.tgBot.sendMessage(_msg.chat.id, message, _msg.message_id);
+
+		
+		await this.app.db.db_push(this.app.SETTINGS.path.db.stats.dailylist, record);
+		await this.app.db.db_set(this.app.SETTINGS.path.db.stats.lastReward, record);
+		await this.app.db.db_user_push(_msg, this.app.SETTINGS.path.db.user.collectible, record);		
+				
+		return {record, message};
 	}
 	async randomReward(_rarity) {
 		try {
@@ -74,13 +81,13 @@ class Reward {
 
 	async randomRarity() {
 		try {
-			let _rarityList = Object.keys(this.SETTINGS.rarity);
-			let _totalWeight = _rarityList.reduce((total, rarity) => total + this.SETTINGS.rarity[rarity].weight, 0);
+			let _rarityList = Object.keys(this.app.SETTINGS.rarity);
+			let _totalWeight = _rarityList.reduce((total, rarity) => total + this.app.SETTINGS.rarity[rarity].weight, 0);
 			let _randomNum = Math.random() * _totalWeight;
 			let _weightSum = 0;
 
 			for (const rarity of _rarityList) {
-				_weightSum += this.SETTINGS.rarity[rarity].weight;
+				_weightSum += this.app.SETTINGS.rarity[rarity].weight;
 				if (_randomNum <= _weightSum) {
 					this.logger.log(`Random rarity: ${rarity}`, "debug");
 					return rarity;
@@ -92,19 +99,13 @@ class Reward {
 		}
 	}
 
-	async rewardsAdd(_msg, _rewards)
-	{
-		let message = ` ${this.SETTINGS.locale.base.ach_reward}`;
+	async rewardsAdd(_msg, _rewards, _sendMessage)
+	{		
 		for (const reward of _rewards) {
 			const rewardObject = await this.collectible(reward.id, reward.rarity);
 			this.logger.log(`Reward object: ${JSON.stringify(rewardObject, null, 2)}`, "debug");
 
-			if (rewardObject) {
-				if (await this.rewardAdd(_msg, reward)) {
-					message += `\n[${reward.type}][ID: ${reward.rarity}][${this.app.Helper.str_style(rewardObject.description, this.SETTINGS.rarity[reward.rarity].text)}]: ${reward.value}`;
-					this.app.tgBot.sendMessage(_msg.chat.id, message, _msg.message_id);
-				}
-			} else {
+			if (rewardObject) {	this.rewardAdd(_msg, reward, _sendMessage); } else {
 				this.logger.log(`Can not add reward with id ${reward.id} and rarity ${reward.rarity}`, "error");
 			}
 		}

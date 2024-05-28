@@ -2,7 +2,7 @@ class Achievement {
 	constructor (_app) {
 		this.app = _app;
 		this.logger = _app.logger;
-		this.helper = _app.helper;
+		this.HELPER = _app.HELPER;
 		this.SETTINGS = _app.SETTINGS;
 		this.achievements = _app.achievements;
 		this.logger.log('Achievement constructed', "info");
@@ -73,12 +73,12 @@ class Achievement {
 		try {
 			this.logger.log(this.SETTINGS.locale.console.ach_message_prepare + _achievement.name + " to user: " + _msg.from.id, "info");
 			let message = this.SETTINGS.locale.base.ach_recieved + "\n";
-			message += this.app.helper.str_style(_achievement.name, "bold") + "\n";
-			message += this.app.helper.str_style(_achievement.description, "italic") + "\n";
+			message += this.app.HELPER.str_style(_achievement.name, "bold") + "\n";
+			message += this.app.HELPER.str_style(_achievement.description, "italic") + "\n";
 
 			// if there are rewards
 			if (_achievement.reward) {
-				this.app.reward.rewardsAdd(_msg, _achievement.reward);
+				this.app.reward.rewardsAdd(_msg, _achievement.reward, true);
 				this.app.tgBot.sendMessage(_msg.chat.id, message, _msg.message_id);
 			}
 
@@ -90,7 +90,7 @@ class Achievement {
 
 	async requirementsMet(_msg, _achievement) {
 		let requirements = _achievement.requirements;
-		this.logger.log("Checking requirements for " + this.helper.str_style(_achievement.name, "bold") + " for user: " + _msg.from.id + ": " + requirements.length , "debug");
+		this.logger.log("Checking requirements for " + this.HELPER.str_style(_achievement.name, "bold") + " for user: " + _msg.from.id + ": " + requirements.length , "debug");
 		let result = false;
 		for (const requirement of requirements) {
 			if (requirement.type == "message") {
@@ -105,7 +105,7 @@ class Achievement {
 	async messageRequirementMet(_msg, _requirement) {
 		try {
 			let result = false;
-			let messages = await this.app.db.db_get_messages(_msg);
+			let messages = await this.app.db.db_user(_msg)?.stats?.messages || 0;
 			this.logger.log("Checking message requirement for user: " + _msg.from.id + " with value: " + _requirement.value + " and messages: " + messages, "debug");
 			if ( _requirement.value == messages) { result = true; }
 			return result;	
