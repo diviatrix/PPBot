@@ -49,7 +49,7 @@ class FirebaseConnector {
       if (await this.db_user_isRegistered(_msg)) {
         const ref = this.db.ref(app.SETTINGS.path.db.users + "/" + _msg.from.id + _path);
         const snapshot = await ref.push(_value);
-        app.logger.log(`Record pushed successfully with id: ${snapshot.key}`, "info");
+        app.logger.log(`Record pushed successfully with id: ${snapshot.key}`, "debug");
         return { success: true, key: snapshot.key };
       }
       else {
@@ -106,13 +106,17 @@ class FirebaseConnector {
  * @returns {currentValue} return result of increment
  */
   async db_increment(refPath) {
-    const ref = this.db.ref(refPath);
-    await ref.transaction((currentValue) => {
-      app.logger.log("Value:" + ref + " has been set to:" + currentValue, "debug");
-      return (currentValue || 0) + 1;
-    });
+    try {
+      const ref = this.db.ref(refPath);
+      let currentValue = (await ref.once('value')).val() || 0;
+      let newValue = currentValue + 1;
+      await ref.transaction(currentValue => newValue);
+      app.logger.log("Value:" + ref + " has been set to:" + newValue, "debug");
+      return newValue;
+    } catch (error) {
+      app.logger.log(error.stack, "error");
+    }
   }
-
   /**
  * Increments a value in the user's database path.
  *
@@ -121,8 +125,8 @@ class FirebaseConnector {
  * @returns {Promise<any>} - The result of the increment operation.
  */
   async db_user_increment(_msg, _path) {
+    app.logger.log("Passed to db_increment: ==>", "debug");
     let result = await this.db_increment(this.db_user_path(_msg) + _path);
-    app.logger.log(result, "debug");
     return result;
   }
 
@@ -138,6 +142,7 @@ class FirebaseConnector {
       if (await this.db_user_isRegistered(_msg)) {
         const ref = this.db.ref(app.SETTINGS.path.db.users + "/" + _msg.from.id + _path);
         let data = await ref.once('value');
+        app.logger.log("User found: " + _msg.from.id, "debug");
         return data.val();
       }
       else { app.logger.log("User not found: " + _msg.from.id, "error"); return undefined; }
@@ -165,10 +170,12 @@ class FirebaseConnector {
       user.stats = stats;
       user.stats.register = {
         chatId: msg.chat.id || msg.from.id,
-        time: new Date().getTime()
+        time: new Date().toISOString()
       };
 
       await this.db.ref(app.SETTINGS.path.db.users + "/" + user.id).set(user);
+
+      app.logger.log("User written to database:" + user, "debug");
       return user;
     }
     catch (error) {
@@ -196,7 +203,7 @@ class FirebaseConnector {
         name: msg.from.first_name + msg.from.last_name
       }
       await this.db_push(app.SETTINGS.path.db.suggestions, record);
-      app.logger.log("Suggestion written to database:" + record, "info");
+      app.logger.log("Suggestion written to database:" + record, "debug");
       return record;
     }
     catch (error) {
@@ -229,9 +236,9 @@ class FirebaseConnector {
  */
   async db_user(_msg) {
     try {
-      app.logger.log(`${app.SETTINGS.locale.console.db_user_erase_pass} ${_msg.from.id}`, "debug");
       const userRef = this.db.ref(app.SETTINGS.path.db.users + "/" + _msg.from.id);
       const userSnapshot = await userRef.once('value');
+      app.logger.log("User found: " + _msg.from.id, "debug");
       return userSnapshot.val();
     }
     catch (error) {
@@ -305,6 +312,7 @@ class FirebaseConnector {
     try {
       const ref = await this.db.ref(_path);
       const userSnapshot = await ref.once('value');
+      app.logger.log("Read from db successfully:" + _path, "debug");
       return userSnapshot.val();
     } catch (error) {
       app.logger.log(error.stack, "error");

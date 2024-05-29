@@ -65,8 +65,6 @@ function stop() {
 	cleanUp();
 }
 
-
-
 async function cleanUp() {
 	// stop and cleanup tgbot
 	await this.tgBot.stop();

@@ -25,7 +25,7 @@ class Helper {
 
   is_today(_date) {
 	const today = new Date();
-	return (_date.getDate() == today.getDate() && _date.getYear() == today.getYear())
+	return (_date.getDate() == today.getDate() && _date.getMonth() == today.getMonth() && _date.getFullYear() == today.getFullYear())
   }
 }
 module.exports = Helper;

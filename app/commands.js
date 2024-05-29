@@ -1,5 +1,6 @@
 const path = require('path');
 const C_ROLL = require(path.join(__dirname, 'cmd', 'cmd_roll.js'));
+const C_TOP = require(path.join(__dirname, 'cmd', 'cmd_top.js'));
 
 class COMMANDS {
 	constructor(app, logger) {
@@ -150,16 +151,18 @@ class COMMANDS {
 		this.logger.log(this.SETTINGS.locale.console.bot_cmd_commands, "info");
 	}
 
-	async do_daily_top()
+	async cmd_top(_msg, _params)
 	{
-		// check if there is /stats/top/daily
-		if (!await this.app.db.db_get(this.app.SETTINGS.path.db.stats.top.daily))
-		{
+		try {
+			if (await new C_TOP().run(_msg, this.app, _params || [])){return true}
+			else { 
+				this.app.tgBot.sendMessage(_msg.chat.id, this.app.SETTINGS.locale.base.cmd_top_fail, _msg.message_id);
+				return false;
+			}		
+		} catch (error) {
+			this.logger.log(`Error executing cmd_roll: ${error.stack}`, "error");
 			return false;
-		} else { // if not
-
 		}
-
 	}
 }
 module.exports = COMMANDS;

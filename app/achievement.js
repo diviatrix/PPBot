@@ -105,7 +105,7 @@ class Achievement {
 	async messageRequirementMet(_msg, _requirement) {
 		try {
 			let result = false;
-			let messages = await this.app.db.db_user(_msg)?.stats?.messages || 0;
+			let messages = await this.app.db.db_user_get(_msg, this.SETTINGS.path.db.user.messages) || 0;
 			this.logger.log("Checking message requirement for user: " + _msg.from.id + " with value: " + _requirement.value + " and messages: " + messages, "debug");
 			if ( _requirement.value == messages) { result = true; }
 			return result;	
