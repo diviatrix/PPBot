@@ -27,20 +27,18 @@ check console messages
 
 **Usage**
 
-`/go - registers user with defaultUser data and Telegram ID
-/roll - Gives user random PP of the Day or show recieved if timeout is not reached
-/top - use with any number to check its stats, or if it is added
-/me - shows user data stats All bot answers are replies to request message`
+- /go - registers user with defaultUser data and Telegram ID
+- /roll - Gives user random PP of the Day or show recieved if timeout is not reached
+- /top - use with any number to check its stats, or if it is added
+- /me - shows user data stats All bot answers are replies to request message
 
 **User Data**
 
-saved as JSON
-stores in Firebase realtime database
+- saved as JSON
+    - user Telegram ID
+    - event data
+- stores in Firebase realtime database
 - all database usage logs to console in debug layer
-user Telegram ID
-collect stats
-user can roll collectibles
-/deleteme fully remove user data from db including ID
-userData structure in settings-template.json
+- /deleteme fully remove user data from db including ID
 
 *Will be updated sometime*
