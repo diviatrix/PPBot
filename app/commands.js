@@ -1,6 +1,7 @@
 const path = require('path');
 const C_ROLL = require(path.join(__dirname, 'cmd', 'cmd_roll.js'));
 const C_TOP = require(path.join(__dirname, 'cmd', 'cmd_top.js'));
+const C_ME = require(path.join(__dirname, 'cmd', 'cmd_me.js'));
 
 class COMMANDS {
 	constructor(app, logger) {
@@ -94,23 +95,14 @@ class COMMANDS {
 
 	async cmd_me(_msg) 
 	{
-		if (!await this.app.db.db_user_isRegistered(_msg)) 
-		{
-			this.msg_notRegistered(_msg);
-			return;
-		} 
-		else {
-			// read user data from db
-			const user = await this.app.db.db_user(_msg);
-			if (!user.stats) {
-			user.stats = { messages: 0 };}
-		
-		let message = this.SETTINGS.locale.base.cmd_me_pass + "\n";
-		message += this.SETTINGS.locale.base.cmd_me_messages + (user.stats.messages || 0) + "\n";
-		message += this.SETTINGS.locale.base.cmd_me_achievements + (user.achievement? Object.keys(user.achievement).length : 0) + "\n";
-		message += this.SETTINGS.locale.base.cmd_me_COLLECTIBLES + (user.wallet && user.wallet.collectible? Object.keys(user.wallet.collectible).length : 0) + "\n";
-
-		this.app.tgBot.sendMessage(_msg.chat.id,message, _msg.message_id);
+		try {
+			if (await new C_ME().run(_msg, this.app)){return true}
+			else { 
+				return false;
+			}		
+		} catch (error) {
+			this.logger.log(`Error executing cmd_me: ${error.stack}`, "error");
+			return false;
 		}
 	}
 
