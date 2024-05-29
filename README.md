@@ -15,15 +15,14 @@ Checked only on Windows 11, Ubuntu maybe you need to fix paths to use on other o
 
 **Installation**
 
-checkout folder to any place
-run PowerShell from checkout folder (RMB -> Open in Terminal)
-run npm install
-make sure to make */app/storage/settings.json* from */app/storage/settings-template.json* with your token and credentials
-add bot to chat as admin (it is required to get access to messages)
-or text to your bot @your_bot_name directly
-
-run npm start
-check console messages
+- checkout folder to any place
+- run PowerShell from checkout folder (RMB -> Open in Terminal)
+- run npm install
+- make sure to make */app/storage/settings.json* from */app/storage/settings-template.json* with your token and credentials
+- add bot to chat as admin (it is required to get access to messages)
+- or text to your bot @your_bot_name directly
+- run npm start
+- check console messages
 
 **Usage**
 
