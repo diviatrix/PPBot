@@ -5,9 +5,9 @@ Telegram bot for all the Dudes
 
 **Prequisites**
 
-Node.js
-created Telegram bot via @BotFather
-bot secret from @BotFather
+- Node.js
+- created Telegram bot via @BotFather
+- bot secret from @BotFather
 
 Compatibility:
 
