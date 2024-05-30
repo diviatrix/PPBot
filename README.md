@@ -1,7 +1,7 @@
 **PPBot**
-Author: https://t.me/leet_plus
 
-Telegram bot for all the Dudes
+- Telegram bot for all the Dudes
+- Author: https://t.me/leet_plus
 
 **Prequisites**
 
