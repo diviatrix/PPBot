@@ -18,7 +18,8 @@ class Helper {
 		let style = this.SETTINGS.messageStrings[_style];
 		result = `${style.open}${_string}${style.close}`;
 	} else {
-		this.logger.log("Invalid style: " + _style, "warning");
+		this.logger.log("Invalid style, returning input: " + "[" + _style + "]" + result, "warning");
+		return result;
 	}
 	return result;
   }

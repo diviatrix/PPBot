@@ -2,8 +2,9 @@ const path = require('path');
 const C_ROLL = require(path.join(__dirname, 'cmd', 'cmd_roll.js'));
 const C_TOP = require(path.join(__dirname, 'cmd', 'cmd_top.js'));
 const C_ME = require(path.join(__dirname, 'cmd', 'cmd_me.js'));
+const C_RAR = require(path.join(__dirname, 'cmd', 'cmd_rar.js'));
 
-class COMMANDS {
+module.exports = class COMMANDS {
 	constructor(app, logger) {
 		this.app = app;
 		this.logger = logger;
@@ -90,6 +91,9 @@ class COMMANDS {
 		this.logger.log(JSON.stringify(_params), "info");
 		// adds suggestion to database as new record in  this.app.db
 		this.app.db.db_suggestion_new_write(_msg, _params);
+
+		await this.app.tgBot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_add_pass, _msg.message_id);
+		return true;
 		// adds record about last suggestion to account stats database		
 	}
 
@@ -97,11 +101,25 @@ class COMMANDS {
 	{
 		try {
 			if (await new C_ME().run(_msg, this.app)){return true}
+			else { 				
+				return false;
+			}		
+		} catch (error) {
+			this.cmd_incorrect(_msg);
+			this.logger.log(`Error executing cmd_me: ${error.stack}`, "error");
+			return false;
+		}
+	}
+
+	async cmd_rar(_msg) {
+		try {
+			if (await new C_RAR().run(_msg, this.app)){return true}
 			else { 
 				return false;
 			}		
 		} catch (error) {
-			this.logger.log(`Error executing cmd_me: ${error.stack}`, "error");
+			this.cmd_incorrect(_msg);
+			this.logger.log(`Error executing cmd_rar: ${error.stack}`, "error");
 			return false;
 		}
 	}
@@ -157,4 +175,3 @@ class COMMANDS {
 		}
 	}
 }
-module.exports = COMMANDS;
