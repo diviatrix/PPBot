@@ -32,6 +32,7 @@
       "session": "/app/session/",
       "users": "/app/users/",
       "suggestions": "/app/suggestions/",
+      "bonus": "/app/bonus/",
       "stats":{
         "lastRoll": "/stats/roll/last",
         "lastReward": "/stats/reward/last",
@@ -149,16 +150,17 @@
       "ach_recieved":"🏆 Ачивочка, грац! 🏆",
       "ach_reward": "🎁 Награда: ",
       "cmd_me_pass": "👤 Инфа:",
-      "cmd_me_messages": "📨 Сообщения: ",
-      "cmd_me_achievements":  "🏆 Ачивки: ",
-      "cmd_me_rolls":  "🎲 Roll's: ",      
-      "cmd_me_last_roll":  "🎲 Last roll: ",      
+      "cmd_me_messages": "📨 Messages: ",
+      "cmd_me_achievements":  "🏆 Achievements: ",
+      "cmd_me_rolls":  "🎲 Roll's: ",
       "cmd_me_biggest_id":  "👑 Biggest PP: ",
-      "cmd_me_COLLECTIBLES":  "💰 Коллекция: ",
-      "cmd_roll_fail_already": "🎲 Сегодня roll уже использован: ",
+      "cmd_me_last_roll":  "🎲 Last roll: ",
+      "cmd_me_COLLECTIBLES":  "💰 Collection: ",
+      "cmd_roll_fail_already": "🎲 Сегодня roll уже использован:\n",
       "cmd_roll_success": "🎲 Твой рандом сегодня: ",
       "bot_cmd_requirement_register": "Для использования этой комманды нужно зарегистрироваться - /start ",
       "cmd_add_fail_empty": "🚫 Нельзя добавлять пустые предложения 🚫",
+      "cmd_add_pass": "Ваше предложение успешно добавлено.",
       "cmd_top_fail": "🚫 Топ не готов...",
       "cmd_top": "🏆Топ🏆"
     },
@@ -221,7 +223,7 @@
       "/top": "Дневной топ",
       "/allс": "Список коллектиблов",
       "/commands": "Список доступных команд",
-      "/start": "Юзлесс, используй /go"
+      "/start": "Юзлесс"
     }
   }
 }
