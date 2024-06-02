@@ -51,7 +51,7 @@ class Achievement {
 			
 
 			_achievement.time = this.app.db.time();
-			if (await this.app.db.db_user_push(_msg, this.SETTINGS.path.db.user.achievement, _achievement)) {
+			if (await this.app.db.push(app.SETTINGS.path.db.users + _msg.from.id + this.SETTINGS.path.db.user.achievement, _achievement)) {
 				this.achievementMessage(_msg, _achievement);
 				return true;
 			} else {
@@ -65,7 +65,7 @@ class Achievement {
 	}
 
 	async user_achievements(_msg) {
-		let data = await this.app.db.db_get(_msg, this.app.HELPER.userpath(_msg) + this.SETTINGS.path.db.user.achievement);
+		let data = await this.app.db.get(_msg, this.app.HELPER.userpath(_msg) + this.SETTINGS.path.db.user.achievement);
 		return data;
 	}
 

@@ -2,7 +2,7 @@ let app;
 class C_TOP {
     async run(_msg, _app, _params) {
         app = _app
-        let dailyrewards = await app.db.db_get(app.SETTINGS.path.db.stats.dailyrewards);
+        let dailyrewards = await app.db.get(app.SETTINGS.path.db.stats.dailyrewards);
         
         if (!dailyrewards) { return false; }
 

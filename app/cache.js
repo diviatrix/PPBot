@@ -10,7 +10,7 @@ class CACHE {
         let data = this.cache[path];
         if (data === undefined) {
             this.app.logger.log(`Cache miss for ${path}`, "debug");
-            data = await this.app.db.db_get(path);
+            data = await this.app.db.get(path);
             this.cache[path] = data;
         }
         else {
@@ -25,7 +25,7 @@ class CACHE {
     }
 
     async update(path) {
-        this.cache[path] = await this.app.db.db_get(path);
+        this.cache[path] = await this.app.db.get(path);
         this.app.logger.log(`Updated cache for ${path}`, "debug");
         return this.cache[path];
     }

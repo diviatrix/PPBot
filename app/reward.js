@@ -69,7 +69,7 @@ class Reward {
 	async writeDB(_msg, record, message) {
 		try {
 			await this.writeDB_daily(_msg, record);
-			await app.db.db_user_push(_msg, app.SETTINGS.path.db.user.collectible, record);
+			await app.db.push(app.SETTINGS.path.db.users + _msg.from.id + app.SETTINGS.path.db.user.collectible, record);
 		
 			app.logger.log(`Records of reward added: ${message}`, "debug");
 			return true;
@@ -82,8 +82,8 @@ class Reward {
 	async writeDB_daily(_msg, record) {
 		try {
 			// push reward record to database
-			await app.db.db_set(app.SETTINGS.path.db.stats.lastReward, record);
-			await app.db.db_push(app.SETTINGS.path.db.stats.dailyrewards, record);
+			await app.db.set(app.SETTINGS.path.db.stats.lastReward, record);
+			await app.db.push(app.SETTINGS.path.db.stats.dailyrewards, record);
 			await this.daily_rewards_update();
 			
 		} catch (error) {
@@ -94,8 +94,7 @@ class Reward {
 
 	async daily_rewards_update() {
 		try {
-			// get list of daily rewards by app.SETTINGS.path.db.stats.dailyrewards
-			let _list = await app.db.db_get(app.SETTINGS.path.db.stats.dailyrewards);
+			let _list = await app.db.get(app.SETTINGS.path.db.stats.dailyrewards);
 			app.logger.log(`Records of daily rewards from db: ${Object.keys(_list).length}`, "debug");
 
 			// prepare new list without yesterday or older records
@@ -107,7 +106,7 @@ class Reward {
 					if (app.HELPER.is_today(new Date(_item.time))) {
 						_newList[key] = _item;
 					} else {
-						await app.db.db_delete(app.SETTINGS.path.db.stats.dailyrewards + key); // clean up old records in db
+						await app.db.delete(app.SETTINGS.path.db.stats.dailyrewards + key); // clean up old records in db
 					}
 				}
 			}

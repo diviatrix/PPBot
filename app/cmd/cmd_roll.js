@@ -57,7 +57,7 @@ class C_ROLL {
 	async update_db_records(_msg, _app, reward) {
 		try {
 			await _app.db.db_increment(app.SETTINGS.path.db.users + _msg.from.id + _app.SETTINGS.path.db.stats.rollCount);
-			await _app.db.db_override(app.SETTINGS.path.db.users + _msg.from.id +_app.SETTINGS.path.db.stats.lastRoll, reward);
+			await _app.db.override(app.SETTINGS.path.db.users + _msg.from.id +_app.SETTINGS.path.db.stats.lastRoll, reward);
 			return true;
 		} catch (error) {
 			_app.logger.log(`Error updating database records: ${error.stack}`, "error");

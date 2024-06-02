@@ -33,6 +33,7 @@ this.HELPER = new HELPER(this.logger);
 this.SETTINGS = SETTINGS;
 this.achievements = achievements;
 this.COLLECTIBLES = COLLECTIBLES;
+this.FUNCTIONS = new FUNCTIONS();
 
 const initialize = async () => {
 	await start();
@@ -49,7 +50,6 @@ const start = async () => {
 		this.reward = new Reward(this);
 		this.achievement = new Achievement(this);
 		this.CACHE = new CACHE(this);
-		this.FUNCTIONS = new FUNCTIONS(this);
 		this.run = true;
 		this.logger.log('Application: Initialization completed', "info");
 	}

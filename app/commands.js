@@ -12,12 +12,8 @@ module.exports = class COMMANDS {
 		this.SETTINGS = app.SETTINGS;
 		this.commands = app.SETTINGS.locale.commands;
 		this.commandHandlers = [];
-		this.init();
-	}	
-
-	init() {
 		this.attach_cmd_handlers();
-	}
+	}	
 
 	async msg_notRegistered(_msg) { await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.console.bot_cmd_requirement_register, _msg.message_id); }
 	async msg_failed(_msg) { await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.console.bot_cmd_fail, _msg.message_id); }
@@ -67,10 +63,24 @@ module.exports = class COMMANDS {
 	async cmd_go(_msg) {
 		try {
 			if (!await this.app.db.exist(this.app.SETTINGS.path.db.users + _msg.from.id)) {
-				let user = await this.app.db.db_user_new_write(_msg);
+				let user = app.SETTINGS.model.user;
+				const stats = app.SETTINGS.model.stats;
+				user.id = _msg.from.id;
+				user.username = _msg.from.username || "";
+				user.first_name = _msg.from.first_name || "";
+				user.last_name = _msg.from.last_name || "";
+				user.stats = stats;
+				user.stats.register = {
+				  chatId: _msg.chat.id || _msg.from.id,
+				  time: await this.app.db.time()
+				};
+		  
+				await this.db.push(this.SETTINGS.path.db.users + user.id, user);
+
 				await this.logger.log(this.SETTINGS.locale.console.bot_cmd_go_register_pass +  _msg.from.id, "info");
 				await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_go_pass, _msg.message_id);
 				await this.app.achievement.h_register(_msg, user);
+				return user;
 			}
 			else {
 				await this.logger.log(this.SETTINGS.locale.console.bot_cmd_go_register_fail + _msg.from.id, "warning");
@@ -99,7 +109,7 @@ module.exports = class COMMANDS {
 			userId: _msg.from.id || 0,
 			name: _msg.from.first_name || "" + _msg.from.last_name || ""
 		}
-		await this.app.db.db_push(this.app.SETTINGS.path.db.suggestions, record);
+		await this.app.db.push(this.app.SETTINGS.path.db.suggestions, record);
 		this.app.logger.log("Suggestion written to database:" + record, "debug");
 
 		await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_add_pass, _msg.message_id);
@@ -153,7 +163,7 @@ module.exports = class COMMANDS {
 			if (!await this.app.db.exist(app.SETTINGS.path.db.users + _msg.from.id)) {
 				return;
 			} else {
-				await this.app.db.db_user_erase(_msg);
+				await this.app.db.delete(app.SETTINGS.path.db.users + _msg.from.id);
 				await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_deleteme_pass, _msg.message_id);
 				this.logger.log(this.SETTINGS.locale.console.bot_cmd_pass  + _msg.from.id, "info");
 			}

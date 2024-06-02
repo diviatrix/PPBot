@@ -36,32 +36,6 @@ class FirebaseConnector {
     return admin.database.ServerValue.TIMESTAMP;
   }
 
-  /**
- * Pushes a new record to the user's database path.
- *
- * @param {object} _msg - The message object containing the user's information.
- * @param {string} _path - The path in the database to push the record to.
- * @param {any} _value - The value to push to the database.
- * @returns {Promise<{ success: boolean, key?: string, error?: string }>} - An object indicating the success of the operation and the key of the pushed record, or an error message.
- */
-  async db_user_push(_msg, _path, _value) {
-    try {
-      if (this.exist(app.SETTINGS.path.db.users + _msg.from.id)) {
-        const ref = this.db.ref(app.SETTINGS.path.db.users + "/" + _msg.from.id + _path);
-        const snapshot = await ref.push(_value);
-        app.logger.log(`Record pushed successfully with id: ${snapshot.key}`, "debug");
-        return { success: true, key: snapshot.key };
-      }
-      else {
-        app.logger.log("User not found: " + _msg.from.id, "error");
-        return { success: false, error: "User not found: " + _msg.from.id };
-      }
-    }
-    catch (error) {
-      app.logger.log(error.stack, "error");
-      return { success: false, error: error.stack };
-    }
-  }
 
   /**
    * Overrides the data in the Firebase database at the specified path.
@@ -70,7 +44,7 @@ class FirebaseConnector {
    * @param {any} _value - The new value to be set at the specified path.
    * @returns {Promise<{ success: boolean, error?: string }>} - A promise that resolves with an object indicating the success of the operation and an optional error message.
    */
-  async db_override(_path, _value) {
+  async override(_path, _value) {
     try {
       const ref = this.db.ref(_path);
       await ref.set(_value);
@@ -89,7 +63,7 @@ class FirebaseConnector {
  * @param {string} refPath - The path to the Firebase Realtime Database reference to be incremented.
  * @returns {currentValue} return result of increment
  */
-  async db_increment(refPath, amount) {
+  async increment(refPath, amount) {
     try {
       const ref = this.db.ref(refPath);
       let currentValue = (await ref.once('value')).val() || 0;
@@ -99,54 +73,6 @@ class FirebaseConnector {
       return newValue;
     } catch (error) {
       app.logger.log(error.stack, "error");
-    }
-  }
-
- 
-  /**
- * Writes a new user to the Firebase database.
- *
- * @param {object} msg - The message object containing user information.
- * @returns {Promise<object>} The user object that was written to the database.
- */
-  async db_user_new_write(msg) {
-    try {
-      const user = app.SETTINGS.model.user;
-      const stats = app.SETTINGS.model.stats;
-      user.id = msg.from.id;
-      user.username = msg.from.username || "";
-      user.first_name = msg.from.first_name || "";
-      user.last_name = msg.from.last_name || "";
-      user.stats = stats;
-      user.stats.register = {
-        chatId: msg.chat.id || msg.from.id,
-        time: new Date().toISOString()
-      };
-
-      await this.db.ref(app.SETTINGS.path.db.users + "/" + user.id).set(user);
-
-      app.logger.log("User written to database:" + user, "debug");
-      return user;
-    }
-    catch (error) {
-      app.logger.log(error.stack, "error");
-      return undefined;
-    }
-  }
-
-  /**
- * Asynchronously removes a user from the database.
- *
- * @param {Object} msg - The message object containing the user's ID.
- * @param {string} msg.from.id - The ID of the user to be removed.
- * @returns {Promise<void>} - A Promise that resolves when the user is successfully removed, or rejects with an error.
- */
-  async db_user_erase(msg) {
-    try {
-      await this.db.ref(app.SETTINGS.path.db.users + "/" + msg.from.id).remove();
-      app.logger.log(`${app.SETTINGS.locale.console.db_user_erase_pass} ${msg.from.id}`, "debug");
-    } catch (error) {
-      app.logger.log(`${app.SETTINGS.locale.console.db_user_erase_fail} ${msg.from.id} : ${error}`, "error");
     }
   }
 
@@ -184,7 +110,7 @@ class FirebaseConnector {
  * @returns {Promise<void>} - A Promise that resolves when the data has been successfully pushed to the database.
  * @throws {Error} - If there is an error pushing the data to the database.
  */
-  async db_push(_path, _data) {
+  async push(_path, _data) {
     try {
       const res = await this.db.ref(_path).push(_data);
       app.logger.log(app.SETTINGS.locale.console.db_write_pass + _path + "/" + res.key, "debug");
@@ -200,7 +126,7 @@ class FirebaseConnector {
  * @param {any} _data - The data to be set at the specified path.
  * @returns {Promise<{ success: boolean }>} - A Promise that resolves to an object with a `success` property indicating whether the operation was successful.
  */
-  async db_set(_path, _data) {
+  async set(_path, _data) {
     try {
       const ref = this.db.ref(_path);
       await ref.set(_data);
@@ -218,7 +144,7 @@ class FirebaseConnector {
  * @param {string} _path - The path in the Firebase Realtime Database to retrieve data from.
  * @returns {Promise<any>} - A Promise that resolves to the data retrieved from the specified path.
  */
-  async db_get(_path) {
+  async get(_path) {
     try {
       const ref = await this.db.ref(_path);
       const userSnapshot = await ref.once('value');
@@ -236,7 +162,7 @@ class FirebaseConnector {
  * @returns {Promise<void>} - A Promise that resolves when the database reference has been deleted.
  * @throws {Error} - If an error occurs while deleting the database reference.
  */
-  async db_delete(_path) {
+  async delete(_path) {
     try {
       await this.db.ref(_path).remove();
       app.logger.log(app.SETTINGS.locale.console.db_delete_pass + _path, "debug");
