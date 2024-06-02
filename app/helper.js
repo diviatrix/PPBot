@@ -1,4 +1,4 @@
-const SETTINGS = require('./storage/SETTINGS.json');
+const SETTINGS = require('./storage/settings.json');
 
 class Helper {
   constructor(_logger) {
@@ -27,6 +27,11 @@ class Helper {
   is_today(_date) {
 	const today = new Date();
 	return (_date.getDate() == today.getDate() && _date.getMonth() == today.getMonth() && _date.getFullYear() == today.getFullYear())
+  }
+
+  userpath(_msg) {
+	this.logger.log(`Generated userpath:${this.SETTINGS.path.db.users + "/" + _msg.from.id}`, "debug");
+	return this.SETTINGS.path.db.users + "/" + _msg.from.id;
   }
 }
 module.exports = Helper;

@@ -1,6 +1,6 @@
 const WebBackend = require('./app/webBackend.js');
 const Logger = require('./app/logger.js');
-const TGBot = require('./app/bot.js');
+const BOT = require('./app/bot.js');
 const FirebaseConnector = require('./app/firebase.js');
 const SETTINGS = require('./app/storage/settings.json');
 const Reward = require('./app/reward.js');
@@ -10,6 +10,8 @@ const HELPER = require('./app/helper.js');
 const COLLECTIBLES = require('./app/storage/collectible.json');
 const COMMANDS = require('./app/commands.js');
 const CONSOLE = require('./app/console.js');
+const FUNCTIONS = require('./app/functions.js');
+const CACHE = require('./app/cache.js');
 
 /* eslint-env node */
 process.noDeprecation = true;
@@ -20,7 +22,7 @@ process.noDeprecation = true;
 // #region VARS
 this.logger = new Logger(SETTINGS.loggerLevel); // can be initialized without any requirements
 this.webBackend; // will be created later
-this.tgBot; // will be created later after token check
+this.bot; // will be created later after token check
 this.run = false; // used for checking if the app is running or not (used in stop function)
 this.db;
 this.reward;
@@ -42,10 +44,12 @@ const start = async () => {
 		if (!this.CONSOLE) this.CONSOLE = new CONSOLE(this);
 		this.db = new FirebaseConnector(this);
 		this.commands = new COMMANDS(this, this.logger);
-		this.tgBot = new TGBot(this);
+		this.bot = new BOT(this);
 		this.webBackend = new WebBackend(this);
 		this.reward = new Reward(this);
 		this.achievement = new Achievement(this);
+		this.CACHE = new CACHE(this);
+		this.FUNCTIONS = new FUNCTIONS(this);
 		this.run = true;
 		this.logger.log('Application: Initialization completed', "info");
 	}
@@ -67,7 +71,7 @@ function stop() {
 
 async function cleanUp() {
 	// stop and cleanup tgbot
-	await this.tgBot.stop();
+	await this.bot.stop();
 	// stop and cleanup webbackend
 	await this.webBackend.stop();
 	return;

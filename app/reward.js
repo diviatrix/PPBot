@@ -28,7 +28,7 @@ class Reward {
 	{
 		// list all COLLECTIBLES for userid in database
 		// return list
-		let user = await app.db.db_user_get(_msg);
+		let user = await app.db.db_user(_msg);
 		if (!user || !user['collectible']) {
 			return [];
 		}
@@ -55,7 +55,7 @@ class Reward {
 			};
 
 			let message = app.HELPER.str_style(`[${record.id}][${record.rarity}][${record.name}]`, app.SETTINGS.rarity[record.rarity].text);
-			if(_sendMessage) app.tgBot.sendMessage(_msg.chat.id, message, _msg.message_id);
+			if(_sendMessage) app.bot.sendMessage(_msg.chat.id, message, _msg.message_id);
 
 			await this.writeDB(_msg, record, message);
 

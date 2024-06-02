@@ -8,7 +8,9 @@ module.exports = class WALLET{
     async balance(_msg) {
         let user = await app.db.db_user(_msg);
         if (!user) {
-            return 0;
+            app.bot.sendMessage(_msg.chat.id, app.SETTINGS.locale.console.bot_wallet_balance_fail, _msg.message_id);
+            return false;
+
         }
         return user.wallet.balance;
     }

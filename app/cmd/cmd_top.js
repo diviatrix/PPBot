@@ -33,7 +33,7 @@ class C_TOP {
             _count++;
         }
 
-        app.tgBot.sendMessage(_msg.chat.id, app.SETTINGS.locale.base.cmd_top + "\n" + _message, _msg.message_id);
+        app.bot.sendMessage(_msg.chat.id, app.SETTINGS.locale.base.cmd_top + "\n" + _message, _msg.message_id);
 
 
         return true;

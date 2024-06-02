@@ -46,7 +46,7 @@ class FirebaseConnector {
  */
   async db_user_push(_msg, _path, _value) {
     try {
-      if (await this.db_user_isRegistered(_msg)) {
+      if (this.exist(app.SETTINGS.path.db.users + _msg.from.id)) {
         const ref = this.db.ref(app.SETTINGS.path.db.users + "/" + _msg.from.id + _path);
         const snapshot = await ref.push(_value);
         app.logger.log(`Record pushed successfully with id: ${snapshot.key}`, "debug");
@@ -64,24 +64,17 @@ class FirebaseConnector {
   }
 
   /**
- * Overrides the user data in the Firebase database.
- *
- * @param {Object} _msg - The message object containing the user information.
- * @param {string} _path - The additional path to append to the user's database reference.
- * @param {any} _value - The new value to be set for the user data.
- * @returns {Promise<{ success: boolean, error?: string }>} - A promise that resolves with an object indicating the success of the operation and an optional error message.
- */
-  async db_user_override(_msg, _path, _value) {
+   * Overrides the data in the Firebase database at the specified path.
+   *
+   * @param {string} _path - The path in the Firebase Realtime Database where the data should be overridden.
+   * @param {any} _value - The new value to be set at the specified path.
+   * @returns {Promise<{ success: boolean, error?: string }>} - A promise that resolves with an object indicating the success of the operation and an optional error message.
+   */
+  async db_override(_path, _value) {
     try {
-      if (await this.db_user_isRegistered(_msg)) {
-        const ref = this.db.ref(app.SETTINGS.path.db.users + "/" + _msg.from.id + _path);
-        await ref.set(_value);
-        return { success: true };
-      }
-      else {
-        app.logger.log("User not found: " + _msg.from.id, "error");
-        return { success: false, error: "User not found: " + _msg.from.id };
-      }
+      const ref = this.db.ref(_path);
+      await ref.set(_value);
+      return { success: true };
     }
     catch (error) {
       app.logger.log(error.stack, "error");
@@ -89,27 +82,18 @@ class FirebaseConnector {
     }
   }
 
-  /**
- * Generates the database path for a user based on the provided message.
- *
- * @param {Object} _msg - The message object containing the user information.
- * @returns {string} The database path for the user.
- */
-  db_user_path(_msg) {
-    return app.SETTINGS.path.db.users + "/" + _msg.from.id;
-  }
 
-  /**
+ /**
  * Atomically increments the value stored at the specified Firebase Realtime Database reference path.
  *
  * @param {string} refPath - The path to the Firebase Realtime Database reference to be incremented.
  * @returns {currentValue} return result of increment
  */
-  async db_increment(refPath) {
+  async db_increment(refPath, amount) {
     try {
       const ref = this.db.ref(refPath);
       let currentValue = (await ref.once('value')).val() || 0;
-      let newValue = currentValue + 1;
+      let newValue = currentValue + (amount || 1);
       await ref.transaction(currentValue => newValue);
       app.logger.log("Value:" + ref + " has been set to:" + newValue, "debug");
       return newValue;
@@ -117,42 +101,8 @@ class FirebaseConnector {
       app.logger.log(error.stack, "error");
     }
   }
-  /**
- * Increments a value in the user's database path.
- *
- * @param {string} _msg - The message to be logged.
- * @param {string} _path - The additional path to append to the user's database reference.
- * @returns {Promise<any>} - The result of the increment operation.
- */
-  async db_user_increment(_msg, _path) {
-    app.logger.log("Passed to db_increment: ==>", "debug");
-    let result = await this.db_increment(this.db_user_path(_msg) + _path);
-    return result;
-  }
 
-  /**
- * Retrieves user data from the database based on the provided message.
- *
- * @param {object} _msg - The message object containing the user ID.
- * @param {string} _path - The additional path to append to the user's database reference.
- * @returns {Promise<any>} - The user data from the database, or `undefined` if the user is not registered.
- */
-  async db_user_get(_msg, _path) {
-    try {
-      if (await this.db_user_isRegistered(_msg)) {
-        const ref = this.db.ref(app.SETTINGS.path.db.users + "/" + _msg.from.id + _path);
-        let data = await ref.once('value');
-        app.logger.log("User found: " + _msg.from.id, "debug");
-        return data.val();
-      }
-      else { app.logger.log("User not found: " + _msg.from.id, "error"); return undefined; }
-    }
-    catch (error) {
-      app.logger.log(error.stack, "error");
-      return error;
-    }
-  }
-
+ 
   /**
  * Writes a new user to the Firebase database.
  *
@@ -183,34 +133,6 @@ class FirebaseConnector {
       return undefined;
     }
   }
-
-  
-  /**
- * Writes a new suggestion to the Firebase Realtime Database.
- *
- * @param {Object} msg - The message object containing the chat ID, message ID, and user information.
- * @param {string} [suggestion] - The text of the suggestion.
- * @returns {record} - A Promise that return suggestion is written to the database.
- */
-  async db_suggestion_new_write(msg, suggestion) {
-    try {
-      const record = {
-        chatId: msg.chat.id || msg.from.id,
-        msgId: msg.message_id || 0,
-        text: suggestion || "",
-        time: this.time(),
-        userId: msg.from.id || 0,
-        name: msg.from.first_name + msg.from.last_name
-      }
-      await this.db_push(app.SETTINGS.path.db.suggestions, record);
-      app.logger.log("Suggestion written to database:" + record, "debug");
-      return record;
-    }
-    catch (error) {
-      app.logger.log(error.stack, "error");
-    }
-  }
-
 
   /**
  * Asynchronously removes a user from the database.
@@ -247,23 +169,11 @@ class FirebaseConnector {
     }
   }
 
-  /**
- * Checks if a user is registered in the database.
- * @param {object} msg - The message object containing the user's ID.
- * @returns {Promise<boolean>} - True if the user is registered, false otherwise.
- */
-  async db_user_isRegistered(msg) {
-    try {
-      const userRef = this.db.ref(app.SETTINGS.path.db.users + "/" + msg.from.id);
-      const userSnapshot = await userRef.once('value');
-      const userExists = userSnapshot.exists();
-      const logMessage = userExists ? app.SETTINGS.locale.console.db_user_exists : app.SETTINGS.locale.console.db_user_not_exists;
-      app.logger.log(logMessage + msg.from.id, "debug");
-      return userExists;
-    } catch (error) {
-      app.logger.log(error.stack, "error");
-      return false;
-    }
+  async exist(_path)
+  {
+    const ref = this.db.ref(_path);
+    const snapshot = await ref.once('value');
+    return snapshot.exists();
   }
 
   /**

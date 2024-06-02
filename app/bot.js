@@ -1,5 +1,5 @@
 const TelegramBot = require('node-telegram-bot-api');
-class TGBot {
+class BOT {
 	constructor(_app) {
 		this.app = _app;
 		this.logger = _app.logger;
@@ -36,8 +36,7 @@ class TGBot {
 			if (!await this.token_verify_connect(this.SETTINGS.token)) { this.logger.log(this.SETTINGS.locale.console.bot_token_verify_fail, "error"); return false; }
 			else { this.logger.log(this.SETTINGS.locale.console.bot_token_verify_pass, "info"); return true;	}
 		}
-	}
-	
+	}	
 
 	async stop() {
 		await this.bot.stop();
@@ -60,6 +59,14 @@ class TGBot {
 		}
 	}
 
+		/**
+		 * Sends a message to a specified chat.		 *
+		 * @param {string} chatID - The ID of the chat to send the message to.
+		 * @param {string} message - The message to send.
+		 * @param {number} [replyID] - The ID of the message to reply to (optional).
+		 * @return {Promise<void>} - A promise that resolves when the message is sent successfully.
+		 * @throws {Error} - If the message or chatID is not provided, or if there is an error sending the message.
+		 */
 	async sendMessage(chatID, message, replyID) {
 		try {
 			if (!message || !chatID) { this.logger.log(this.SETTINGS.locale.console.bot_msg_verify_fail + `Message: ${message}, Chat ID: ${chatID}`, "error"); return; }
@@ -88,14 +95,14 @@ class TGBot {
 			return; 
 		}
 	}
-	async handleNormalMessage(_msg) {
+	async handleNormalMessage(msg) {
 		try {
 			// Check if the user is registered
-			if (_msg.from.id == _msg.chat.id || !await this.app.db.db_user_isRegistered(_msg)) { return; }
-			else await this.app.db.db_user_increment(_msg, this.SETTINGS.path.db.user.messages);
+			if (msg.from.id == msg.chat.id || !await this.app.db.exist(this.app.SETTINGS.path.db.users + msg.from.id) ) { return; }
+			else await this.app.db.db_increment(this.SETTINGS.path.db.users + msg.from.id + this.SETTINGS.path.db.user.messages);
 			
 			// Handle achievements related to messages
-			await this.app.achievement.h_messages(_msg);
+			await this.app.achievement.h_messages(msg);
 		} catch (error) {
 			this.logger.log(`Error handling normal message: ${error.stack}`, "error");
 		}
@@ -103,4 +110,4 @@ class TGBot {
 	
 }
 
-module.exports = TGBot;
+module.exports = BOT;

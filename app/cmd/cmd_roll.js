@@ -13,7 +13,7 @@ class C_ROLL {
 			const _lastRoll = await this.get_lastRoll(_msg, _app, user);
 			if (_lastRoll) {
 				const message = _app.SETTINGS.locale.base.cmd_roll_fail_already + "\n" + _app.HELPER.str_style(`[${_lastRoll.id}][${_lastRoll.rarity}][${_lastRoll.name}]`, _app.SETTINGS.rarity[_lastRoll.rarity] && _app.SETTINGS.rarity[_lastRoll.rarity].text || "");
-				_app.tgBot.sendMessage(_msg.chat.id, message, _msg.message_id);
+				_app.bot.sendMessage(_msg.chat.id, message, _msg.message_id);
 
 				return true;
 			} else {
@@ -48,7 +48,7 @@ class C_ROLL {
 		if (reward) {
 			await this.update_db_records(_msg, _app, reward.record);
 
-			_app.tgBot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_roll_success + reward.message, _msg.message_id)
+			_app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_roll_success + reward.message, _msg.message_id)
 
 			return reward;
 		}
@@ -56,8 +56,8 @@ class C_ROLL {
 
 	async update_db_records(_msg, _app, reward) {
 		try {
-			await _app.db.db_user_increment(_msg, _app.SETTINGS.path.db.stats.rollCount);
-			await _app.db.db_user_override(_msg, _app.SETTINGS.path.db.stats.lastRoll, reward);
+			await _app.db.db_increment(app.SETTINGS.path.db.users + _msg.from.id + _app.SETTINGS.path.db.stats.rollCount);
+			await _app.db.db_override(app.SETTINGS.path.db.users + _msg.from.id +_app.SETTINGS.path.db.stats.lastRoll, reward);
 			return true;
 		} catch (error) {
 			_app.logger.log(`Error updating database records: ${error.stack}`, "error");

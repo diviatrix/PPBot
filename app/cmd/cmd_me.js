@@ -3,7 +3,7 @@ module.exports = class CMD_ME{
     {
         try
         {
-            if (!await _app.db.db_user_isRegistered(_msg)) 
+            if (!await _app.db.exist(_app.SETTINGS.path.db.users + _msg.from.id)) 
                 {
                     _app.commands.msg_notRegistered(_msg);
                     return;
@@ -27,7 +27,7 @@ module.exports = class CMD_ME{
                 }
                 message += _app.SETTINGS.locale.base.cmd_me_COLLECTIBLES + (user.wallet && user.wallet.collectible? Object.keys(user.wallet.collectible).length : 0) + "\n";
         
-                _app.tgBot.sendMessage(_msg.chat.id,message, _msg.message_id);
+                _app.bot.sendMessage(_msg.chat.id,message, _msg.message_id);
                 }
         }
         catch (error)

@@ -65,8 +65,8 @@ class Achievement {
 	}
 
 	async user_achievements(_msg) {
-		let user = await this.app.db.db_user(_msg);
-		return user.achievement;
+		let data = await this.app.db.db_get(_msg, this.app.HELPER.userpath(_msg) + this.SETTINGS.path.db.user.achievement);
+		return data;
 	}
 
 	async achievementMessage(_msg, _achievement) {
@@ -79,7 +79,7 @@ class Achievement {
 			// if there are rewards
 			if (_achievement.reward) {
 				this.app.reward.rewardsAdd(_msg, _achievement.reward, true);
-				this.app.tgBot.sendMessage(_msg.chat.id, message, _msg.message_id);
+				this.app.bot.sendMessage(_msg.chat.id, message, _msg.message_id);
 			}
 
 			
@@ -96,7 +96,7 @@ class Achievement {
 			if (requirement.type == "message") {
 				result = await this.messageRequirementMet(_msg, requirement) || result;
 			} else if (requirement.type == "register") {
-				result = await this.app.db.db_user_isRegistered(_msg) || result;
+				result = await this.app.db.exist(app.SETTINGS.path.db.users + _msg.from.id) || result;
 			}
 		}
 		return result;	
@@ -105,7 +105,7 @@ class Achievement {
 	async messageRequirementMet(_msg, _requirement) {
 		try {
 			let result = false;
-			let messages = await this.app.db.db_user_get(_msg, this.SETTINGS.path.db.user.messages) || 0;
+			let messages = await this.app.CACHE.update(this.app.HELPER.userpath(_msg) + this.SETTINGS.path.db.user.messages) || 0;
 			this.logger.log("Checking message requirement for user: " + _msg.from.id + " with value: " + _requirement.value + " and messages: " + messages, "debug");
 			if ( _requirement.value == messages) { result = true; }
 			return result;	

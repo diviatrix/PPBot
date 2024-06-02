@@ -3,6 +3,7 @@ const C_ROLL = require(path.join(__dirname, 'cmd', 'cmd_roll.js'));
 const C_TOP = require(path.join(__dirname, 'cmd', 'cmd_top.js'));
 const C_ME = require(path.join(__dirname, 'cmd', 'cmd_me.js'));
 const C_RAR = require(path.join(__dirname, 'cmd', 'cmd_rar.js'));
+const C_BONUS = require(path.join(__dirname, 'cmd', 'cmd_bonus.js'));
 
 module.exports = class COMMANDS {
 	constructor(app, logger) {
@@ -18,8 +19,8 @@ module.exports = class COMMANDS {
 		this.attach_cmd_handlers();
 	}
 
-	async msg_notRegistered(_msg) { await this.app.tgBot.sendMessage(_msg.chat.id, this.SETTINGS.locale.console.bot_cmd_requirement_register, _msg.message_id); }
-	async msg_failed(_msg) { await this.app.tgBot.sendMessage(_msg.chat.id, this.SETTINGS.locale.console.bot_cmd_fail, _msg.message_id); }
+	async msg_notRegistered(_msg) { await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.console.bot_cmd_requirement_register, _msg.message_id); }
+	async msg_failed(_msg) { await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.console.bot_cmd_fail, _msg.message_id); }
 	
 	async attach_cmd_handlers()
 	{
@@ -65,15 +66,15 @@ module.exports = class COMMANDS {
 
 	async cmd_go(_msg) {
 		try {
-			if (!await this.app.db.db_user_isRegistered(_msg)) {
+			if (!await this.app.db.exist(this.app.SETTINGS.path.db.users + _msg.from.id)) {
 				let user = await this.app.db.db_user_new_write(_msg);
 				await this.logger.log(this.SETTINGS.locale.console.bot_cmd_go_register_pass +  _msg.from.id, "info");
-				await this.app.tgBot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_go_pass, _msg.message_id);
+				await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_go_pass, _msg.message_id);
 				await this.app.achievement.h_register(_msg, user);
 			}
 			else {
 				await this.logger.log(this.SETTINGS.locale.console.bot_cmd_go_register_fail + _msg.from.id, "warning");
-				await this.app.tgBot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_go_fail, _msg.message_id);
+				await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_go_fail, _msg.message_id);
 			}
 		} catch (error) {
 			this.logger.log(`Error executing cmd_go: ${error.stack}`, "error");
@@ -81,19 +82,28 @@ module.exports = class COMMANDS {
 	}
 
 	async cmd_add(_msg, _params) {
-		if (!_params) return this.app.tgBot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_add_fail_empty, _msg.message_id);
+		if (!_params) return this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_add_fail_empty, _msg.message_id);
 
-		if (!await this.app.db.db_user_isRegistered(_msg)) {
+		if (!await this.app.db.exist(app.SETTINGS.path.db.users + _msg.from.id)) {
 			this.msg_notRegistered(_msg);
 			return;
 		}
 
 		this.logger.log(JSON.stringify(_params), "info");
 		// adds suggestion to database as new record in  this.app.db
-		this.app.db.db_suggestion_new_write(_msg, _params);
+		let record = {
+			chatId: _msg.chat.id || _msg.from.id,
+			msgId: _msg.message_id || 0,
+			text: _params || "",
+			time: this.app.db.time(),
+			userId: _msg.from.id || 0,
+			name: _msg.from.first_name || "" + _msg.from.last_name || ""
+		}
+		await this.app.db.db_push(this.app.SETTINGS.path.db.suggestions, record);
+		this.app.logger.log("Suggestion written to database:" + record, "debug");
 
-		await this.app.tgBot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_add_pass, _msg.message_id);
-		return true;
+		await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_add_pass, _msg.message_id);
+		return record;
 		// adds record about last suggestion to account stats database		
 	}
 
@@ -125,7 +135,7 @@ module.exports = class COMMANDS {
 	}
 
 	async cmd_start(_msg){
-		await this.app.tgBot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_start, _msg.message_id);	
+		await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_start, _msg.message_id);	
 	}
 
 	async cmd_roll(_msg) {
@@ -140,11 +150,11 @@ module.exports = class COMMANDS {
 	// todo : move commands methods to command.js, load commands there also
 	async cmd_deleteme(_msg) {
 		try {
-			if (!await this.app.db.db_user_isRegistered(_msg)) {
+			if (!await this.app.db.exist(app.SETTINGS.path.db.users + _msg.from.id)) {
 				return;
 			} else {
 				await this.app.db.db_user_erase(_msg);
-				await this.app.tgBot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_deleteme_pass, _msg.message_id);
+				await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_deleteme_pass, _msg.message_id);
 				this.logger.log(this.SETTINGS.locale.console.bot_cmd_pass  + _msg.from.id, "info");
 			}
 		} catch (error) {
@@ -152,12 +162,12 @@ module.exports = class COMMANDS {
 		}
 	}
 
-	async cmd_incorrect(_msg) { await this.app.tgBot.sendMessage(_msg.chat.id,  this.SETTINGS.locale.console.bot_cmd_fail + _msg.text, _msg.message_id); }
+	async cmd_incorrect(_msg) { await this.app.bot.sendMessage(_msg.chat.id,  this.SETTINGS.locale.console.bot_cmd_fail + _msg.text, _msg.message_id); }
 	async cmd_commands(_msg) {
-		if (!await this.app.db.db_user_isRegistered(_msg)) { this.logger.log(this.SETTINGS.locale.console.bot_cmd_requirement_register);  return; }
+		if (!await this.app.db.exist(this.app.SETTINGS.path.db.users + _msg.from.id)) { this.logger.log(this.SETTINGS.locale.console.bot_cmd_requirement_register);  return; }
 		let message = this.SETTINGS.locale.base.bot_cmd_commands + "\n";
 		for (const { command } of this.commandHandlers) { message += command + "\n"; }
-		await this.app.tgBot.sendMessage(_msg.chat.id, message, _msg.message_id);
+		await this.app.bot.sendMessage(_msg.chat.id, message, _msg.message_id);
 		this.logger.log(this.SETTINGS.locale.console.bot_cmd_commands, "info");
 	}
 
@@ -166,7 +176,21 @@ module.exports = class COMMANDS {
 		try {
 			if (await new C_TOP().run(_msg, this.app, _params || [])){return true}
 			else { 
-				this.app.tgBot.sendMessage(_msg.chat.id, this.app.SETTINGS.locale.base.cmd_top_fail, _msg.message_id);
+				this.app.bot.sendMessage(_msg.chat.id, this.app.SETTINGS.locale.base.cmd_top_fail, _msg.message_id);
+				return false;
+			}		
+		} catch (error) {
+			this.logger.log(`Error executing cmd_roll: ${error.stack}`, "error");
+			return false;
+		}
+	}
+
+	async cmd_bonus(_msg, _params)
+	{
+		try {
+			if (await new C_BONUS().run(_msg, this.app, _params || [])){return true}
+			else { 
+				this.cmd_incorrect(_msg);
 				return false;
 			}		
 		} catch (error) {
