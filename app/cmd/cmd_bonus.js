@@ -87,9 +87,8 @@ module.exports = class C_BONUS {
     {
         try {
             // get bonus list for user from database
-            // let _bonusObject = await _app.db.get(_app.SETTINGS.path.db.bonus);
-            let _bonusObject = await _app.CACHE.get(_app.SETTINGS.path.db.bonus);
-            _app.logger.log(`_bonusObject: ${JSON.stringify(_bonusObject, null, 2)}`, "debug");
+            let _bonusObject = await _app.CACHE.update(_app.SETTINGS.path.db.bonus);
+            //_app.logger.log(`_bonusObject: ${JSON.stringify(_bonusObject, null, 2)}`, "debug");
             let _rewardList = [];
 
             // select items from object where id = _msg.from.id

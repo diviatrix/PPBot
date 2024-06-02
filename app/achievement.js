@@ -1,11 +1,8 @@
-class Achievement {
+let app;
+module.exports = class Achievement {
 	constructor (_app) {
-		this.app = _app;
-		this.logger = _app.logger;
-		this.HELPER = _app.HELPER;
-		this.SETTINGS = _app.SETTINGS;
-		this.achievements = _app.achievements;
-		this.logger.log('Achievement constructed', "info");
+		app = _app;
+		app.logger.log('Achievement constructed', "info");
 		this.start();
 	}
 
@@ -14,12 +11,12 @@ class Achievement {
 	}
 
 	async h_messages(_msg) {
-		if (this.achievements && this.achievements.length > 0) {
-			for (const achievement of this.achievements) {
+		if (app.achievements && app.achievements.length > 0) {
+			for (const achievement of app.achievements) {
 				if (achievement.requirements && achievement.requirements.length > 0) {
 					if (achievement.requirements.find(r => r.type == "message")) {
 						if (await this.requirementsMet(_msg, achievement)) {
-							this.achievementAdd(_msg, achievement);
+							app.achievementAdd(_msg, achievement);
 						}
 					}
 				}
@@ -29,74 +26,67 @@ class Achievement {
 	
 	async h_register(_msg, _data) {
 		try {
-			this.logger.log(_msg.from.id +" " + _data.username + ": " + this.SETTINGS.locale.console.ach_register_check, "info");
-			let achievement = this.achievements.find(a => a.id == "start");
+			app.logger.log(_msg.from.id +" " + _data.username + ": " + app.SETTINGS.locale.console.ach_register_check, "info");
+			let achievement = app.achievements.find(a => a.id == "start");
 			if (achievement) {
 				let result = await this.requirementsMet(_msg, achievement);
 				if (result === true) {
-					this.achievementAdd(_msg, achievement);
+					await this.achievementAdd(_msg, achievement);
 				}
 			} else {
-				this.logger.log('Achievement with id "start" not found', "error");
+				app.logger.log('Achievement with id "start" not found', "error");
 			}
 		} catch (error) {
-			this.logger.log(`Error in h_register: ${error.stack}`, "error");
+			app.logger.log(`Error in h_register: ${error.stack}`, "error");
 		}
 	}	
 
 	async achievementAdd(_msg, _achievement) {
-		this.logger.log(this.SETTINGS.locale.console.ach_add + _achievement.name + " to user: " + _msg.from.id + ":\n" + _achievement.id, "info");
+		app.logger.log(app.SETTINGS.locale.console.ach_add + _achievement.name + " to user: " + _msg.from.id + ":\n" + _achievement.id, "info");
 		
 		try {
-			
-
-			_achievement.time = this.app.db.time();
-			if (await this.app.db.push(app.SETTINGS.path.db.users + _msg.from.id + this.SETTINGS.path.db.user.achievement, _achievement)) {
-				this.achievementMessage(_msg, _achievement);
-				return true;
-			} else {
-				this.logger.log(this.SETTINGS.locale.console.ach_add_error + _msg.from.id + ":\n" + JSON.stringify(_achievement,null,2), "error");
-				return false;
-			}
+			_achievement.time = await app.db.time();
+			await app.db.push(app.SETTINGS.path.db.users + _msg.from.id + app.SETTINGS.path.db.user.achievement, _achievement);
+			return await this.achievementMessage(_msg, _achievement);			 
 		} catch (error) {
-			this.logger.log(`Error adding achievement: ${error.stack}`, "error");
+			app.logger.log(`Error adding achievement: ${error.stack}`, "error");
 			return false;
 		}
 	}
 
 	async user_achievements(_msg) {
-		let data = await this.app.db.get(_msg, this.app.HELPER.userpath(_msg) + this.SETTINGS.path.db.user.achievement);
+		let data = await app.CACHE.get(app.HELPER.userpath(_msg) + app.SETTINGS.path.db.user.achievement);
 		return data;
 	}
 
 	async achievementMessage(_msg, _achievement) {
 		try {
-			this.logger.log(this.SETTINGS.locale.console.ach_message_prepare + _achievement.name + " to user: " + _msg.from.id, "info");
-			let message = this.SETTINGS.locale.base.ach_recieved + "\n";
-			message += this.app.HELPER.str_style(_achievement.name, "bold") + "\n";
-			message += this.app.HELPER.str_style(_achievement.description, "italic") + "\n";
+			app.logger.log(app.SETTINGS.locale.console.ach_message_prepare + _achievement.name + " to user: " + _msg.from.id, "info");
+			let message = app.SETTINGS.locale.base.ach_recieved + "\n";
+			message += app.HELPER.str_style(_achievement.name, "bold") + "\n";
+			message += app.HELPER.str_style(_achievement.description, "italic") + "\n";
 
 			// if there are rewards
 			if (_achievement.reward) {
-				this.app.reward.rewardsAdd(_msg, _achievement.reward, true);
-				this.app.bot.sendMessage(_msg.chat.id, message, _msg.message_id);
+				app.reward.rewardsAdd(_msg, _achievement.reward, true);
+				app.bot.sendMessage(_msg.chat.id, message, _msg.message_id);
 			}
 
 			
 		} catch (error) {
-			this.logger.log(`Error sending achievement message: ${error.stack}`, "error");
+			app.logger.log(`Error sending achievement message: ${error.stack}`, "error");
 		}
 	}
 
 	async requirementsMet(_msg, _achievement) {
 		let requirements = _achievement.requirements;
-		this.logger.log("Checking requirements for " + this.HELPER.str_style(_achievement.name, "bold") + " for user: " + _msg.from.id + ": " + requirements.length , "debug");
+		app.logger.log("Checking requirements for " + app.HELPER.str_style(_achievement.name, "bold") + " for user: " + _msg.from.id + ": " + requirements.length , "debug");
 		let result = false;
 		for (const requirement of requirements) {
 			if (requirement.type == "message") {
 				result = await this.messageRequirementMet(_msg, requirement) || result;
 			} else if (requirement.type == "register") {
-				result = await this.app.db.exist(app.SETTINGS.path.db.users + _msg.from.id) || result;
+				result = await app.db.exist(app.SETTINGS.path.db.users + _msg.from.id) || result;
 			}
 		}
 		return result;	
@@ -105,17 +95,15 @@ class Achievement {
 	async messageRequirementMet(_msg, _requirement) {
 		try {
 			let result = false;
-			let messages = await this.app.CACHE.update(this.app.HELPER.userpath(_msg) + this.SETTINGS.path.db.user.messages) || 0;
-			this.logger.log("Checking message requirement for user: " + _msg.from.id + " with value: " + _requirement.value + " and messages: " + messages, "debug");
+			let messages = await app.CACHE.update(app.HELPER.userpath(_msg) + app.SETTINGS.path.db.user.messages) || 0;
+			app.logger.log("Checking message requirement for user: " + _msg.from.id + " with value: " + _requirement.value + " and messages: " + messages, "debug");
 			if ( _requirement.value == messages) { result = true; }
 			return result;	
 		} catch (error) {
-			this.logger.log(`Error checking message requirement: ${error.stack}`, "error");
+			app.logger.log(`Error checking message requirement: ${error.stack}`, "error");
 			return false;
 		}
 	}
 }
-
-module.exports = Achievement;
 
 // ачивка "брат куда так гонишь" - 10 сообщений за минуту

@@ -63,19 +63,19 @@ module.exports = class COMMANDS {
 	async cmd_go(_msg) {
 		try {
 			if (!await this.app.db.exist(this.app.SETTINGS.path.db.users + _msg.from.id)) {
-				let user = app.SETTINGS.model.user;
-				const stats = app.SETTINGS.model.stats;
+				let user = this.app.SETTINGS.model.user;
+
 				user.id = _msg.from.id;
 				user.username = _msg.from.username || "";
 				user.first_name = _msg.from.first_name || "";
 				user.last_name = _msg.from.last_name || "";
-				user.stats = stats;
+				user.stats = this.app.SETTINGS.model.stats;
 				user.stats.register = {
 				  chatId: _msg.chat.id || _msg.from.id,
 				  time: await this.app.db.time()
 				};
 		  
-				await this.db.push(this.SETTINGS.path.db.users + user.id, user);
+				await this.app.db.push(this.SETTINGS.path.db.users + user.id, user);
 
 				await this.logger.log(this.SETTINGS.locale.console.bot_cmd_go_register_pass +  _msg.from.id, "info");
 				await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_go_pass, _msg.message_id);
@@ -160,10 +160,10 @@ module.exports = class COMMANDS {
 	// todo : move commands methods to command.js, load commands there also
 	async cmd_deleteme(_msg) {
 		try {
-			if (!await this.app.db.exist(app.SETTINGS.path.db.users + _msg.from.id)) {
+			if (!await this.app.db.exist(this.app.SETTINGS.path.db.users + _msg.from.id)) {
 				return;
 			} else {
-				await this.app.db.delete(app.SETTINGS.path.db.users + _msg.from.id);
+				await this.app.db.delete(this.app.SETTINGS.path.db.users + _msg.from.id);
 				await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_deleteme_pass, _msg.message_id);
 				this.logger.log(this.SETTINGS.locale.console.bot_cmd_pass  + _msg.from.id, "info");
 			}
