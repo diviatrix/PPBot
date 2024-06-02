@@ -48,7 +48,7 @@ const start = async () => {
 		this.bot = new BOT(this);
 		this.webBackend = new WebBackend(this);
 		this.reward = new Reward(this);
-		this.achievement = new Achievement(this);
+		this.achievement = new Achievement();
 		this.CACHE = new CACHE(this);
 		this.run = true;
 		this.logger.log('Application: Initialization completed', "info");

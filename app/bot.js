@@ -102,7 +102,7 @@ class BOT {
 			else await this.app.db.increment(this.SETTINGS.path.db.users + msg.from.id + this.SETTINGS.path.db.user.messages);
 			
 			// Handle achievements related to messages
-			await this.app.achievement.h_messages(msg);
+			await this.app.achievement.h_messages(msg, this.app);
 		} catch (error) {
 			this.logger.log(`Error handling normal message: ${error.stack}`, "error");
 		}

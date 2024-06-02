@@ -20,10 +20,11 @@ module.exports = class COMMANDS {
 	
 	async attach_cmd_handlers()
 	{
+		let functionName;
 		for (let command in this.SETTINGS.locale.commands) {
 			if (Object.prototype.hasOwnProperty.call(this.commands, command)) {
 				// Remove the slash from the command name
-				let functionName = "cmd_" + command.slice(1);
+				functionName = "cmd_" + command.slice(1);
 
 				// Check if a function with this name exists in this class
 				if (typeof this[functionName] === 'function'){
@@ -79,7 +80,7 @@ module.exports = class COMMANDS {
 
 				await this.logger.log(this.SETTINGS.locale.console.bot_cmd_go_register_pass +  _msg.from.id, "info");
 				await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_go_pass, _msg.message_id);
-				await this.app.achievement.h_register(_msg, user);
+				await this.app.achievement.h_register(_msg, user, this.app);
 				return user;
 			}
 			else {
