@@ -69,7 +69,7 @@ class FirebaseConnector {
       let currentValue = (await ref.once('value')).val() || 0;
       let newValue = currentValue + (amount || 1);
       await this.set(refPath, newValue);
-      app.logger.log("Value:" + ref + " has been set to:" + newValue, "debug");
+      app.logger.log("Value:" + refPath + " has been set to:" + newValue, "debug");
       return newValue;
     } catch (error) {
       app.logger.log(error.stack, "error");
