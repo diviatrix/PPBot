@@ -10,4 +10,12 @@ module.exports = class FUNCTIONS {
             return false;
         }
     }
+
+    async messages_add (_app, _userid, _amount) { return await _app.db.increment(_app.SETTINGS.path.db.users + _userid + _app.SETTINGS.path.db.user.messages, _amount); }
+
+    async exp_add (_app, _userid, _amount) { return _app.db.increment(_app.SETTINGS.path.db.users + _userid + _app.SETTINGS.path.db.user.experience, _amount); }
+
+    async level_add (_app, _userid, _amount) { return await _app.db.increment(_app.SETTINGS.path.db.users + _userid + _app.SETTINGS.path.db.user.level, _amount); }
+
+    async ticket_add (_app, _userid, _amount) { return await _app.db.increment(_app.SETTINGS.path.db.users + _userid + _app.SETTINGS.path.db.user.ticket, _amount); }
 }

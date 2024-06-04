@@ -99,10 +99,10 @@ class BOT {
 		try {
 			// Check if the user is registered
 			if (msg.from.id == msg.chat.id || !await this.app.db.exist(this.app.SETTINGS.path.db.users + msg.from.id) ) { return; }
-			else await this.app.db.increment(this.SETTINGS.path.db.users + msg.from.id + this.SETTINGS.path.db.user.messages);
 			
-			// Handle achievements related to messages
-			await this.app.achievement.h_messages(msg, this.app);
+			await this.app.db.increment(this.SETTINGS.path.db.users + msg.from.id + this.SETTINGS.path.db.user.messages);
+			await this.app.db.increment(this.SETTINGS.path.db.users + msg.from.id + this.SETTINGS.path.db.user.experience);		
+			await this.app.achievement.h_messages(msg, this.app); 			// Handle achievements related to messages
 		} catch (error) {
 			this.logger.log(`Error handling normal message: ${error.stack}`, "error");
 		}

@@ -89,37 +89,34 @@ module.exports = class C_BONUS {
 
         for (const key in _userRewards) {
             if (_userRewards.hasOwnProperty(key)) {
+                let _result = false;
                 if (_userRewards[key].type == "exp") {
-                    await this.exp_add(_app, _userRewards[key].user, _userRewards[key].amount);
+                    await _app.FUNCTIONS.exp_add(_app, _userRewards[key].user, _userRewards[key].amount);
                     _message += "\n🎁 " + _userRewards[key].type + ": " + _userRewards[key].amount;
+                    _result = true;
                 } 
                 else if (_userRewards[key].type == "level") {
-                    await this.level_add (_app, _userRewards[key].user, _userRewards[key].amount);
+                    await _app.FUNCTIONS.level_add (_app, _userRewards[key].user, _userRewards[key].amount);
                     _message += "\n🎁 " + _userRewards[key].type + ": " + _userRewards[key].amount;
+                    _result = true;
                 }
                 else if (_userRewards[key].type == "ticket") {
-                    await this.ticket_add (_app, _userRewards[key].user, _userRewards[key].amount);
+                    await _app.FUNCTIONS.ticket_add (_app, _userRewards[key].user, _userRewards[key].amount);
                     _message += "\n🎁 " + _userRewards[key].type + ": " + _userRewards[key].amount;
+                    _result = true;
                 }
                 else if (_userRewards[key].type == "mes") {
-                    await this.messages_add (_app, _userRewards[key].user, _userRewards[key].amount);
+                    await _app.FUNCTIONS.messages_add (_app, _userRewards[key].user, _userRewards[key].amount);
                     _message += "\n🎁 " + _userRewards[key].type + ": " + _userRewards[key].amount;
+                    _result = true;
                 }
 
-                await _app.db.delete(_app.SETTINGS.path.db.bonus + _userRewards[key].id);
+                if (_result) await _app.db.delete(_app.SETTINGS.path.db.bonus + _userRewards[key].id);
             }
         }
         _app.logger.log(`Claimed rewards: ${_userRewards.count}`, "debug");
         _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_success +_message, _msg.message_id);        
     }
-
-    async messages_add (_app, _userid, _amount) { return await _app.db.increment(_app.SETTINGS.path.db.users + _userid + _app.SETTINGS.path.db.user.messages, _amount); }
-
-    async exp_add (_app, _userid, _amount) { return _app.db.increment(_app.SETTINGS.path.db.users + _userid + _app.SETTINGS.path.db.user.experience, _amount); }
-
-    async level_add (_app, _userid, _amount) { return await _app.db.increment(_app.SETTINGS.path.db.users + _userid + _app.SETTINGS.path.db.user.level, _amount); }
-
-    async ticket_add (_app, _userid, _amount) { return await _app.db.increment(_app.SETTINGS.path.db.users + _userid + _app.SETTINGS.path.db.user.ticket, _amount); }
 
     async b_check_rewards(_msg, _app)
     {
