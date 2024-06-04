@@ -68,7 +68,7 @@ class FirebaseConnector {
       const ref = this.db.ref(refPath);
       let currentValue = (await ref.once('value')).val() || 0;
       let newValue = currentValue + (amount || 1);
-      await this.set(refPath, newValue);
+      await this.set(refPath, newValue);      
       app.logger.log("Value:" + refPath + " has been set to:" + newValue, "debug");
       return newValue;
     } catch (error) {
@@ -98,7 +98,7 @@ class FirebaseConnector {
   async exist(_path)
   {
     const ref = this.db.ref(_path);
-    const snapshot = await ref.once('value');
+    const snapshot = await ref.get('value');
     return snapshot.exists();
   }
 
@@ -114,6 +114,7 @@ class FirebaseConnector {
     try {
       const res = await this.db.ref(_path).push(_data);
       app.logger.log("Document written to DB: " + _path + "/" + res.key, "debug");
+      app.CACHE.set(_path, _data);
     } catch (error) {
       app.logger.log(error.stack, "error");
     }
@@ -130,6 +131,7 @@ class FirebaseConnector {
     try {
       const ref = this.db.ref(_path);
       await ref.set(_data);
+      app.CACHE.set(_path, _data);
       app.logger.log("Document written to DB: " + _path + "/" + ref.key, "debug");
       return { success: true };
 
@@ -146,10 +148,13 @@ class FirebaseConnector {
  */
   async get(_path) {
     try {
-      const ref = await this.db.ref(_path);
-      const userSnapshot = await ref.once('value');
+      const ref = this.db.ref(_path);
+      const userSnapshot = await ref.get('value');
       app.logger.log("Read from db successfully:" + _path, "debug");
-      return userSnapshot.val();
+
+      let _value = await userSnapshot.val();
+      app.CACHE.set(_path, _value);
+      return _value;
     } catch (error) {
       app.logger.log(error.stack, "error");
     }
@@ -165,6 +170,7 @@ class FirebaseConnector {
   async delete(_path) {
     try {
       await this.db.ref(_path).remove();
+      app.CACHE.delete(_path);
       app.logger.log("Document deleted from DB: " + _path, "debug");
     } catch (error) {
       app.logger.log(error.stack, "error");

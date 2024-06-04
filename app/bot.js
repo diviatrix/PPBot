@@ -21,11 +21,43 @@ class BOT {
 		// start BOT	
 		if (!this.bot) this.bot = new TelegramBot(this.SETTINGS.token);		
 
-		this.bot.on('text', (msg) => { this.handleMessage(msg);	});
+		this.bot.on('message', (msg) => { 
+			//this.logger.log(JSON.stringify(msg, null, 2), "info");
+			if (msg.text) this.handleMessage(msg);
+			});
 		await this.bot.startPolling();
 		await this.bot.getMe().then(botInfo => {
 			this.username = botInfo.username;
 		});
+	}
+
+	async handleMessage(msg) {
+		// if chat is not private or not from the bot itself, check if chat is in chatId whitelist
+		if (!this.whitelist_check(msg)) { return; }
+		
+		this.logger.log(`[${msg.chat.id}][${msg.from.id}][${msg.from.username}][${msg.from.first_name} ${msg.from.last_name}]: ${msg.text}`, "info");
+
+		if (msg.text.startsWith('/') && msg.text.length > 1) {	this.commands.parseCmd(msg);	} 
+		else { this.handleNormalMessage(msg); }
+	}
+
+	async whitelist_check(msg){
+		if (msg.chat.id != msg.from.id && !this.SETTINGS.chatId.includes(msg.chat.id)) {
+			this.logger.log("Message from : [" + msg.from.id + "][" + msg.chat.id + "] is not from allowed chat list", "warning"); 
+			return; 
+		}
+	}
+	async handleNormalMessage(msg) {
+		try {
+			// Check if the user is registered
+			if (msg.from.id == msg.chat.id || !await this.app.db.exist(this.app.SETTINGS.path.db.users + msg.from.id) ) { return; }
+			
+			await this.app.db.increment(this.SETTINGS.path.db.users + msg.from.id + this.SETTINGS.path.db.user.messages);
+			await this.app.db.increment(this.SETTINGS.path.db.users + msg.from.id + this.SETTINGS.path.db.user.experience);		
+			await this.app.achievement.h_messages(msg, this.app); 			// Handle achievements related to messages
+		} catch (error) {
+			this.logger.log(`Error handling normal message: ${error.stack}`, "error");
+		}
 	}
 
 	async token_validate() {
@@ -79,35 +111,9 @@ class BOT {
 		catch (error) { this.logger.log("Failed to send: " + `Error: ${error.message}, Stack: ${error.stack}`, "error");	}
 	}	
 
-	async handleMessage(msg) {
-		// if chat is not private or not from the bot itself, check if chat is in chatId whitelist
-		if (!this.whitelist_check(msg)) { return; }
-		
-		this.logger.log(`[${msg.chat.id}][${msg.from.id}][${msg.from.username}][${msg.from.first_name} ${msg.from.last_name}]: ${msg.text}`, "info");
-
-		if (msg.text.startsWith('/') && msg.text.length > 1) {	this.commands.parseCmd(msg);	} 
-		else { this.handleNormalMessage(msg); }
-	}
-
-	async whitelist_check(msg){
-		if (msg.chat.id != msg.from.id && !this.SETTINGS.chatId.includes(msg.chat.id)) {
-			this.logger.log("Message from : [" + msg.from.id + "][" + msg.chat.id + "] is not from allowed chat list", "warning"); 
-			return; 
-		}
-	}
-	async handleNormalMessage(msg) {
-		try {
-			// Check if the user is registered
-			if (msg.from.id == msg.chat.id || !await this.app.db.exist(this.app.SETTINGS.path.db.users + msg.from.id) ) { return; }
-			
-			await this.app.db.increment(this.SETTINGS.path.db.users + msg.from.id + this.SETTINGS.path.db.user.messages);
-			await this.app.db.increment(this.SETTINGS.path.db.users + msg.from.id + this.SETTINGS.path.db.user.experience);		
-			await this.app.achievement.h_messages(msg, this.app); 			// Handle achievements related to messages
-		} catch (error) {
-			this.logger.log(`Error handling normal message: ${error.stack}`, "error");
-		}
-	}
-	
+	async sendSticker(chatID, stickerID, replyID) {
+		await this.bot.sendSticker(chatID, stickerID, { reply_to_message_id: replyID });
+	}	
 }
 
 module.exports = BOT;

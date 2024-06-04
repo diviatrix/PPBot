@@ -4,6 +4,7 @@ const C_TOP = require(path.join(__dirname, 'cmd', 'cmd_top.js'));
 const C_ME = require(path.join(__dirname, 'cmd', 'cmd_me.js'));
 const C_RAR = require(path.join(__dirname, 'cmd', 'cmd_rar.js'));
 const C_BONUS = require(path.join(__dirname, 'cmd', 'cmd_bonus.js'));
+const C_A = require(path.join(__dirname, 'cmd', 'cmd_a.js'));
 
 module.exports = class COMMANDS {
 	constructor(app, logger) {
@@ -140,6 +141,19 @@ module.exports = class COMMANDS {
 		} catch (error) {
 			this.cmd_incorrect(_msg);
 			this.logger.log(`Error executing cmd_rar: ${error.stack}`, "error");
+			return false;
+		}
+	}
+
+	async cmd_a(_msg) {
+		try {
+			if (await new C_A().run(_msg, this.app)){return true}
+			else { 
+				return false;
+			}		
+		} catch (error) {
+			this.cmd_incorrect(_msg);
+			this.logger.log(`Error executing cmd_a: ${error.stack}`, "error");
 			return false;
 		}
 	}

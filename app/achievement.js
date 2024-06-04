@@ -83,7 +83,7 @@ module.exports = class Achievement {
 	async messageRequirementMet(_msg, _requirement, _app) {
 		try {
 			let result = false;
-			let messages = await _app.CACHE.update(_app.HELPER.userpath(_msg) + _app.SETTINGS.path.db.user.messages) || 0;
+			let messages = await _app.CACHE.get(_app.HELPER.userpath(_msg) + _app.SETTINGS.path.db.user.messages) || 0;
 			_app.logger.log("Checking message requirement for user: " + _msg.from.id + " with value: " + _requirement.value + " and messages: " + messages, "debug");
 			if ( _requirement.value == messages) { result = true; }
 			return result;	

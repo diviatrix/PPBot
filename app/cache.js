@@ -19,7 +19,7 @@ class CACHE {
         return this.cache[path];
     }
 
-    async remove(path) {
+    async delete(path) {
         delete this.cache[path];
         this.app.logger.log(`Removed ${path} from cache`, "debug");
     }
@@ -30,7 +30,7 @@ class CACHE {
         return this.cache[path];
     }
 
-    async put(path, data) {
+    async set(path, data) {
         this.cache[path] = data;
         this.app.logger.log(`Put ${path} in cache`, "debug");
     }
