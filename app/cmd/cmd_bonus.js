@@ -3,7 +3,7 @@ module.exports = class C_BONUS {
         try {
             let _user = await _app.db.db_user(_msg);
             if (!_user) return false;
-            if (!_params[1]) this.b_claim(_msg, _app);
+            if (!_params[1]) this.b_check(_msg, _app);
             else await this.parseParams(_msg, _app, _params, _user);
 
             return true;
@@ -51,13 +51,13 @@ module.exports = class C_BONUS {
         // _param 1 = user id
         // _param 2 = amount
         
-        if (!_params[1]) {
+        if (!_id) {
             _app.logger.log(`User ID not found in params`, "info");
             _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_exp_e_noid, _msg.message_id);
             return false;
         }
 
-        if (!_params[2]) {
+        if (!_amount) {
             _app.logger.log(`Amount not found in params`, "info");
             _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_exp_e_noval, _msg.message_id);
             return false;
@@ -75,7 +75,7 @@ module.exports = class C_BONUS {
         _app.db.push(_app.SETTINGS.path.db.bonus, _bonus);
 
         //_app.db.set(_app.SETTINGS.path.db.users + _id + _app.SETTINGS.path.db.user.experience, Number(_userExp));
-        _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_exp_success +" user: " + _msg.from.id + " amount: " + _params[2] + " experience: " + _userExp, _msg.message_id);
+        _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_exp_success +" user: " + _id + " amount: " + _amount+ " experience: " + _userExp, _msg.message_id);
 
         _app.logger.log(`Added ${_amount} experience to user: ${_msg.from.id}`, "info");
 
@@ -83,7 +83,7 @@ module.exports = class C_BONUS {
 
     }
 
-    async b_claim(_msg, _app)
+    async b_check(_msg, _app)
     {
         try {
             // get bonus list for user from database
@@ -104,7 +104,16 @@ module.exports = class C_BONUS {
 
             if(_rewardList[0]) {
                 _app.logger.log(`_rewardList: ${JSON.stringify(_rewardList, null, 2)}`, "debug");
-                return true;
+                let _message = "";
+                for (const key in _rewardList) {
+                    if (_rewardList.hasOwnProperty(key)) {
+                        const _item = _rewardList[key];
+                        _message += "🎁 " + _item.type + ": " + _item.amount + "\n";
+                    }
+                }
+                _app.logger.log(`_message: ${_message}`, "debug");
+                _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_success +_message, _msg.message_id);
+                return _rewardList;
             }
             else {
                 _app.logger.log(`No rewards found for user: ${_msg.from.id}`, "debug");

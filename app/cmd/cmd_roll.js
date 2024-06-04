@@ -6,7 +6,7 @@ class C_ROLL {
 			const user = await _app.db.db_user(_msg);
 
 			if (!user) {
-				_app.COMMANDS.msg_notRegistered(_msg);
+				_app.commands.msg_notRegistered(_msg);
 				return false;
 			}
 

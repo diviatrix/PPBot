@@ -76,7 +76,7 @@ module.exports = class COMMANDS {
 				  time: await this.app.db.time()
 				};
 		  
-				await this.app.db.push(this.SETTINGS.path.db.users + user.id, user);
+				await this.app.db.set(this.SETTINGS.path.db.users + user.id, user);
 
 				await this.logger.log(this.SETTINGS.locale.console.bot_cmd_go_register_pass +  _msg.from.id, "info");
 				await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_go_pass, _msg.message_id);
