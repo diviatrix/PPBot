@@ -3,21 +3,13 @@ module.exports = class C_BONUS {
         try {
             let _user = await _app.db.db_user(_msg);
             if (!_user) return false;
-            let _is_admin = await _app.FUNCTIONS.is_admin(_app, _msg);
-            if (_params?.length == 0) {
-                let _userRewards = await this.b_check_rewards(_msg, _app);
-                if(_userRewards?.length > 0) {
-                    await this.claim(_msg, _app, _userRewards);
-                    return true;
-                }
-                else {
-                    _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_none, _msg.message_id);
-                    return true;
-                }
+
+            
+            if (_params?.length === 0) { 
+                return await this.claim(_msg, _app);
             }
-            else if (_is_admin){
-                await this.parseParams(_msg, _app, _params, _is_admin);
-                return true;
+            else {
+                return await this.parseParams(_msg, _app, _params);
             }
         } catch (error) {
             _app.logger.log(`Error executing cmd_bonus: ${error.stack}`, "error");
@@ -25,9 +17,9 @@ module.exports = class C_BONUS {
         }
     }
 
-    async parseParams(_msg, _app, _params, _is_admin) {
+    async parseParams(_msg, _app, _params) {
         try {
-            if (!_is_admin) return _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_noadmin, _msg.message_id);
+            if (! await _app.FUNCTIONS.is_admin(_app, _msg)) return _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_noadmin, _msg.message_id);
 
             _app.logger.log(`/bonus input params: ${_params}`, "info");
             // if first param is 
@@ -76,83 +68,71 @@ module.exports = class C_BONUS {
         _bonus.amount = _amount_id;
         _bonus.time = await _app.db.time();
 
-        _app.db.push(_app.SETTINGS.path.db.bonus, _bonus);
-        _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_exp_success + `\n[${_msg.from.id}][${_type}][${_amount_id}]`, _msg.message_id);
+        _app.db.push(_app.SETTINGS.path.db.bonus + _userid, _bonus);
+        _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_exp_success + `\n[${_userid}][${_type}][${_amount_id}]`, _msg.message_id);
         _app.logger.log(`Created bonus [${_msg.from.id}][${_type}][${_amount_id}]`, "info");
 
         return true;
     }
 
-    async claim(_msg, _app, _userRewards)
-    {
+    async claim(_msg, _app)
+    {        
+        const { logger, bot, SETTINGS, FUNCTIONS } = _app;
+        
         let _message = "";
+        let _counter = 0;
+        const _userRewards = await _app.db.get(_app.SETTINGS.path.db.bonus + _msg.from.id);
+
+        if (!_userRewards) {
+            _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_none, _msg.message_id);
+            return true;
+        }
 
         for (const key in _userRewards) {
-            if (_userRewards.hasOwnProperty(key)) {
-                let _result = false;
-                if (_userRewards[key].type == "exp") {
-                    await _app.FUNCTIONS.exp_add(_app, _userRewards[key].user, _userRewards[key].amount);
-                    _message += "\n🎁 " + _userRewards[key].type + ": " + _userRewards[key].amount;
-                    _result = true;
-                } 
-                else if (_userRewards[key].type == "level") {
-                    await _app.FUNCTIONS.level_add (_app, _userRewards[key].user, _userRewards[key].amount);
-                    _message += "\n🎁 " + _userRewards[key].type + ": " + _userRewards[key].amount;
-                    _result = true;
-                }
-                else if (_userRewards[key].type == "ticket") {
-                    await _app.FUNCTIONS.ticket_add (_app, _userRewards[key].user, _userRewards[key].amount);
-                    _message += "\n🎁 " + _userRewards[key].type + ": " + _userRewards[key].amount;
-                    _result = true;
-                }
-                else if (_userRewards[key].type == "mes") {
-                    await _app.FUNCTIONS.messages_add (_app, _userRewards[key].user, _userRewards[key].amount);
-                    _message += "\n🎁 " + _userRewards[key].type + ": " + _userRewards[key].amount;
-                    _result = true;
-                }
+            const { type, user, amount } = _userRewards[key];
 
-                if (_result) await _app.db.delete(_app.SETTINGS.path.db.bonus + _userRewards[key].id);
-            }
-        }
-        _app.logger.log(`Claimed rewards: ${_userRewards.count}`, "debug");
-        _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_success +_message, _msg.message_id);        
-    }
-
-    async b_check_rewards(_msg, _app)
-    {
-        try {
-            let _bonusObject = await _app.CACHE.update(_app.SETTINGS.path.db.bonus);
-            let _rewardList = [];
-
-            for (const key in _bonusObject) {
-                if (_bonusObject.hasOwnProperty(key)) {
-                    const _item = _bonusObject[key];
-                    if (_item.user == _msg.from.id) {
-                        _rewardList.push(_item);
-                        _app.logger.log(`Found bonus for user: ${_item.time} ${_item.type}, ${_item.amount} in _bonusObject`, "debug");
-                    }
-                }
-            }
-
-            if(_rewardList?.length > 0) {
-                _app.logger.log(`Found ${_rewardList.length} rewards for user: ${_msg.from.id}`, "debug");
-                return _rewardList;
-            }
-            else {
-                _app.logger.log(`No rewards found for user: ${_msg.from.id}`, "debug");
+            if (!type || !user || !amount) {
+                _app.logger.log(`Invalid reward: ${JSON.stringify(_userRewards[key])}`, "debug");                
                 return false;
+            } else {
+                _app.logger.log(`Reward: ${JSON.stringify(_userRewards[key])}`, "debug");
             }
-        } catch (error) {
-            _app.logger.log(`Error executing b_claim: ${error.stack}`, "error");
-            return false;
+
+            _app.logger.log(`Claiming reward: ${_userRewards[key]}`, "debug");
+
+            switch (type) {
+                case "exp":
+                    await _app.FUNCTIONS.exp_add(_app, user, amount);
+                    _message += "\n🎁 " + type + ": " + amount;
+                    _counter++;
+                    break;
+                case "level":
+                    await FUNCTIONS.level_add (_app, user, amount);
+                    _message += "\n🎁 " + type + ": " + amount;
+                    _counter++;
+                    break;
+                case "ticket":
+                    await _app.FUNCTIONS.ticket_add (_app, user, amount);
+                    _message += "\n🎁 " + type + ": " + amount;
+                    _counter++;
+                    break;
+                case "mes":
+                    await _app.FUNCTIONS.messages_add (_app, user, amount);
+                    _message += "\n🎁 " + type + ": " + amount;
+                    _counter++;
+                    break;
+                default:
+                    _app.logger.log(`Unknown type: ${type}`, "debug");
+                    return false;
+            }
+
+            if (_counter > 0) {
+                _app.logger.log(`Claimed reward: ${JSON.stringify(_userRewards[key])}`, "debug");
+                await _app.db.delete(_app.SETTINGS.path.db.bonus + user + "/" + key);
+            }
         }
-    }
-
-    async give_reward(_msg, _app, _reward){
-
-        // recieves reward
-        // checks type etc
-        // gives reward, record to db
-        // send message to user
+        _app.logger.log(`Claimed rewards: ${_counter}`, "debug");
+        _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_success +_message, _msg.message_id);      
+        return true;  
     }
 }

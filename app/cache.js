@@ -7,11 +7,11 @@ class CACHE {
 
     async get(path) {
         this.app.logger.log(`Getting ${path} from cache}`, "debug");
-        let data = this.cache[path];
-        if (data === undefined) {
+        let _data = this.cache[path];
+        if (_data === undefined) {
             this.app.logger.log(`Cache miss for ${path}`, "debug");
-            data = await this.app.db.get(path);
-            this.cache[path] = data;
+            _data = await this.app.db.get(path);
+            this.cache[path] = _data;
         }
         else {
             this.app.logger.log(`Cache hit for ${path}`, "debug");
@@ -19,20 +19,16 @@ class CACHE {
         return this.cache[path];
     }
 
-    async delete(path) {
-        delete this.cache[path];
-        this.app.logger.log(`Removed ${path} from cache`, "debug");
+    async delete(_path) {
+        if (this.cache[_path]) delete this.cache[_path];
+        this.app.logger.log(`Removed ${_path} from cache`, "debug");
+        return true;
     }
 
-    async update(path) {
-        this.cache[path] = await this.app.db.get(path);
-        this.app.logger.log(`Updated cache for ${path}`, "debug");
-        return this.cache[path];
-    }
-
-    async set(path, data) {
-        this.cache[path] = data;
-        this.app.logger.log(`Put ${path} in cache`, "debug");
+    async set(_path, _data) {
+        this.cache[_path] = _data;
+        this.app.logger.log(`Put ${_path} in cache`, "debug");
+        return true;
     }
 }
 module.exports = CACHE

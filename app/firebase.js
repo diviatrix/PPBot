@@ -114,7 +114,7 @@ class FirebaseConnector {
     try {
       const res = await this.db.ref(_path).push(_data);
       app.logger.log("Document written to DB: " + _path + "/" + res.key, "debug");
-      app.CACHE.set(_path, _data);
+      app.CACHE.set(_path + "/" + res.key, _data);
     } catch (error) {
       app.logger.log(error.stack, "error");
     }
@@ -131,8 +131,8 @@ class FirebaseConnector {
     try {
       const ref = this.db.ref(_path);
       await ref.set(_data);
-      app.CACHE.set(_path, _data);
-      app.logger.log("Document written to DB: " + _path + "/" + ref.key, "debug");
+      await app.CACHE.set(_path, _data);
+      app.logger.log("Document written to DB: " + _path, "debug");
       return { success: true };
 
     } catch (error) {
@@ -144,7 +144,7 @@ class FirebaseConnector {
  * Asynchronously retrieves data from the Firebase Realtime Database at the specified path.
  *
  * @param {string} _path - The path in the Firebase Realtime Database to retrieve data from.
- * @returns {Promise<any>} - A Promise that resolves to the data retrieved from the specified path.
+ * @returns {userSnapshot} - Database record snapshot with id
  */
   async get(_path) {
     try {
@@ -152,13 +152,35 @@ class FirebaseConnector {
       const userSnapshot = await ref.get('value');
       app.logger.log("Read from db successfully:" + _path, "debug");
 
-      let _value = await userSnapshot.val();
-      app.CACHE.set(_path, _value);
-      return _value;
+      app.CACHE.set(_path, userSnapshot);
+      return userSnapshot.val();
     } catch (error) {
       app.logger.log(error.stack, "error");
     }
   }
+
+  /**
+     * Executes multiple database operations in a single atomic operation.
+     *
+     * @param {Object} _ops - An object containing database operations to be executed in a single atomic operation.
+     * @param {Array<string>} _ops.del - An array of paths to be deleted from the database.
+     * @returns {Promise<void>} - A promise that resolves when all operations have been executed.
+     */
+  async multi(_ops) {
+    if (!_ops.del) return;
+    try {
+      await this.db.ref().update(_ops.del.reduce((acc, key) => {
+        acc[key] = null;
+        return acc;
+      }, {}));
+      _ops.del.forEach(key => app.CACHE.del(key));
+      app.logger.log("Multi-operation completed successfully", "debug");
+    } catch (error) {
+      app.logger.log(error.stack, "error");
+    }
+  }
+
+
   
   /**
  * Deletes a database reference at the specified path.
