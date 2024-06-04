@@ -15,7 +15,7 @@ module.exports = class Achievement {
 	
 	async h_register(_msg, _data, _app) {
 		try {
-			_app.logger.log(_msg.from.id +" " + _data.username + ": " + _app.SETTINGS.locale.console.ach_register_check, "info");
+			_app.logger.log("Checking for register event achievements: " + _msg.from.id +" " + _data.username + ": ", "info");
 			let achievement = _app.achievements.find(a => a.id == "start");
 			if (achievement) {
 				let result = await this.requirementsMet(_msg, achievement, _app);
@@ -32,7 +32,7 @@ module.exports = class Achievement {
 
 	async achievementAdd(_msg, _achievement, _app) {		
 		try {
-			_app.logger.log(_app.SETTINGS.locale.console.ach_add + _achievement.name + " to user: " + _msg.from.id + ":\n" + _achievement.id, "info");
+			_app.logger.log("Adding achievement: " + _achievement.name + " to user: " + _msg.from.id + ":\n" + _achievement.id, "info");
 			_achievement.time = await _app.db.time();
 			await _app.db.push(_app.SETTINGS.path.db.users + _msg.from.id + _app.SETTINGS.path.db.user.achievement, _achievement);
 			return await this.achievementMessage(_msg, _achievement, _app);			 
@@ -49,7 +49,7 @@ module.exports = class Achievement {
 
 	async achievementMessage(_msg, _achievement, _app) {
 		try {
-			_app.logger.log(_app.SETTINGS.locale.console.ach_message_prepare + _achievement.name + " to user: " + _msg.from.id, "info");
+			_app.logger.log("Preparing achievement message: " + _achievement.name + " to user: " + _msg.from.id, "info");
 			let message = _app.SETTINGS.locale.base.ach_recieved + "\n";
 			message += _app.HELPER.str_style(_achievement.name, "bold") + "\n";
 			message += _app.HELPER.str_style(_achievement.description, "italic") + "\n";

@@ -28,7 +28,7 @@ class WebBackend {
 
         this.expressApp.use(express.static(path.join(__dirname, 'public')));
 
-        this.server = this.expressApp.listen(this.port, () => { this.logger.log(this.SETTINGS.locale.console.back_run_pass + this.port, "info" ); });
+        this.server = this.expressApp.listen(this.port, () => { this.logger.log("Web backend is running on port: " + this.port, "info" ); });
     }
 
     stop() {

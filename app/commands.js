@@ -15,8 +15,7 @@ module.exports = class COMMANDS {
 		this.attach_cmd_handlers();
 	}	
 
-	async msg_notRegistered(_msg) { await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.console.bot_cmd_requirement_register, _msg.message_id); }
-	async msg_failed(_msg) { await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.console.bot_cmd_fail, _msg.message_id); }
+	async msg_notRegistered(_msg) { await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.bot_cmd_requirement_register, _msg.message_id); }
 	
 	async attach_cmd_handlers()
 	{
@@ -30,8 +29,8 @@ module.exports = class COMMANDS {
 				if (typeof this[functionName] === 'function'){
 					// Bind the function to 'this' and store it along with the command name
 					this.commandHandlers.push({command: command, handler: this[functionName].bind(this)});
-					this.logger.log(command + this.SETTINGS.locale.console.bot_cmd_create_pass + this[functionName].name, "info");
-				} else { this.logger.log(command + this.SETTINGS.locale.console.bot_cmd_func_404, "warning"); }				
+					this.logger.log(command + " command created with function:" + this[functionName].name, "info");
+				} else { this.logger.log(command + " does not have an associated function.", "warning"); }				
 			}
 		}
 
@@ -78,13 +77,13 @@ module.exports = class COMMANDS {
 		  
 				await this.app.db.set(this.SETTINGS.path.db.users + user.id, user);
 
-				await this.logger.log(this.SETTINGS.locale.console.bot_cmd_go_register_pass +  _msg.from.id, "info");
+				await this.logger.log("Successfully registered user: " +  _msg.from.id, "info");
 				await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_go_pass, _msg.message_id);
 				await this.app.achievement.h_register(_msg, user, this.app);
 				return user;
 			}
 			else {
-				await this.logger.log(this.SETTINGS.locale.console.bot_cmd_go_register_fail + _msg.from.id, "warning");
+				await this.logger.log("Can not register user: " + _msg.from.id, "warning");
 				await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_go_fail, _msg.message_id);
 			}
 		} catch (error) {
@@ -166,20 +165,20 @@ module.exports = class COMMANDS {
 			} else {
 				await this.app.db.delete(this.app.SETTINGS.path.db.users + _msg.from.id);
 				await this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_deleteme_pass, _msg.message_id);
-				this.logger.log(this.SETTINGS.locale.console.bot_cmd_pass  + _msg.from.id, "info");
+				this.logger.log("Command completed: "  + _msg.from.id, "info");
 			}
 		} catch (error) {
 			this.logger.log(`Error executing: ${error.stack}`, "error");
 		}
 	}
 
-	async cmd_incorrect(_msg) { await this.app.bot.sendMessage(_msg.chat.id,  this.SETTINGS.locale.console.bot_cmd_fail + _msg.text, _msg.message_id); }
+	async cmd_incorrect(_msg) { await this.app.bot.sendMessage(_msg.chat.id,  "Failed to execute command: " + _msg.text, _msg.message_id); }
 	async cmd_commands(_msg) {
-		if (!await this.app.db.exist(this.app.SETTINGS.path.db.users + _msg.from.id)) { this.logger.log(this.SETTINGS.locale.console.bot_cmd_requirement_register);  return; }
+		if (!await this.app.db.exist(this.app.SETTINGS.path.db.users + _msg.from.id)) { this.logger.log("User have to be registered to use: " + _msg.text, "info");  return; }
 		let message = this.SETTINGS.locale.base.bot_cmd_commands + "\n";
 		for (const { command } of this.commandHandlers) { message += command + "\n"; }
 		await this.app.bot.sendMessage(_msg.chat.id, message, _msg.message_id);
-		this.logger.log(this.SETTINGS.locale.console.bot_cmd_commands, "info");
+		this.logger.log("List of all commands: ", "info");
 	}
 
 	async cmd_top(_msg, _params)

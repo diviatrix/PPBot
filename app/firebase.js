@@ -68,7 +68,7 @@ class FirebaseConnector {
       const ref = this.db.ref(refPath);
       let currentValue = (await ref.once('value')).val() || 0;
       let newValue = currentValue + (amount || 1);
-      await ref.transaction(currentValue => newValue);
+      await this.set(refPath, newValue);
       app.logger.log("Value:" + ref + " has been set to:" + newValue, "debug");
       return newValue;
     } catch (error) {
@@ -113,7 +113,7 @@ class FirebaseConnector {
   async push(_path, _data) {
     try {
       const res = await this.db.ref(_path).push(_data);
-      app.logger.log(app.SETTINGS.locale.console.db_write_pass + _path + "/" + res.key, "debug");
+      app.logger.log("Document written to DB: " + _path + "/" + res.key, "debug");
     } catch (error) {
       app.logger.log(error.stack, "error");
     }
@@ -130,7 +130,7 @@ class FirebaseConnector {
     try {
       const ref = this.db.ref(_path);
       await ref.set(_data);
-      app.logger.log(app.SETTINGS.locale.console.db_write_pass + _path + "/" + ref.key, "debug");
+      app.logger.log("Document written to DB: " + _path + "/" + ref.key, "debug");
       return { success: true };
 
     } catch (error) {
@@ -165,7 +165,7 @@ class FirebaseConnector {
   async delete(_path) {
     try {
       await this.db.ref(_path).remove();
-      app.logger.log(app.SETTINGS.locale.console.db_delete_pass + _path, "debug");
+      app.logger.log("Document deleted from DB: " + _path, "debug");
     } catch (error) {
       app.logger.log(error.stack, "error");
     }

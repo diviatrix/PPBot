@@ -1,7 +1,7 @@
 class C_ROLL {
 	async run(_msg, _app) {
 		try {
-			_app.logger.log(_app.SETTINGS.locale.console.bot_cmd_roll_start + _msg.from.id, "info");
+			_app.logger.log("Starting /roll for: " + _msg.from.id, "info");
 
 			const user = await _app.db.db_user(_msg);
 
@@ -18,7 +18,7 @@ class C_ROLL {
 				return true;
 			} else {
 				const reward = await this.give_reward(_msg, _app);
-				_app.logger.log(_app.SETTINGS.locale.console.bot_cmd_roll_new_success + reward.message, "info");
+				_app.logger.log("Rolled new reward: " + reward.message, "info");
 				return true;
 			}
 		} catch (error) {
@@ -32,13 +32,13 @@ class C_ROLL {
 		const lastRollTime = lastRoll && lastRoll.time ? new Date(lastRoll.time) : new Date(1337, 0, 1);
 
 		let _result = _app.HELPER.is_today(lastRollTime) ? lastRoll : null;
-		_app.logger.log(_app.SETTINGS.locale.console.bot_cmd_roll_time + _app.HELPER.is_today(lastRollTime), "info");
+		_app.logger.log("Checking if last /roll was today: " + _app.HELPER.is_today(lastRollTime), "info");
 
 		return _result;
 	}
 
 	async give_reward(_msg, _app) {
-		_app.logger.log(_app.SETTINGS.locale.console.bot_cmd_roll_new, "info");
+		_app.logger.log("Rolling new reward", "info");
 
 		const _rarity = await _app.reward.randomRarity(_app);
 		const item = await _app.reward.randomReward(_app, _rarity);

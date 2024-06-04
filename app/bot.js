@@ -12,7 +12,7 @@ class BOT {
 	}
 
 	async start() {
-		await this.token_verify();
+		await this.token_validate();
 		await this.bot_start();
 		this.logger.log('Bot started', "info");
 	}
@@ -28,13 +28,13 @@ class BOT {
 		});
 	}
 
-	async token_verify() {
+	async token_validate() {
 		if(this.SETTINGS.verifyToken)
 		{
-			this.logger.log(this.SETTINGS.locale.console.bot_token_verify_start, "info");
+			this.logger.log("Start verifying token...", "info");
 
-			if (!await this.token_verify_connect(this.SETTINGS.token)) { this.logger.log(this.SETTINGS.locale.console.bot_token_verify_fail, "error"); return false; }
-			else { this.logger.log(this.SETTINGS.locale.console.bot_token_verify_pass, "info"); return true;	}
+			if (!await this.token_verify_connect(this.SETTINGS.token)) { this.logger.log("Error validating token", "error"); return false; }
+			else { this.logger.log("Token validated", "info"); return true;	}
 		}
 	}	
 
@@ -50,11 +50,11 @@ class BOT {
 		try {
 			await this.bot.startPolling();
 			await this.bot.stopPolling();
-			this.logger.log(this.SETTINGS.locale.console.bot_token_verify_pass, "info");
+			this.logger.log("Token verified", "info");
 			return true;
 		} catch (error) {
 			if (this.bot.isPolling()) this.bot.stopPolling();
-			this.logger.log(this.SETTINGS.locale.console.bot_token_verify_fail + error, "error");
+			this.logger.log("Error varifying token: " + error, "error");
 			return false;
 		}
 	}
@@ -69,14 +69,14 @@ class BOT {
 		 */
 	async sendMessage(chatID, message, replyID) {
 		try {
-			if (!message || !chatID) { this.logger.log(this.SETTINGS.locale.console.bot_msg_verify_fail + `Message: ${message}, Chat ID: ${chatID}`, "error"); return; }
+			if (!message || !chatID) { this.logger.log("Message or chatID is undefined: " + `Message: ${message}, Chat ID: ${chatID}`, "error"); return; }
 		
 			const options = replyID ? { reply_to_message_id: replyID, parse_mode: 'HTML' } : { parse_mode: 'HTML' };
 			await this.bot.sendMessage(chatID, message, options);
 
-			this.logger.log(this.SETTINGS.locale.console.bot_msg_send_pass + `Chat ID: ${chatID}, Message: ${message}`, "info");
+			this.logger.log("Sent message: " + `Chat ID: ${chatID}, Message: ${message}`, "info");
 		} 
-		catch (error) { this.logger.log(this.SETTINGS.locale.console.bot_msg_send_fail + `Error: ${error.message}, Stack: ${error.stack}`, "error");	}
+		catch (error) { this.logger.log("Failed to send: " + `Error: ${error.message}, Stack: ${error.stack}`, "error");	}
 	}	
 
 	async handleMessage(msg) {
