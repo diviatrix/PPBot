@@ -40,10 +40,10 @@ class C_ROLL {
 	async give_reward(_msg, _app) {
 		_app.logger.log(_app.SETTINGS.locale.console.bot_cmd_roll_new, "info");
 
-		const rarity = await _app.reward.randomRarity();
-		const item = await _app.reward.randomReward(rarity);
+		const _rarity = await _app.reward.randomRarity(_app);
+		const item = await _app.reward.randomReward(_app, _rarity);
 
-		const reward = await _app.reward.rewardAdd(_msg, item, false);
+		const reward = await _app.reward.rewardAdd(_app, _msg, item, false);
 
 		if (reward) {
 			await this.update_db_records(_msg, _app, reward.record);

@@ -1,45 +1,21 @@
-let app;
-
 class Reward {
-	constructor (_app) {
-		app = _app;
-		app.logger.log('Collectible constructed', "info");
-		this.start();
-	}
-
-	// Start the module
-	async start() {
-		app.logger.log('Reward started', "info");
-	}
-
-	async collectible(_id, _rarity) {
-		let _collectible = app.COLLECTIBLES.find(collectible => collectible.id == _id && collectible.rarity == _rarity);
+	async collectible(_app, _id, _rarity) {
+		let _collectible = _app.COLLECTIBLES.find(collectible => collectible.id == _id && collectible.rarity == _rarity);
 		if (_collectible) { 
-			app.logger.log(JSON.stringify(_collectible), "debug"); 
+			_app.logger.log(JSON.stringify(_collectible), "debug"); 
 			return _collectible; 
 		}
 		else { 
-			app.logger.log(`Collectible with id ${_id} and rarity ${_rarity} not found`, "error"); 
+			_app.logger.log(`Collectible with id ${_id} and rarity ${_rarity} not found`, "error"); 
 		}
 		return null;
 	}
 
-	async list(_msg)
-	{
-		// list all COLLECTIBLES for userid in database
-		// return list
-		let user = await app.db.db_user(_msg);
-		if (!user || !user['collectible']) {
-			return [];
-		}
-		return Object.keys(user['collectible']);
-	}
-
-	async rewardAdd(_msg, _reward, _sendMessage) {
+	async rewardAdd(_app, _msg, _reward, _sendMessage) {
 		try {
-			const collectible = await this.collectible(_reward.id, _reward.rarity);
+			const collectible = await this.collectible(_app, _reward.id, _reward.rarity);
 			if (!collectible) {
-				app.logger.log(`Collectible with id ${_reward.id} not found`, "error");
+				_app.logger.log(`Collectible with id ${_reward.id} not found`, "error");
 				return false;
 			}
 
@@ -54,48 +30,48 @@ class Reward {
 				from: "1337.plus",
 			};
 
-			let message = app.HELPER.str_style(`[${record.id}][${record.rarity}][${record.name}]`, app.SETTINGS.rarity[record.rarity].text);
-			if(_sendMessage) app.bot.sendMessage(_msg.chat.id, message, _msg.message_id);
+			let message = _app.HELPER.str_style(`[${record.id}][${record.rarity}][${record.name}]`, _app.SETTINGS.rarity[record.rarity].text);
+			if(_sendMessage) _app.bot.sendMessage(_msg.chat.id, message, _msg.message_id);
 
-			await this.writeDB(_msg, record, message);
+			await this.writeDB(_app, _msg, record, message);
 
 			return {record, message};
 		} catch (error) {
-			app.logger.log(`Error in rewardAdd: ${error.stack}`, "error");
+			_app.logger.log(`Error in rewardAdd: ${error.stack}`, "error");
 			return false;
 		}
 	}
 
-	async writeDB(_msg, record, message) {
+	async writeDB(_app, _msg, record, message) {
 		try {
-			await this.writeDB_daily(_msg, record);
-			await app.db.push(app.SETTINGS.path.db.users + _msg.from.id + app.SETTINGS.path.db.user.collectible, record);
+			await this.writeDB_daily(_app, _msg, record);
+			await _app.db.push(_app.SETTINGS.path.db.users + _msg.from.id + _app.SETTINGS.path.db.user.collectible, record);
 		
-			app.logger.log(`Records of reward added: ${message}`, "debug");
+			_app.logger.log(`Records of reward added: ${message}`, "debug");
 			return true;
 		} catch (error) {
-			app.logger.log(`Error in writeDB: ${error.stack}`, "error");
+			_app.logger.log(`Error in writeDB: ${error.stack}`, "error");
 			return false;
 		}
 	}
 
-	async writeDB_daily(_msg, record) {
+	async writeDB_daily(_app, _msg, record) {
 		try {
 			// push reward record to database
-			await app.db.set(app.SETTINGS.path.db.stats.lastReward, record);
-			await app.db.push(app.SETTINGS.path.db.stats.dailyrewards, record);
-			await this.daily_rewards_update();
+			await _app.db.set(_app.SETTINGS.path.db.stats.lastReward, record);
+			await _app.db.push(_app.SETTINGS.path.db.stats.dailyrewards, record);
+			await this.daily_rewards_update(_app);
 			
 		} catch (error) {
-			app.logger.log(`Error in writeDB_daily: ${error.stack}`, "error");
+			_app.logger.log(`Error in writeDB_daily: ${error.stack}`, "error");
 			return false;
 		}
 	}
 
-	async daily_rewards_update() {
+	async daily_rewards_update(_app) {
 		try {
-			let _list = await app.db.get(app.SETTINGS.path.db.stats.dailyrewards);
-			app.logger.log(`Records of daily rewards from db: ${Object.keys(_list).length}`, "debug");
+			let _list = await _app.db.get(_app.SETTINGS.path.db.stats.dailyrewards);
+			_app.logger.log(`Records of daily rewards from db: ${Object.keys(_list).length}`, "debug");
 
 			// prepare new list without yesterday or older records
 			let _newList = {};
@@ -103,10 +79,10 @@ class Reward {
 			for (const key in _list) {
 				if (_list.hasOwnProperty(key)) {
 					const _item = _list[key];
-					if (app.HELPER.is_today(new Date(_item.time))) {
+					if (_app.HELPER.is_today(new Date(_item.time))) {
 						_newList[key] = _item;
 					} else {
-						await app.db.delete(app.SETTINGS.path.db.stats.dailyrewards + key); // clean up old records in db
+						await _app.db.delete(_app.SETTINGS.path.db.stats.dailyrewards + key); // clean up old records in db
 					}
 				}
 			}
@@ -120,58 +96,58 @@ class Reward {
 				{}
 			);
 
-			app.logger.log (`Records of daily reward cleaned up in db: ${Object.keys(_newList).length}`, "debug");
+			_app.logger.log (`Records of daily reward cleaned up in db: ${Object.keys(_newList).length}`, "debug");
 			return true;
 		} catch (error) {
-			app.logger.log(`Error in daily_rewards_update: ${error.stack}`, "error");
+			_app.logger.log(`Error in daily_rewards_update: ${error.stack}`, "error");
 			return false;
 		}
 	}
 
-	async randomReward(_rarity) {
+	async randomReward(_app, _rarity) {
 		try {
-			let _rewardList = app.COLLECTIBLES.filter(collectible => collectible.rarity == _rarity);
+			let _rewardList = _app.COLLECTIBLES.filter(collectible => collectible.rarity == _rarity);
 			if (_rewardList.length > 0) {
 				let _result = _rewardList[Math.floor(Math.random() * _rewardList.length)];
-				app.logger.log(`Random reward: ${JSON.stringify(_result, null, 2)}`, "debug");
+				_app.logger.log(`Random reward: ${JSON.stringify(_result, null, 2)}`, "debug");
 				return _result;
 			} else {
-				app.logger.log(`No rewards found with rarity ${_rarity}`, "error");
+				_app.logger.log(`No rewards found with rarity ${_rarity}`, "error");
 				return null;
 			}
 		} catch (error) {
-			app.logger.log(`Error in randomReward: ${error.stack}`, "error");
+			_app.logger.log(`Error in randomReward: ${error.stack}`, "error");
 		}
 	}
 
-	async randomRarity() {
+	async randomRarity(_app) {
 		try {
-			let _rarityList = Object.keys(app.SETTINGS.rarity);
-			let _totalWeight = _rarityList.reduce((total, rarity) => total + app.SETTINGS.rarity[rarity].weight, 0);
+			let _rarityList = Object.keys(_app.SETTINGS.rarity);
+			let _totalWeight = _rarityList.reduce((total, rarity) => total + _app.SETTINGS.rarity[rarity].weight, 0);
 			let _randomNum = Math.random() * _totalWeight;
 			let _weightSum = 0;
 
 			for (const rarity of _rarityList) {
-				_weightSum += app.SETTINGS.rarity[rarity].weight;
+				_weightSum += _app.SETTINGS.rarity[rarity].weight;
 				if (_randomNum <= _weightSum) {
-					app.logger.log(`Random rarity: ${rarity}`, "debug");
+					_app.logger.log(`Random rarity: ${rarity}`, "debug");
 					return rarity;
 				}
 			}
 		} catch (error) {
-			app.logger.log(`Error in randomRarity: ${error.stack}`, "error");
+			_app.logger.log(`Error in randomRarity: ${error.stack}`, "error");
 			return undefined;
 		}
 	}
 
-	async rewardsAdd(_msg, _rewards, _sendMessage)
+	async rewardsAdd(_app, _msg, _rewards, _sendMessage)
 	{		
 		for (const reward of _rewards) {
-			const rewardObject = await this.collectible(reward.id, reward.rarity);
-			app.logger.log(`Reward object: ${JSON.stringify(rewardObject, null, 2)}`, "debug");
+			const rewardObject = await this.collectible(_app, reward.id, reward.rarity);
+			_app.logger.log(`Reward object: ${JSON.stringify(rewardObject, null, 2)}`, "debug");
 
-			if (rewardObject) {	this.rewardAdd(_msg, reward, _sendMessage); } else {
-				app.logger.log(`Can not add reward with id ${reward.id} and rarity ${reward.rarity}`, "error");
+			if (rewardObject) {	this.rewardAdd(_app, _msg, reward, _sendMessage); } else {
+				_app.logger.log(`Can not add reward with id ${reward.id} and rarity ${reward.rarity}`, "error");
 			}
 		}
 	}

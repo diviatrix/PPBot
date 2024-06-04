@@ -56,7 +56,7 @@ module.exports = class Achievement {
 
 			// if there are rewards
 			if (_achievement.reward) {
-				_app.reward.rewardsAdd(_msg, _achievement.reward, true);
+				_app.reward.rewardsAdd(_app, _msg, _achievement.reward, true);
 				_app.bot.sendMessage(_msg.chat.id, message, _msg.message_id);
 			}
 

@@ -47,7 +47,7 @@ const start = async () => {
 		this.commands = new COMMANDS(this, this.logger);
 		this.bot = new BOT(this);
 		this.webBackend = new WebBackend(this);
-		this.reward = new Reward(this);
+		this.reward = new Reward();
 		this.achievement = new Achievement();
 		this.CACHE = new CACHE(this);
 		this.run = true;
