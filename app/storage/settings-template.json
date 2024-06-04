@@ -48,7 +48,8 @@
         "balance": "/wallet/balance",
         "ticket": "/wallet/ticket",
         "collectible": "/wallet/collectible/",
-        "achievement": "/achievement/"
+        "achievement": "/achievement/",
+        "admin": "/admin"
       }
     }
   },
@@ -61,7 +62,8 @@
       "achievement": [],     
       "settings": {},  
       "wallet": {},
-      "stats": {}
+      "stats": {},
+      "admin": false
     },
     "stats": {
       "roll": {
@@ -82,12 +84,12 @@
       "reward": {}
     },
     "bonus": {
-      "id_to": 0,
-      "id_from": 0,
-      "experience": 0,
-      "currency": 0,
-      "token": 0,
-      "achievement": []
+      "user": "",
+      "type": "",
+      "id": "",
+      "rarity": "",
+      "amount" : 0,
+      "time": ""        
     }
   },
   "messageStrings": {
@@ -172,7 +174,11 @@
       "cmd_add_pass": "Ваше предложение успешно добавлено.",
       "cmd_top_fail": "🚫 Топ не готов...",
       "cmd_top": "🏆Топ🏆",
-      "cmd_bonus_fail": "🚫 Для вас нет бонуса..."
+      "cmd_bonus_fail": "🚫 Для вас нет бонуса...",
+      "cmd_bonus_exp_e_noid": "🚫 Не указан id кому начислять. Команда не выполнена.",
+      "cmd_bonus_exp_e_noval": "🚫 Не указано значение. Команда не выполнена.",
+      "cmd_bonus_exp_success": "🎁 Бонус начислен",
+      "cmd_noadmin": "🚫 Ты не админ. Команда не выполнена."
     },
     "console": {
       "info_is_requesting": "is trying to: ",
