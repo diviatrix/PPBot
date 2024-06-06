@@ -61,7 +61,7 @@ module.exports = class Achievement {
 					_app.logger.log(`Reward object: ${JSON.stringify(rewardObject, null, 2)}`, "debug");
 		
 					if (rewardObject) {
-							let _reward = this.rewardAdd(_app, _msg.from.id, reward); 
+							let _reward = _app.reward.rewardAdd(_app, _msg.from.id, reward); 
 							if (_reward.record) {
 								message += _app.HELPER.str_style(`[${reward.id}][${reward.rarity}][${rewardObject.name}]`, _app.SETTINGS.rarity[reward.rarity].text) + "\n";
 							}
