@@ -57,7 +57,7 @@ module.exports = class Achievement {
 			// if there are rewards
 			if (_achievement.reward) {
 				for (const reward of _achievement.reward) {
-					const rewardObject = await this.collectible(_app, reward.id, reward.rarity);
+					const rewardObject = await _app.reward.collectible(_app, reward.id, reward.rarity);
 					_app.logger.log(`Reward object: ${JSON.stringify(rewardObject, null, 2)}`, "debug");
 		
 					if (rewardObject) {
