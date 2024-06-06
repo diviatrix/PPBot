@@ -33,7 +33,7 @@ class BOT {
 
 	async handleMessage(msg) {
 		// if chat is not private or not from the bot itself, check if chat is in chatId whitelist
-		if (!this.whitelist_check(msg)) { return; }
+		if (!await this.whitelist_check(msg)) { return; }
 		
 		this.logger.log(`[${msg.chat.id}][${msg.from.id}][${msg.from.username}][${msg.from.first_name} ${msg.from.last_name}]: ${msg.text}`, "info");
 
