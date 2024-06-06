@@ -33,7 +33,7 @@ class BOT {
 
 	async handleMessage(msg) {
 		// if chat is not private or not from the bot itself, check if chat is in chatId whitelist
-		if (!await this.whitelist_check(msg)) { return; }
+		if (!this.whitelist_check(msg)) { return; }
 		
 		this.logger.log(`[${msg.chat.id}][${msg.from.id}][${msg.from.username}][${msg.from.first_name} ${msg.from.last_name}]: ${msg.text}`, "info");
 
@@ -41,11 +41,12 @@ class BOT {
 		else { this.handleNormalMessage(msg); }
 	}
 
-	async whitelist_check(msg){
+	whitelist_check(msg){
 		if (msg.chat.id != msg.from.id && !this.SETTINGS.chatId.includes(msg.chat.id)) {
 			this.logger.log("Message from : [" + msg.from.id + "][" + msg.chat.id + "] is not from allowed chat list", "warning"); 
-			return; 
+			return false; 
 		}
+		return true;
 	}
 	async handleNormalMessage(msg) {
 		try {
