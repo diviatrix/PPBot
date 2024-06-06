@@ -56,7 +56,20 @@ module.exports = class Achievement {
 
 			// if there are rewards
 			if (_achievement.reward) {
-				_app.reward.rewardsAdd(_app, _msg, _achievement.reward, true);
+				for (const reward of _achievement.reward) {
+					const rewardObject = await this.collectible(_app, reward.id, reward.rarity);
+					_app.logger.log(`Reward object: ${JSON.stringify(rewardObject, null, 2)}`, "debug");
+		
+					if (rewardObject) {
+							let _reward = this.rewardAdd(_app, _msg.from.id, reward); 
+							if (_reward.record) {
+								message += _app.HELPER.str_style(`[${reward.id}][${reward.rarity}][${rewardObject.name}]`, _app.SETTINGS.rarity[reward.rarity].text) + "\n";
+							}
+					} else {
+						_app.logger.log(`Can not add reward with id ${reward.id} and rarity ${reward.rarity}`, "error");
+						_app.bot.sendMessage(_msg.chat.id, `Can not add reward with id ${reward.id} and rarity ${reward.rarity}`, _msg.message_id);
+					}
+				}
 				_app.bot.sendMessage(_msg.chat.id, message, _msg.message_id);
 			}
 

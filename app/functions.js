@@ -31,5 +31,10 @@ module.exports = class FUNCTIONS {
         return await _app.db.increment(_app.SETTINGS.path.db.users + _userid + _app.SETTINGS.path.db.user.ticket, _amount);
     }
 
+    async collection_add (_app, _userid, _id, _rarity) {
+        _app.logger.log(`Adding collection item [${_id}][${_rarity}] for user ${_userid}`, "debug");
+        return await _app.reward.rewardAdd(_app, _userid, { id: _id, rarity: _rarity });
+    }
+
 
 }

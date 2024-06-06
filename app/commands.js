@@ -95,7 +95,7 @@ module.exports = class COMMANDS {
 	async cmd_add(_msg, _params) {
 		if (!_params) return this.app.bot.sendMessage(_msg.chat.id, this.SETTINGS.locale.base.cmd_add_fail_empty, _msg.message_id);
 
-		if (!await this.app.db.exist(app.SETTINGS.path.db.users + _msg.from.id)) {
+		if (!await this.app.db.exist(this.app.SETTINGS.path.db.users + _msg.from.id)) {
 			this.msg_notRegistered(_msg);
 			return;
 		}

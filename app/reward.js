@@ -3,16 +3,17 @@ class Reward {
 		let _collectible = _app.COLLECTIBLES.find(collectible => collectible.id == _id && collectible.rarity == _rarity);
 		if (_collectible) { 
 			_app.logger.log(JSON.stringify(_collectible), "debug"); 
-			return _collectible; 
+			return _collectible || false; 
 		}
 		else { 
 			_app.logger.log(`Collectible with id ${_id} and rarity ${_rarity} not found`, "error"); 
-		}
-		return null;
+			return false;
+		}		
 	}
 
-	async rewardAdd(_app, _msg, _reward, _sendMessage) {
+	async rewardAdd(_app, _userID, _reward) {
 		try {
+			const _user = await _app.CACHE.get(_app.SETTINGS.path.db.users + _userID);
 			const collectible = await this.collectible(_app, _reward.id, _reward.rarity);
 			if (!collectible) {
 				_app.logger.log(`Collectible with id ${_reward.id} not found`, "error");
@@ -20,9 +21,9 @@ class Reward {
 			}
 
 			const record = {
-				username: _msg.from.username,
-				userid: _msg.from.id,
-				usernickname: `${_msg.from.first_name || ''} ${_msg.from.last_name || ''}`.trim(),
+				username: _user.username,
+				usernickname: `${_user.first_name || ''} ${_user.last_name || ''}`.trim(),
+				userid: _userID,
 				id: collectible.id,
 				name: collectible.name,
 				rarity: _reward.rarity,
@@ -31,9 +32,7 @@ class Reward {
 			};
 
 			let message = _app.HELPER.str_style(`[${record.id}][${record.rarity}][${record.name}]`, _app.SETTINGS.rarity[record.rarity].text);
-			if(_sendMessage) _app.bot.sendMessage(_msg.chat.id, message, _msg.message_id);
-
-			await this.writeDB(_app, _msg, record, message);
+			await this.writeDB(_app, record, message);
 
 			return {record, message};
 		} catch (error) {
@@ -42,10 +41,10 @@ class Reward {
 		}
 	}
 
-	async writeDB(_app, _msg, record, message) {
+	async writeDB(_app, _record, message) {
 		try {
-			await this.writeDB_daily(_app, _msg, record);
-			await _app.db.push(_app.SETTINGS.path.db.users + _msg.from.id + _app.SETTINGS.path.db.user.collectible, record);
+			await this.writeDB_daily(_app, _record);
+			await _app.db.push(_app.SETTINGS.path.db.users + _record.userid + _app.SETTINGS.path.db.user.collectible, _record);
 		
 			_app.logger.log(`Records of reward added: ${message}`, "debug");
 			return true;
@@ -55,7 +54,7 @@ class Reward {
 		}
 	}
 
-	async writeDB_daily(_app, _msg, record) {
+	async writeDB_daily(_app, record) {
 		try {
 			// push reward record to database
 			await _app.db.set(_app.SETTINGS.path.db.stats.lastReward, record);
@@ -139,19 +138,6 @@ class Reward {
 			return undefined;
 		}
 	}
-
-	async rewardsAdd(_app, _msg, _rewards, _sendMessage)
-	{		
-		for (const reward of _rewards) {
-			const rewardObject = await this.collectible(_app, reward.id, reward.rarity);
-			_app.logger.log(`Reward object: ${JSON.stringify(rewardObject, null, 2)}`, "debug");
-
-			if (rewardObject) {	this.rewardAdd(_app, _msg, reward, _sendMessage); } else {
-				_app.logger.log(`Can not add reward with id ${reward.id} and rarity ${reward.rarity}`, "error");
-			}
-		}
-	}
-
 }
 
 module.exports = Reward;

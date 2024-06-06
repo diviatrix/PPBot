@@ -43,7 +43,7 @@ class C_ROLL {
 		const _rarity = await _app.reward.randomRarity(_app);
 		const item = await _app.reward.randomReward(_app, _rarity);
 
-		const reward = await _app.reward.rewardAdd(_app, _msg, item, false);
+		const reward = await _app.reward.rewardAdd(_app, _msg.from.id, item, false);
 
 		if (reward) {
 			await this.update_db_records(_msg, _app, reward.record);
