@@ -1,0 +1,40 @@
+[
+	{
+		"id": "start",
+		"name": "The Beginning",
+		"description": "Спасибо что с нами",
+		"requirements": [
+			{
+				"type": "register",
+				"value": 1
+			}
+		],
+		"reward": [ 
+			{
+				"type": "collectible",
+				"id": 0,
+				"rarity": "normal",
+				"value": 1
+			}
+		]
+	},
+	{
+		"id": "firstTenMessages",
+		"name": "First Impact",
+		"description": "Первые 10 сообщений после регистрации в чатах, где работает система 1337.plus\n🙏Спасибо за твою активность🙏: ",
+		"requirements": [
+			{
+				"type": "message",
+				"value": 10
+			}
+		],
+		"reward": [ 
+			{
+				"type": "collectible",
+				"id": 10,
+				"rarity": "idiot",
+				"value": 1
+			}
+		]
+	}
+]
