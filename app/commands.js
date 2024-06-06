@@ -105,7 +105,7 @@ module.exports = class COMMANDS {
 		let record = {
 			chatId: _msg.chat.id || _msg.from.id,
 			msgId: _msg.message_id || 0,
-			text: _params || "",
+			text: String(_params) || "",
 			time: this.app.db.time(),
 			userId: _msg.from.id || 0,
 			name: _msg.from.first_name || "" + _msg.from.last_name || ""
