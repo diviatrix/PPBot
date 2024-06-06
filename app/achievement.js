@@ -50,27 +50,28 @@ module.exports = class Achievement {
 	async achievementMessage(_msg, _achievement, _app) {
 		try {
 			_app.logger.log("Preparing achievement message: " + _achievement.name + " to user: " + _msg.from.id, "info");
-			let message = _app.SETTINGS.locale.base.ach_recieved + "\n";
-			message += _app.HELPER.str_style(_achievement.name, "bold") + "\n";
-			message += _app.HELPER.str_style(_achievement.description, "italic") + "\n";
+			let _message = _app.SETTINGS.locale.base.ach_recieved + "\n";
+			_message += _app.HELPER.str_style(_achievement.name, "bold") + "\n";
+			_message += _app.HELPER.str_style(_achievement.description, "italic") + "\n\n";
 
 			// if there are rewards
 			if (_achievement.reward) {
-				for (const reward of _achievement.reward) {
-					const rewardObject = await _app.reward.collectible(_app, reward.id, reward.rarity);
-					_app.logger.log(`Reward object: ${JSON.stringify(rewardObject, null, 2)}`, "debug");
+				for (const _reward of _achievement.reward) {
+					const _rewardObject = await _app.reward.collectible(_app, _reward.id, _reward.rarity);
+					_app.logger.log(`Reward object: ${JSON.stringify(_rewardObject, null, 2)}`, "debug");
 		
-					if (rewardObject) {
-							let _reward = _app.reward.rewardAdd(_app, _msg.from.id, reward); 
-							if (_reward.record) {
-								message += _app.HELPER.str_style(`[${reward.id}][${reward.rarity}][${rewardObject.name}]`, _app.SETTINGS.rarity[reward.rarity].text) + "\n";
+					if (_rewardObject) {
+							let _record = await _app.reward.rewardAdd(_app, _msg.from.id, _reward); 
+							if (_record) {
+								_app.logger.log("Reward added: " + JSON.stringify(_record, null, 2), "info");
+								_message += _app.SETTINGS.locale.base.cmd_bonus_success + _app.HELPER.reward_record_style(_record, _app.SETTINGS.rarity[_record.rarity].text || "normal") + "\n";
 							}
 					} else {
-						_app.logger.log(`Can not add reward with id ${reward.id} and rarity ${reward.rarity}`, "error");
-						_app.bot.sendMessage(_msg.chat.id, `Can not add reward with id ${reward.id} and rarity ${reward.rarity}`, _msg.message_id);
+						_app.logger.log(`Can not add reward with id ${_reward.id} and rarity ${_reward.rarity}`, "error");
+						_app.bot.sendMessage(_msg.chat.id, `Can not add reward with id ${_reward.id} and rarity ${_reward.rarity}`, _msg.message_id);
 					}
 				}
-				_app.bot.sendMessage(_msg.chat.id, message, _msg.message_id);
+				_app.bot.sendMessage(_msg.chat.id, _message, _msg.message_id);
 			}
 
 			
