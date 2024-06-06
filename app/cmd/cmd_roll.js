@@ -17,8 +17,8 @@ class C_ROLL {
 
 				return true;
 			} else {
-				const reward = await this.give_reward(_msg, _app);
-				_app.logger.log("Rolled new reward: " + reward.message, "info");
+				const _record = await this.give_reward(_msg, _app);
+				_app.logger.log("Rolled new reward: " + _app.HELPER.reward_record_style(_record, _app.SETTINGS.rarity[_record.rarity].text), "info");
 				return true;
 			}
 		} catch (error) {
@@ -43,15 +43,16 @@ class C_ROLL {
 		const _rarity = await _app.reward.randomRarity(_app);
 		const item = await _app.reward.randomReward(_app, _rarity);
 
-		const reward = await _app.reward.rewardAdd(_app, _msg.from.id, item, false);
+		const _record = await _app.reward.rewardAdd(_app, _msg.from.id, item, false);
 
-		if (reward) {
-			await this.update_db_records(_msg, _app, reward.record);
+		if (!_record) {return false;}
 
-			_app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_roll_success + reward.message, _msg.message_id)
+		await this.update_db_records(_msg, _app, _record);
 
-			return reward;
-		}
+		_app.logger.log("Reward added: " + _app.HELPER.reward_record_style(_record, _app.SETTINGS.rarity[_record.rarity].text), "info");
+		_app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_roll_success + _app.HELPER.reward_record_style(_record, _app.SETTINGS.rarity[_record.rarity].text), _msg.message_id)
+
+		return _record;		
 	}
 
 	async update_db_records(_msg, _app, reward) {

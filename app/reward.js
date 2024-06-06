@@ -16,11 +16,11 @@ class Reward {
 			const _user = await _app.CACHE.get(_app.SETTINGS.path.db.users + _userID);
 			const collectible = await this.collectible(_app, _reward.id, _reward.rarity);
 			if (!collectible) {
-				_app.logger.log(`Collectible with id ${_reward.id} not found`, "error");
+				_app.logger.log(`Collectible with id ${_reward.id} not found`, "error");			
 				return false;
 			}
 
-			const record = {
+			const _record = {
 				username: _user.username,
 				usernickname: `${_user.first_name || ''} ${_user.last_name || ''}`.trim(),
 				userid: _userID,
@@ -31,10 +31,12 @@ class Reward {
 				from: "1337.plus",
 			};
 
-			let message = _app.HELPER.str_style(`[${record.id}][${record.rarity}][${record.name}]`, _app.SETTINGS.rarity[record.rarity].text);
-			await this.writeDB(_app, record, message);
+			let _message = _app.HELPER.reward_record_style(_record, _app.SETTINGS.rarity[_record.rarity].text);
+			
+			await this.writeDB(_app, _record, _message);
+			
+			return _record;
 
-			return {record, message};
 		} catch (error) {
 			_app.logger.log(`Error in rewardAdd: ${error.stack}`, "error");
 			return false;

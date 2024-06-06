@@ -65,10 +65,10 @@ module.exports = class C_BONUS {
 
         _bonus.type = _type;
         _bonus.user = _userid;
-        _bonus.amount = _amount;
-        _bonus.rarity = _rarity;
+        _bonus.amount = _amount || 1;
+        _bonus.rarity = _rarity || "";
         _bonus.time = await _app.db.time();
-        _bonus.id = _id;
+        _bonus.id = _id || "";
 
         _app.db.push(_app.SETTINGS.path.db.bonus + _userid, _bonus);
         _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_exp_success + `\n[${_userid}][${_type}][${_amount}][${_id}][${_rarity}]`, _msg.message_id);
@@ -105,33 +105,36 @@ module.exports = class C_BONUS {
             switch (type) {
                 case "exp":
                     if (await _app.FUNCTIONS.exp_add(_app, user, amount)){
-                        _message += "\n🎁 " + type + ": " + amount;
+                        _message += `\n🎁 [${_counter}] Experience bonus: ${[amount]}`;                        
                         _counter++;
                     }
                     break;
                 case "level":
                     if(await FUNCTIONS.level_add (_app, user, amount)){
-                        _message += "\n🎁 " + type + ": " + amount;
+                        _message += `\n🎁 [${_counter}] Level bonus: ${[amount]}`; 
                         _counter++;
                     }
                     break;
                 case "ticket":
                     if(await _app.FUNCTIONS.ticket_add (_app, user, amount)){
-                        _message += "\n🎁 " + type + ": " + amount;
+                        _message += `\n🎁 [${_counter}] Ticket bonus: ${[amount]}`; 
                         _counter++;
                     }
                     break;
                 case "mes":
                     if (await _app.FUNCTIONS.messages_add (_app, user, amount)){
-                        _message += "\n🎁 " + type + ": " + amount;
+                        _message += `\n🎁 [${_counter}] Message bonus: ${[amount]}`; 
                         _counter++;
                     }
                     break;
                 case "col":
-                    let _answer = await _app.FUNCTIONS.collection_add(_app, user, id, rarity)
-                    if (_answer) {
-                        await _app.bot.sendMessage(_msg.chat.id, _answer.message, _msg.message_id);
-                        _message += "\n🎁 " + type + ": " + amount;
+                    let _record = await _app.FUNCTIONS.collection_add(_app, user, id, rarity)
+                    if (_record) {
+                        await _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_col_recieved + _app.HELPER.reward_record_style(_record, _app.SETTINGS.rarity[_record.rarity].text), _msg.message_id)
+                        _message += `\n🎁 [${_counter}] Collection bonus: ${[amount]}`; 
+                        _counter++;
+                    } else {
+                        _message += `\n🎁 [${_counter}] ${_app.HELPER.str_style("Broken bonus:", "strikethrough")} DELETED`; 
                         _counter++;
                     }
                     break;
