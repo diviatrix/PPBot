@@ -1,4 +1,4 @@
-class Logger {
+module.exports = class Logger {
 	constructor(levels) {
 		try {
 			this.levels = levels || ["info", "error", "warning"];
@@ -23,5 +23,3 @@ class Logger {
 		}
 	}
 }
-
-module.exports = Logger;

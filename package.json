@@ -4,6 +4,8 @@
   "description": "PP Game App",
   "exports": "./app.js",
   "dependencies": {
+    "@google/generative-ai": "^0.12.0",
+    "axios": "^1.7.2",
     "express": "^4.18.2",
     "firebase": "^10.8.1",
     "firebase-admin": "^12.1.1",

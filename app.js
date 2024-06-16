@@ -12,6 +12,7 @@ const COMMANDS = require('./app/commands.js');
 const CONSOLE = require('./app/console.js');
 const FUNCTIONS = require('./app/functions.js');
 const CACHE = require('./app/cache.js');
+const GEMINI = require('./app/gemini.js');
 
 /* eslint-env node */
 process.noDeprecation = true;
@@ -50,6 +51,7 @@ const start = async () => {
 		this.reward = new Reward();
 		this.achievement = new Achievement();
 		this.CACHE = new CACHE(this);
+		this.GEMINI = new GEMINI(this);
 		this.run = true;
 		this.logger.log('Application: Initialization completed', "info");
 	}
