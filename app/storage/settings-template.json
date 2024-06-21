@@ -1,5 +1,6 @@
 {
   "token": "",
+  "gemini": "",
   "verifyToken" : false,
   "admin": 1234567890,
   "chatId": [
@@ -198,7 +199,8 @@
       "/top": "Дневной топ",
       "/commands": "Список доступных команд",
       "/start": "Юзлесс",
-      "/bonus": "Бонус"
+      "/bonus": "Бонус",
+      "/ai": "Gemini AI"
     }
   }
 }

@@ -12,9 +12,7 @@ module.exports = class C_A{
             if (reply) {
                 await _app.bot.sendMessage(_msg.chat.id, reply, _msg.message_id);
                 return reply;
-            }
-            
-            return false;
+            }            
         }        
     }
 }
