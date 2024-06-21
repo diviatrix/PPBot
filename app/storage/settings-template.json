@@ -37,6 +37,7 @@
         "stats":{
           "lastRoll": "/stats/roll/last",
           "lastReward": "/stats/reward/last",
+          "lastPVP": "/stats/pvp/last",
           "rollCount": "/stats/roll/count",
           "session": "/stats/session/",
           "dailyrewards": "/stats/reward/daily/"
@@ -46,6 +47,7 @@
           "messages": "/stats/messages",
           "experience": "/stats/experience",
           "level": "/stats/level",
+          "pvp_count": "/stats/pvp/count",
           "balance": "/wallet/balance",
           "ticket": "/wallet/ticket",
           "collectible": "/wallet/collectible/",
@@ -116,7 +118,9 @@
         "cmd_bonus_col_recieved": "💰 В коллекцию: ",
         "cmd_bonus_exp_success": "🎊 Опыт: ",
         "cmd_bonus_exp_e_notype": "🚫Неизвестный тип бонуса🚫",
-        "cmd_bonus_success": "🎊Бонус Начислен🎊"
+        "cmd_bonus_success": "🎊Бонус Начислен🎊",
+        "cmd_pvp_fail": "Не получилось ни с кем подраться, попробуй ещё раз или подожди денёк...",
+        "cmd_pvp": "👊 Ты начал драку с "
       },
       "console": {
         "info_is_requesting": "is trying to: ",
