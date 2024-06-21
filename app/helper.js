@@ -24,13 +24,19 @@ class Helper {
 	return result;
   }
 
-  reward_record_style(_record, _rarity) {
-	return this.str_style(`[${_record.id}][${_record.rarity}][${_record.name}]`,_rarity);
+  reward_record_style(_record) {
+	return this.str_style(`[${_record.id}][${_record.rarity}][${_record.name}]`,_record.rarity);
   }
 
   is_today(_date) {
 	const today = new Date();
-	return (_date.getDate() == today.getDate() && _date.getMonth() == today.getMonth() && _date.getFullYear() == today.getFullYear())
+	try {
+		return (_date.getDate() == today.getDate() && _date.getMonth() == today.getMonth() && _date.getFullYear() == today.getFullYear())
+	}
+	catch (error) {
+		this.logger.log(`Error: ${error}`, "error");
+		return false;
+	}	
   }
 
   userpath(_msg) {

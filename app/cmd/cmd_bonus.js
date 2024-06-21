@@ -19,7 +19,10 @@ module.exports = class C_BONUS {
 
     async parseParams(_msg, _app, _params) {
         try {
-            if (! await _app.FUNCTIONS.is_admin(_app, _msg)) return _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_noadmin, _msg.message_id);
+            if (! await _app.FUNCTIONS.is_admin(_app, _msg)) { 
+                    _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_noadmin, _msg.message_id);
+                    return true;
+                }
 
             _app.logger.log(`/bonus input params: ${_params}`, "info");
             // if first param is 
@@ -62,16 +65,25 @@ module.exports = class C_BONUS {
         }  
 
         let _bonus = _app.SETTINGS.model.bonus;
+        let _message = _app.SETTINGS.locale.base.cmd_bonus_exp_success;
 
-        _bonus.type = _type;
+        _bonus.type = _type;        
         _bonus.user = _userid;
-        _bonus.amount = _amount || 1;
-        _bonus.rarity = _rarity || "";
+        _bonus.amount = _amount || 1;        
+        _message +=  `\n[NEW][${_userid}][${_type}][${_amount}]`;
+        if(_id){
+            _bonus.id = _id;
+            _message += `[${_id}]`;
+        }
+        if (_rarity){
+            _bonus.rarity = _rarity;
+            _message += `[${_rarity}]`;
+        }   
         _bonus.time = await _app.db.time();
-        _bonus.id = _id || "";
+        
 
         _app.db.push(_app.SETTINGS.path.db.bonus + _userid, _bonus);
-        _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_exp_success + `\n[${_userid}][${_type}][${_amount}][${_id}][${_rarity}]`, _msg.message_id);
+        _app.bot.sendMessage(_msg.chat.id, _message, _msg.message_id);
         _app.logger.log(`Created bonus ${_amount}x[${_msg.from.id}][${_type}][${_id}][${_rarity}]`, "info");
 
         return true;

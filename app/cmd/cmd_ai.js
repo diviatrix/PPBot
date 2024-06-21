@@ -1,4 +1,4 @@
-module.exports = class C_A{
+module.exports = class C_AI{
     async run(_msg, prompt, _app) {
         if (!await _app.db.exist(_app.SETTINGS.path.db.users + _msg.from.id)) 
         {

@@ -5,7 +5,9 @@ const C_ME = require(path.join(__dirname, 'cmd', 'cmd_me.js'));
 const C_RAR = require(path.join(__dirname, 'cmd', 'cmd_rar.js'));
 const C_BONUS = require(path.join(__dirname, 'cmd', 'cmd_bonus.js'));
 const C_A = require(path.join(__dirname, 'cmd', 'cmd_a.js'));
-const C_AI = require(path.join(__dirname, 'cmd', 'cmd_g.js'));
+const C_AI = require(path.join(__dirname, 'cmd', 'cmd_ai.js'));
+const C_PVP = require(path.join(__dirname, 'cmd', 'cmd_pvp.js'));
+const C_NOPVP = require(path.join(__dirname, 'cmd', 'cmd_nopvp.js'));
 
 module.exports = class COMMANDS {
 	constructor(app, logger) {
@@ -196,7 +198,7 @@ module.exports = class COMMANDS {
 				this.logger.log("Command completed: "  + _msg.from.id, "info");
 			}
 		} catch (error) {
-			this.logger.log(`Error executing: ${error.stack}`, "error");
+			this.logger.log(`Error executing cmd_deleteme: ${error.stack}`, "error");
 		}
 	}
 
@@ -218,7 +220,35 @@ module.exports = class COMMANDS {
 				return false;
 			}		
 		} catch (error) {
-			this.logger.log(`Error executing cmd_roll: ${error.stack}`, "error");
+			this.logger.log(`Error executing cmd_top: ${error.stack}`, "error");
+			return false;
+		}
+	}
+
+	async cmd_pvp(_msg)
+	{
+		try {
+			if (await new C_PVP().run(_msg, this.app)){return true}
+			else { 
+				this.cmd_incorrect(_msg);
+				return false;
+			}		
+		} catch (error) {
+			this.logger.log(`Error executing cmd_pvp: ${error.stack}`, "error");
+			return false;
+		}
+	}
+
+	async cmd_nopvp(_msg)
+	{
+		try {
+			if (await new C_NOPVP().run(_msg, this.app)){return true}
+			else { 
+				this.cmd_incorrect(_msg);
+				return false;
+			}		
+		} catch (error) {
+			this.logger.log(`Error executing cmd_nopvp: ${error.stack}`, "error");
 			return false;
 		}
 	}
