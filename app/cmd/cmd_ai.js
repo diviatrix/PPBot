@@ -1,16 +1,21 @@
+let APP;
 module.exports = class C_AI{
-    async run(_msg, prompt, _app) {
-        if (!await _app.db.exist(_app.SETTINGS.path.db.users + _msg.from.id)) 
+    constructor(_app) {
+        APP = _app;
+        APP.LOGGER.log("C_AI constructed", "info");
+    }
+    async run(_msg, prompt) {
+        if (!await APP.DB.exist(APP.SETTINGS.path.db.users + _msg.from.id)) 
         {
-            _app.commands.msg_notRegistered(_msg);
+            APP.COMMANDS.msg_notRegistered(_msg);
             return true;
         } 
         else {
-            _app.logger.log("Starting cmd_g with prompt: " + prompt, "info");
-            var reply = await _app.GEMINI.handleRequest(prompt);
+            APP.LOGGER.log("Starting cmd_g with prompt: " + prompt, "info");
+            var reply = await APP.GEMINI.handleRequest(prompt);
             
             if (reply) {
-                await _app.bot.sendMessage(_msg.chat.id, reply, _msg.message_id);
+                await APP.BOT.sendMessage(_msg.chat.id, reply, _msg.message_id);
                 return reply;
             }            
         }        

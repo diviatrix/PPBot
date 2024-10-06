@@ -12,8 +12,7 @@
 		"reward": [ 
 			{
 				"type": "collectible",
-				"id": 0,
-				"rarity": "normal",
+				"guid": "ede66ac4-d2d5-40fe-ad2c-bc27e16c623b",
 				"value": 1
 			}
 		]
@@ -31,7 +30,7 @@
 		"reward": [ 
 			{
 				"type": "collectible",
-				"id": 10,
+				"guid": "919e5f0f-e3bc-477f-8b00-50de927c8bfa",
 				"rarity": "idiot",
 				"value": 1
 			}

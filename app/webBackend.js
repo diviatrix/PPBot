@@ -1,34 +1,39 @@
 const express = require('express');
 const path = require('path');
+let APP;
 
 class WebBackend {
     constructor(_app) {
+        APP = _app;
         this.expressApp = express();
-        this.SETTINGS = _app.SETTINGS;
-        this.port = process.env.port || _app.SETTINGS.port || 3000;
-        this.COLLECTIBLES = _app.COLLECTIBLES;
-        this.logger = _app.logger;
+        this.port = process.env.port || APP.SETTINGS.port || 3000;
         this.server = null;
         this.start();
-        this.logger.log('WebBackend constructed', "info");
+        APP.LOGGER.log('WebBackend constructed', "info");
     }
 
     start() {
-        this.expressApp.get('/pp', (req, res) => {
-            if (this.COLLECTIBLES) {
-                res.json(this.COLLECTIBLES);
+        this.expressApp.get('/pp.json', (req, res) => {
+            if (APP.COLLECTIBLES) {
+                res.json(APP.COLLECTIBLES);
             } else {
                 res.status(500).send('Internal Server Error: cant load PP');
             }
         });
 
         this.expressApp.get('/', (req, res) => {
-            res.sendFile(path.join(__dirname, 'public', 'index.html'));
+            if (req.path === '/') {
+                res.sendFile(path.join(__dirname, 'public', 'index.html'));
+            } else {
+                res.sendFile(path.join(__dirname, 'public', req.path));
+            }
         });
 
         this.expressApp.use(express.static(path.join(__dirname, 'public')));
 
-        this.server = this.expressApp.listen(this.port, () => { this.logger.log("Web backend is running on port: " + this.port, "info" ); });
+        this.server = this.expressApp.listen(this.port, () => {
+            APP.LOGGER.log("Web backend is running on port: " + this.port, "info");
+        });
     }
 
     stop() {
@@ -37,3 +42,4 @@ class WebBackend {
 }
 
 module.exports = WebBackend;
+

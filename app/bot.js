@@ -1,28 +1,26 @@
 const TelegramBot = require('node-telegram-bot-api');
-class BOT {
+let APP;
+module.exports = class BOT {
+
 	constructor(_app) {
-		this.app = _app;
-		this.logger = _app.logger;
-		this.SETTINGS = _app.SETTINGS;		
-		this.commands = _app.commands;
+		APP = _app;
+		APP.LOGGER.log('Bot constructed', "info");
 		this.bot;
 		this.username;
 		this.start();
-		this.logger.log('Bot constructed', "info");
 	}
-
 	async start() {
 		await this.token_validate();
 		await this.bot_start();
-		this.logger.log('Bot started', "info");
+		APP.LOGGER.log('Bot started', "info");
 	}
 
 	async bot_start() {
 		// start BOT	
-		if (!this.bot) this.bot = new TelegramBot(this.SETTINGS.token);		
+		if (!this.bot) this.bot = new TelegramBot(APP.SETTINGS.token);		
 
 		this.bot.on('message', (msg) => { 
-			//this.logger.log(JSON.stringify(msg, null, 2), "info");
+			//APP.LOGGER.log(JSON.stringify(msg, null, 2), "info");
 			if (msg.text) this.handleMessage(msg);
 			});
 		await this.bot.startPolling();
@@ -35,15 +33,15 @@ class BOT {
 		// if chat is not private or not from the bot itself, check if chat is in chatId whitelist
 		if (!this.whitelist_check(msg)) { return; }
 		
-		this.logger.log(`[${msg.chat.id}][${msg.from.id}][${msg.from.username}][${msg.from.first_name} ${msg.from.last_name}]: ${msg.text}`, "info");
+		APP.LOGGER.log(`[${msg.chat.id}][${msg.from.id}][${msg.from.username}][${msg.from.first_name} ${msg.from.last_name}]: ${msg.text}`, "info");
 
-		if (msg.text.startsWith('/') && msg.text.length > 1) {	this.commands.parseCmd(msg);	} 
+		if (msg.text.startsWith('/') && msg.text.length > 1) {	APP.COMMANDS.parseCmd(msg);	} 
 		else { this.handleNormalMessage(msg); }
 	}
 
 	whitelist_check(msg){
-		if (msg.chat.id != msg.from.id && !this.SETTINGS.chatId.includes(msg.chat.id)) {
-			this.logger.log("Message from : [" + msg.from.id + "][" + msg.chat.id + "] is not from allowed chat list", "warning"); 
+		if (msg.chat.id != msg.from.id && !APP.SETTINGS.chatId.includes(msg.chat.id)) {
+			APP.LOGGER.log("Message from : [" + msg.from.id + "][" + msg.chat.id + "] is not from allowed chat list", "warning"); 
 			return false; 
 		}
 		return true;
@@ -51,23 +49,23 @@ class BOT {
 	async handleNormalMessage(msg) {
 		try {
 			// Check if the user is registered
-			if (msg.from.id == msg.chat.id || !await this.app.db.exist(this.app.SETTINGS.path.db.users + msg.from.id) ) { return; }
+			if (msg.from.id == msg.chat.id || !await APP.DB.exist(APP.SETTINGS.path.db.users + msg.from.id) ) { return; }
 			
-			await this.app.db.increment(this.SETTINGS.path.db.users + msg.from.id + this.SETTINGS.path.db.user.messages);
-			await this.app.db.increment(this.SETTINGS.path.db.users + msg.from.id + this.SETTINGS.path.db.user.experience);		
-			await this.app.achievement.h_messages(msg, this.app); 			// Handle achievements related to messages
+			await APP.DB.increment(APP.SETTINGS.path.db.users + msg.from.id + APP.SETTINGS.path.db.user.messages);
+			await APP.DB.increment(APP.SETTINGS.path.db.users + msg.from.id + APP.SETTINGS.path.db.user.experience);		
+			await APP.ACHIEVEMENT.h_messages(msg); 			// Handle achievements related to messages
 		} catch (error) {
-			this.logger.log(`Error handling normal message: ${error.stack}`, "error");
+			APP.LOGGER.log(`Error handling normal message: ${error.stack}`, "error");
 		}
 	}
 
 	async token_validate() {
-		if(this.SETTINGS.verifyToken)
+		if(APP.SETTINGS.verifyToken)
 		{
-			this.logger.log("Start verifying token...", "info");
+			APP.LOGGER.log("Start verifying token...", "info");
 
-			if (!await this.token_verify_connect(this.SETTINGS.token)) { this.logger.log("Error validating token", "error"); return false; }
-			else { this.logger.log("Token validated", "info"); return true;	}
+			if (!await this.token_verify_connect(APP.SETTINGS.token)) { APP.LOGGER.log("Error validating token", "error"); return false; }
+			else { APP.LOGGER.log("Token validated", "info"); return true;	}
 		}
 	}	
 
@@ -83,11 +81,11 @@ class BOT {
 		try {
 			await this.bot.startPolling();
 			await this.bot.stopPolling();
-			this.logger.log("Token verified", "info");
+			APP.LOGGER.log("Token verified", "info");
 			return true;
 		} catch (error) {
 			if (this.bot.isPolling()) this.bot.stopPolling();
-			this.logger.log("Error varifying token: " + error, "error");
+			APP.LOGGER.log("Error varifying token: " + error, "error");
 			return false;
 		}
 	}
@@ -102,19 +100,17 @@ class BOT {
 		 */
 	async sendMessage(chatID, message, replyID) {
 		try {
-			if (!message || !chatID) { this.logger.log("Message or chatID is undefined: " + `Message: ${message}, Chat ID: ${chatID}`, "error"); return; }
+			if (!message || !chatID) { APP.LOGGER.log("Message or chatID is undefined: " + `Message: ${message}, Chat ID: ${chatID}`, "error"); return; }
 		
 			const options = replyID ? { reply_to_message_id: replyID, parse_mode: 'HTML' } : { parse_mode: 'HTML' };
 			await this.bot.sendMessage(chatID, message, options);
 
-			this.logger.log("Sent message: " + `Chat ID: ${chatID}, Message: ${message}`, "info");
+			APP.LOGGER.log("Sent message: " + `Chat ID: ${chatID}, Message: ${message}`, "info");
 		} 
-		catch (error) { this.logger.log("Failed to send: " + `Error: ${error.message}, Stack: ${error.stack}`, "error");	}
+		catch (error) { APP.LOGGER.log("Failed to send: " + `Error: ${error.message}, Stack: ${error.stack}`, "error");	}
 	}	
 
 	async sendSticker(chatID, stickerID, replyID) {
 		await this.bot.sendSticker(chatID, stickerID, { reply_to_message_id: replyID });
 	}	
 }
-
-module.exports = BOT;

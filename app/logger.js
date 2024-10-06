@@ -1,5 +1,5 @@
 module.exports = class Logger {
-	constructor(levels) {
+	constructor(levels, _callback) {
 		try {
 			this.levels = levels || ["info", "error", "warning"];
 			this.colors = {
@@ -10,12 +10,13 @@ module.exports = class Logger {
 				"debug": '\u001b[38;5;21m'
 			};
 			this.log("Logger initialized.", "info");
+			if (_callback && typeof _callback === 'function') _callback();
 		} catch (error) {
 			console.error("Error initializing logger: ", error.stack);
 		}
 	}
 
-	async log(message, color) {
+	log(message, color) {
 		const callerName = new Error().stack.split('\n')[2].trim().split(' ')[1];
 		const selectedColor = this.colors[color] || this.colors.normal;
 		if (this.levels.includes(color)) {

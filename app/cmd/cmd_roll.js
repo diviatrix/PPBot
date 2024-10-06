@@ -1,67 +1,65 @@
+let APP;
 class C_ROLL {
-	async run(_msg, _app) {
+	constructor(_app) {
+		APP = _app;
+		APP.LOGGER.log('C_ROLL constructed', "debug");
+	}
+	async run(_msg) {
 		try {
-			_app.logger.log("Starting /roll for: " + _msg.from.id, "info");
+			APP.LOGGER.log("Starting /roll for: " + _msg.from.id, "info");
 
-			const user = await _app.db.db_user(_msg);
+			const user = await APP.DB.get(APP.SETTINGS.path.db.users + _msg.from.id);
 
 			if (!user) {
-				_app.commands.msg_notRegistered(_msg);
+				APP.commands.msg_notRegistered(_msg);
 				return false;
 			}
 
-			const _lastRoll = await this.get_lastRoll(_msg, _app, user);
-			if (_lastRoll) {
-				const message = _app.SETTINGS.locale.base.cmd_roll_fail_already + "\n" + _app.HELPER.str_style(`[${_lastRoll.id}][${_lastRoll.rarity}][${_lastRoll.name}]`, _app.SETTINGS.rarity[_lastRoll.rarity] && _app.SETTINGS.rarity[_lastRoll.rarity].text || "");
-				_app.bot.sendMessage(_msg.chat.id, message, _msg.message_id);
+			const _lastRoll = user.stats?.roll?.last;
+			const _lastRollTime = _lastRoll && _lastRoll.time ? new Date(_lastRoll.time) : new Date(1337, 0, 1);
+
+			if (APP.HELPER.is_today(_lastRollTime)) {
+				const message = APP.SETTINGS.locale.base.cmd_roll_fail_already + "\n" + APP.HELPER.str_style(`[${_lastRoll?.id}][${_lastRoll?.rarity}][${_lastRoll?.name}]`, APP.SETTINGS.rarity[_lastRoll?.rarity] && APP.SETTINGS.rarity[_lastRoll?.rarity].text || "");
+				APP.BOT.sendMessage(_msg.chat.id, message, _msg.message_id);
 
 				return true;
 			} else {
-				const _record = await this.give_reward(_msg, _app);
-				_app.logger.log("Rolled new reward: " + _app.HELPER.reward_record_style(_record, _app.SETTINGS.rarity[_record.rarity].text), "info");
+				const _record = await this.give_random_reward(_msg);
+				APP.LOGGER.log("Rolled new reward: " + APP.HELPER.reward_record_style(_record, APP.SETTINGS.rarity[_record.rarity].text), "info");
 				return true;
 			}
 		} catch (error) {
-			_app.logger.log(`Error executing cmd_roll: ${error.stack}`, "error");
+			APP.LOGGER.log(`Error executing cmd_roll: ${error.stack}`, "error");
 			return false;
 		}
 	}
 
-	async get_lastRoll(_msg, _app, user) {
-		const lastRoll = user.stats?.roll?.last;
-		const lastRollTime = lastRoll && lastRoll.time ? new Date(lastRoll.time) : new Date(1337, 0, 1);
+	async give_random_reward(_msg) {
+		APP.LOGGER.log("Rolling new reward", "info");
 
-		let _result = _app.HELPER.is_today(lastRollTime) ? lastRoll : null;
-		_app.logger.log("Checking if last /roll was today: " + _app.HELPER.is_today(lastRollTime), "info");
+		const _rarity = await APP.FUNCTIONS.random_rarity();
+		const _item = await APP.FUNCTIONS.random_reward( _rarity);
 
-		return _result;
-	}
-
-	async give_reward(_msg, _app) {
-		_app.logger.log("Rolling new reward", "info");
-
-		const _rarity = await _app.reward.randomRarity(_app);
-		const item = await _app.reward.randomReward(_app, _rarity);
-
-		const _record = await _app.reward.rewardAdd(_app, _msg.from.id, item, false);
+		const _record = await APP.FUNCTIONS.reward_add(_msg.from.id, _item);
 
 		if (!_record) {return false;}
+		APP.LOGGER.log(JSON.stringify(_record), "debug");
+		await this.update_db_records(_msg, _record);
 
-		await this.update_db_records(_msg, _app, _record);
-
-		_app.logger.log("Reward added: " + _app.HELPER.reward_record_style(_record, _app.SETTINGS.rarity[_record.rarity].text), "info");
-		_app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_roll_success + _app.HELPER.reward_record_style(_record, _app.SETTINGS.rarity[_record.rarity].text), _msg.message_id)
+		APP.LOGGER.log("Reward added: " + APP.HELPER.reward_record_style(_record, APP.SETTINGS.rarity[_record.rarity].text), "info");
+		APP.BOT.sendMessage(_msg.chat.id, APP.SETTINGS.locale.base.cmd_roll_success + APP.HELPER.reward_record_style(_record, APP.SETTINGS.rarity[_record.rarity].text), _msg.message_id)
 
 		return _record;		
 	}
 
-	async update_db_records(_msg, _app, reward) {
+	async update_db_records(_msg, _record) {
 		try {
-			await _app.db.increment(_app.SETTINGS.path.db.users + _msg.from.id + _app.SETTINGS.path.db.stats.rollCount);
-			await _app.db.override(_app.SETTINGS.path.db.users + _msg.from.id +_app.SETTINGS.path.db.stats.lastRoll, reward);
+			APP.LOGGER.log("Updating database records", "info");
+			await APP.DB.increment(APP.SETTINGS.path.db.users + _msg.from.id + APP.SETTINGS.path.db.stats.rollCount);
+			await APP.DB.set(APP.SETTINGS.path.db.users + _msg.from.id + APP.SETTINGS.path.db.stats.lastRoll, _record);
 			return true;
 		} catch (error) {
-			_app.logger.log(`Error updating database records: ${error.stack}`, "error");
+			APP.LOGGER.log(`Error updating database records: ${error.stack}`, "error");
 			return false;
 		}
 	}

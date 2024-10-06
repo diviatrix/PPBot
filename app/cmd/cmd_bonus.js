@@ -1,30 +1,35 @@
-module.exports = class C_BONUS {
-    async run(_msg, _app, _params) {
+let APP;
+module.exports = class C_BONUS {    
+    constructor(_app) {
+        APP = _app;
+        APP.LOGGER.log("C_BONUS constructed", "info");
+    }
+    async run(_msg, _params) {
         try {
-            let _user = await _app.db.db_user(_msg);
+            let _user = await APP.DB.get(APP.SETTINGS.path.db.users + _msg.from.id);
             if (!_user) return false;
 
             
             if (_params?.length === 0) { 
-                return await this.claim(_msg, _app);
+                return await this.claim(_msg);
             }
             else {
-                return await this.parseParams(_msg, _app, _params);
+                return await this.parseParams(_msg, _params);
             }
         } catch (error) {
-            _app.logger.log(`Error executing cmd_bonus: ${error.stack}`, "error");
+            APP.LOGGER.log(`Error executing cmd_bonus: ${error.stack}`, "error");
             return false;
         }
     }
 
-    async parseParams(_msg, _app, _params) {
+    async parseParams(_msg, _params) {
         try {
-            if (! await _app.FUNCTIONS.is_admin(_app, _msg)) { 
-                    _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_noadmin, _msg.message_id);
+            if (! await APP.FUNCTIONS.is_admin(_msg)) { 
+                APP.BOT.sendMessage(_msg.chat.id, APP.SETTINGS.locale.base.cmd_noadmin, _msg.message_id);
                     return true;
                 }
 
-            _app.logger.log(`/bonus input params: ${_params}`, "info");
+                APP.LOGGER.log(`/bonus input params: ${_params}`, "info");
             // if first param is 
             // "level": "/stats/level",
             // "balance": "/wallet/balance",
@@ -35,37 +40,37 @@ module.exports = class C_BONUS {
 
             // params should go as [0] = "type", [1] = user id, [2] = amount/reward id, [3] = rarity
             if (!_params[0]) {
-                _app.logger.log(`Type not found in params`, "info");
-                _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_e_notype, _msg.message_id);
+                APP.LOGGER.log(`Type not found in params`, "info");
+                APP.BOT.sendMessage(_msg.chat.id, APP.SETTINGS.locale.base.cmd_bonus_e_notype, _msg.message_id);
                 return false;
             }           
             
-            if (_params[0] == "exp" && _params[1] && _params[2]) { return await this.bonus_new(_msg, _app, _params[0], _params[1], Number(_params[2])); }
-            else if (_params[0] == "level" && _params[1] && _params[2]) { return await this.bonus_new(_msg, _app, _params[0], _params[1], Number(_params[2])); }
-            else if (_params[0] == "ticket" && _params[1] && _params[2]) { return await this.bonus_new(_msg, _app, _params[0], _params[1], Number(_params[2])); }
-            else if (_params[0] == "mes" && _params[1] && _params[2]) { return await this.bonus_new(_msg, _app, _params[0], _params[1], Number(_params[2])); }
-            else if (_params[0] == "col" && _params[1] && _params[2] && _params[3]) { return await this.bonus_new(_msg, _app, _params[0], _params[1], 1, _params[2], _params[3]); }
+            if (_params[0] == "exp" && _params[1] && _params[2]) { return await this.bonus_new(_msg, _params[0], _params[1], Number(_params[2])); }
+            else if (_params[0] == "level" && _params[1] && _params[2]) { return await this.bonus_new(_msg, _params[0], _params[1], Number(_params[2])); }
+            else if (_params[0] == "ticket" && _params[1] && _params[2]) { return await this.bonus_new(_msg, _params[0], _params[1], Number(_params[2])); }
+            else if (_params[0] == "mes" && _params[1] && _params[2]) { return await this.bonus_new(_msg, _params[0], _params[1], Number(_params[2])); }
+            else if (_params[0] == "col" && _params[1] && _params[2] && _params[3]) { return await this.bonus_new(_msg, _params[0], _params[1], 1, _params[2], _params[3]); }
             else {
-                _app.logger.log(`No knows type found in params`, "info");
+                APP.LOGGER.log(`No knows type found in params`, "info");
                 return false;
             }
 
         } catch (error) {
-            _app.logger.log(`Error executing cmd_bonus: ${error.stack}`, "error");
+            APP.LOGGER.log(`Error executing cmd_bonus: ${error.stack}`, "error");
             return false;
         }
     } 
 
-    async bonus_new(_msg, _app, _type, _userid, _amount, _id, _rarity)
+    async bonus_new(_msg, _type, _userid, _amount, _id, _rarity)
     {     
         if (!_type || !_userid || !_amount) {
-            _app.logger.log(`Type/User/Amount/id, rarity not found in params`, "info");
-            _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_exp_e_notype, _msg.message_id);
+            APP.LOGGER.log(`Type/User/Amount/id, rarity not found in params`, "info");
+            APP.BOT.sendMessage(_msg.chat.id, APP.SETTINGS.locale.base.cmd_bonus_exp_e_notype, _msg.message_id);
             return false;
         }  
 
-        let _bonus = _app.SETTINGS.model.bonus;
-        let _message = _app.SETTINGS.locale.base.cmd_bonus_exp_success;
+        let _bonus = APP.SETTINGS.model.bonus;
+        let _message = APP.SETTINGS.locale.base.cmd_bonus_exp_success;
 
         _bonus.type = _type;        
         _bonus.user = _userid;
@@ -79,26 +84,24 @@ module.exports = class C_BONUS {
             _bonus.rarity = _rarity;
             _message += `[${_rarity}]`;
         }   
-        _bonus.time = await _app.db.time();
+        _bonus.time = await APP.DB.time();
         
 
-        _app.db.push(_app.SETTINGS.path.db.bonus + _userid, _bonus);
-        _app.bot.sendMessage(_msg.chat.id, _message, _msg.message_id);
-        _app.logger.log(`Created bonus ${_amount}x[${_msg.from.id}][${_type}][${_id}][${_rarity}]`, "info");
+        APP.DB.push(APP.SETTINGS.path.db.bonus + _userid, _bonus);
+        APP.BOT.sendMessage(_msg.chat.id, _message, _msg.message_id);
+        APP.LOGGER.log(`Created bonus ${_amount}x[${_msg.from.id}][${_type}][${_id}][${_rarity}]`, "info");
 
         return true;
     }
 
-    async claim(_msg, _app)
-    {        
-        const { logger, bot, SETTINGS, FUNCTIONS } = _app;
-        
+    async claim(_msg)
+    {     
         let _message = "";
         let _counter = 0;
-        const _userRewards = await _app.db.get(_app.SETTINGS.path.db.bonus + _msg.from.id);
+        const _userRewards = await APP.DB.get(APP.SETTINGS.path.db.bonus + _msg.from.id);
 
         if (!_userRewards) {
-            _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_none, _msg.message_id);
+            APP.BOT.sendMessage(_msg.chat.id, APP.SETTINGS.locale.base.cmd_bonus_none, _msg.message_id);
             return true;
         }
 
@@ -106,62 +109,62 @@ module.exports = class C_BONUS {
             const { type, user, amount, id, rarity } = _userRewards[key];
 
             if (!type || !user || !amount) {
-                _app.logger.log(`Invalid reward: ${JSON.stringify(_userRewards[key])}`, "debug");                
+                APP.LOGGER.log(`Invalid reward: ${JSON.stringify(_userRewards[key])}`, "debug");                
                 return false;
             } else {
-                _app.logger.log(`Reward: ${JSON.stringify(_userRewards[key])}`, "debug");
+                APP.LOGGER.log(`Reward: ${JSON.stringify(_userRewards[key])}`, "debug");
             }
 
-            _app.logger.log(`Claiming reward: [${type}][${user}][${amount}][${id}][${rarity}]`, "debug");
+            APP.LOGGER.log(`Claiming reward: [${type}][${user}][${amount}][${id}][${rarity}]`, "debug");
 
             switch (type) {
                 case "exp":
-                    if (await _app.FUNCTIONS.exp_add(_app, user, amount)){
+                    if (await APP.FUNCTIONS.exp_add(user, amount)){
                         _message += `\n🎁 [${_counter}] Experience bonus: ${[amount]}`;                        
                         _counter++;
                     }
                     break;
                 case "level":
-                    if(await FUNCTIONS.level_add (_app, user, amount)){
+                    if(await APP.FUNCTIONS.level_add (user, amount)){
                         _message += `\n🎁 [${_counter}] Level bonus: ${[amount]}`; 
                         _counter++;
                     }
                     break;
                 case "ticket":
-                    if(await _app.FUNCTIONS.ticket_add (_app, user, amount)){
+                    if(await APP.FUNCTIONS.ticket_add (user, amount)){
                         _message += `\n🎁 [${_counter}] Ticket bonus: ${[amount]}`; 
                         _counter++;
                     }
                     break;
                 case "mes":
-                    if (await _app.FUNCTIONS.messages_add (_app, user, amount)){
+                    if (await APP.FUNCTIONS.messages_add (user, amount)){
                         _message += `\n🎁 [${_counter}] Message bonus: ${[amount]}`; 
                         _counter++;
                     }
                     break;
                 case "col":
-                    let _record = await _app.FUNCTIONS.collection_add(_app, user, id, rarity)
+                    let _record = await APP.FUNCTIONS.collection_add(user, id, rarity)
                     if (_record) {
-                        await _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_col_recieved + _app.HELPER.reward_record_style(_record, _app.SETTINGS.rarity[_record.rarity].text), _msg.message_id)
+                        await APP.BOT.sendMessage(_msg.chat.id, APP.SETTINGS.locale.base.cmd_bonus_col_recieved + APP.HELPER.reward_record_style(_record, APP.SETTINGS.rarity[_record.rarity].text), _msg.message_id)
                         _message += `\n🎁 [${_counter}] Collection bonus: ${[amount]}`; 
                         _counter++;
                     } else {
-                        _message += `\n🎁 [${_counter}] ${_app.HELPER.str_style("Broken bonus:", "strikethrough")} DELETED`; 
+                        _message += `\n🎁 [${_counter}] ${APP.HELPER.str_style("Broken bonus:", "strikethrough")} DELETED`; 
                         _counter++;
                     }
                     break;
                 default:
-                    _app.logger.log(`Unknown type: ${type}`, "debug");
+                    APP.LOGGER.log(`Unknown type: ${type}`, "debug");
                     return false;
             }
 
             if (_counter > 0) {
-                _app.logger.log(`Claimed reward: ${JSON.stringify(_userRewards[key])}`, "debug");
-                await _app.db.delete(_app.SETTINGS.path.db.bonus + user + "/" + key);
+                APP.LOGGER.log(`Claimed reward: ${JSON.stringify(_userRewards[key])}`, "debug");
+                await APP.DB.delete(APP.SETTINGS.path.db.bonus + user + "/" + key);
             }
         }
-        _app.logger.log(`Claimed rewards: ${_counter}`, "debug");
-        await _app.bot.sendMessage(_msg.chat.id, _app.SETTINGS.locale.base.cmd_bonus_success +_message, _msg.message_id);      
+        APP.LOGGER.log(`Claimed rewards: ${_counter}`, "debug");
+        await APP.BOT.sendMessage(_msg.chat.id, APP.SETTINGS.locale.base.cmd_bonus_success +_message, _msg.message_id);      
         return true;  
     }
 }

@@ -1,31 +1,15 @@
 const admin = require('firebase-admin');
 const os = require('os');
-let app;
+let APP;
 
 class FirebaseConnector {
-  /**
- * Initializes the Firebase Admin SDK and sets up the database connection.
- * 
- * This constructor is responsible for initializing the Firebase Admin SDK and
- * configuring the database connection using the provided app settings. It
- * attempts to initialize the Firebase Admin SDK and database, and logs any
- * errors that occur during the process.
- * 
- * @param {object} _app - The application object containing the necessary
- * settings for initializing the Firebase Admin SDK and database connection.
- */
   constructor(_app) {
     try {
-      app = _app;
-      admin.initializeApp({
-        credential: admin.credential.cert(_app.SETTINGS.db.serviceAccount),
-        databaseURL: _app.SETTINGS.db.databaseURL
-      });
-      this.db = admin.database();
+      APP = _app;
       this.start();
     } catch (error) {
-      if (_app && _app.logger) {
-        _app.logger.log(error.stack, "error");
+      if (APP.LOGGER) {
+        APP.LOGGER.log(error.stack, "error");
       } else {
         console.error(error.stack);
       }
@@ -36,26 +20,10 @@ class FirebaseConnector {
     return admin.database.ServerValue.TIMESTAMP;
   }
 
-
-  /**
-   * Overrides the data in the Firebase database at the specified path.
-   *
-   * @param {string} _path - The path in the Firebase Realtime Database where the data should be overridden.
-   * @param {any} _value - The new value to be set at the specified path.
-   * @returns {Promise<{ success: boolean, error?: string }>} - A promise that resolves with an object indicating the success of the operation and an optional error message.
-   */
-  async override(_path, _value) {
-    try {
-      const ref = this.db.ref(_path);
-      await ref.set(_value);
-      return { success: true };
-    }
-    catch (error) {
-      app.logger.log(error.stack, "error");
-      return { success: false, error: error.stack };
-    }
+  async timeISO () {
+    return new Date().toISOString();
   }
-
+  
 
  /**
  * Atomically increments the value stored at the specified Firebase Realtime Database reference path.
@@ -69,10 +37,10 @@ class FirebaseConnector {
       let currentValue = (await ref.once('value')).val() || 0;
       let newValue = currentValue + (amount || 1);
       await this.set(refPath, newValue);      
-      app.logger.log("Value:" + refPath + " has been set to:" + newValue, "debug");
+     APP.LOGGER.log("Value:" + refPath + " has been set to:" + newValue, "debug");
       return newValue;
     } catch (error) {
-      app.logger.log(error.stack, "error");
+     APP.LOGGER.log(error.stack, "error");
     }
   }
 
@@ -82,18 +50,6 @@ class FirebaseConnector {
  * @param {Object} _msg - The message object containing the user ID.
  * @returns {Promise<Object|undefined>} - The user data, or `undefined` if an error occurs.
  */
-  async db_user(_msg) {
-    try {
-      const userRef = this.db.ref(app.SETTINGS.path.db.users + "/" + _msg.from.id);
-      const userSnapshot = await userRef.once('value');
-      app.logger.log("User found: " + _msg.from.id, "debug");
-      return userSnapshot.val();
-    }
-    catch (error) {
-      app.logger.log(error.stack, "error");
-      return undefined;
-    }
-  }
 
   async exist(_path)
   {
@@ -113,10 +69,10 @@ class FirebaseConnector {
   async push(_path, _data) {
     try {
       const res = await this.db.ref(_path).push(_data);
-      app.logger.log("Document written to DB: " + _path + "/" + res.key, "debug");
-      app.CACHE.set(_path + "/" + res.key, _data);
+     APP.LOGGER.log("Document written to DB: " + _path + "/" + res.key, "debug");
+     APP.CACHE.set(_path + "/" + res.key, _data);
     } catch (error) {
-      app.logger.log(error.stack, "error");
+     APP.LOGGER.log(error.stack, "error");
     }
   }
 
@@ -131,12 +87,12 @@ class FirebaseConnector {
     try {
       const ref = this.db.ref(_path);
       await ref.set(_data);
-      await app.CACHE.set(_path, _data);
-      app.logger.log("Document written to DB: " + _path, "debug");
+      await APP.CACHE.set(_path, _data);
+     APP.LOGGER.log("Document written to DB: " + _path, "debug");
       return { success: true };
 
     } catch (error) {
-      app.logger.log(error.stack, "error");
+     APP.LOGGER.log(error.stack, "error");
     }
   }
 
@@ -150,12 +106,12 @@ class FirebaseConnector {
     try {
       const ref = this.db.ref(_path);
       const userSnapshot = await ref.get('value');
-      app.logger.log("Read from db successfully:" + _path, "debug");
+     APP.LOGGER.log("Read from db successfully:" + _path, "debug");
 
-      app.CACHE.set(_path, userSnapshot);
+     APP.CACHE.set(_path, userSnapshot);
       return userSnapshot.val();
     } catch (error) {
-      app.logger.log(error.stack, "error");
+     APP.LOGGER.log(error.stack, "error");
     }
   }
 
@@ -173,10 +129,10 @@ class FirebaseConnector {
         acc[key] = null;
         return acc;
       }, {}));
-      _ops.del.forEach(key => app.CACHE.del(key));
-      app.logger.log("Multi-operation completed successfully", "debug");
+      _ops.del.forEach(key =>APP.CACHE.del(key));
+     APP.LOGGER.log("Multi-operation completed successfully", "debug");
     } catch (error) {
-      app.logger.log(error.stack, "error");
+     APP.LOGGER.log(error.stack, "error");
     }
   }
 
@@ -192,10 +148,10 @@ class FirebaseConnector {
   async delete(_path) {
     try {
       await this.db.ref(_path).remove();
-      app.CACHE.delete(_path);
-      app.logger.log("Document deleted from DB: " + _path, "debug");
+     APP.CACHE.delete(_path);
+     APP.LOGGER.log("Document deleted from DB: " + _path, "debug");
     } catch (error) {
-      app.logger.log(error.stack, "error");
+     APP.LOGGER.log(error.stack, "error");
     }
   }
 
@@ -203,12 +159,18 @@ class FirebaseConnector {
  * Starts the Firebase initialization process and logs relevant system information to the database.
  *
  * This method is responsible for the following tasks:
- * - Logs a "Firebase initialized" message to the app logger with the "info" level.
+ * - Logs a "Firebase initialized" message to theAPP logger with the "info" level.
  * - Collects various system information, including start time, hostname, platform, release, type, uptime, and version.
- * - Pushes the collected system information to the database at the path specified by `app.SETTINGS.path.db.stats.session`.
+ * - Pushes the collected system information to the database at the path specified by `app.APP.SETTINGS.path.db.stats.session`.
  */
   async start() {
-    app.logger.log("Firebase initialized", "info");
+    admin.initializeApp({
+      credential: admin.credential.cert(APP.SETTINGS.db.serviceAccount),
+      databaseURL: APP.SETTINGS.db.databaseURL
+    });
+    this.db = admin.database();
+
+   APP.LOGGER.log("Firebase initialized", "info");
     const data = {
       start_time: this.time(),
       hostname: os.hostname(),
@@ -218,7 +180,7 @@ class FirebaseConnector {
       uptime: os.uptime(),
       version: os.version()
     };
-    await this.db.ref(app.SETTINGS.path.db.stats.session).push(data);
+    await this.db.ref(APP.SETTINGS.path.db.stats.session).push(data);
   }
 }
 

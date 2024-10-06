@@ -1,8 +1,11 @@
-let app;
-class C_TOP {
-    async run(_msg, _app, _params) {
-        app = _app
-        let dailyrewards = await app.db.get(app.SETTINGS.path.db.stats.dailyrewards);
+let APP;
+module.exports = class C_TOP {
+    constructor(_app) {
+        APP = _app;
+        APP.LOGGER.log("C_TOP constructed", "debug");
+    }
+    async run(_msg, _params) {
+        let dailyrewards = await APP.DB.get(APP.SETTINGS.path.db.stats.dailyrewards);
         
         if (!dailyrewards) { return false; }
 
@@ -20,23 +23,22 @@ class C_TOP {
         // prepare message with top 10
         let _message = "";
         let _count = 0;
-        app.logger.log(`Records of daily rewards in db: ${Object.keys(dailyrewards).length}`, "debug");
+        APP.LOGGER.log(`Records of daily rewards in db: ${Object.keys(dailyrewards).length}`, "debug");
         for (const key in dailyrewards) {
             if (_count >= 10) { break; }
 
             let _item = dailyrewards[key];
             if (_item && _item.id) {
-                _message += `[${_item.usernickname}]` + app.HELPER.str_style(`[${_item.id}][${_item.rarity}][${_item.name}]`, app.SETTINGS.rarity[_item.rarity].text) + "\n";
+                _message += `[${_item.usernickname}]` +APP.HELPER.str_style(`[${_item.id}][${_item.rarity}][${_item.name}]`,APP.SETTINGS.rarity[_item.rarity].text) + "\n";
             }
 
            
             _count++;
         }
 
-        app.bot.sendMessage(_msg.chat.id, app.SETTINGS.locale.base.cmd_top + "\n" + _message, _msg.message_id);
+       APP.BOT.sendMessage(_msg.chat.id,APP.SETTINGS.locale.base.cmd_top + "\n" + _message, _msg.message_id);
 
 
         return true;
     }
 }
-module.exports = C_TOP

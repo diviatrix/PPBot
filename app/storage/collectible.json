@@ -1,251 +1,1502 @@
 [
-	{"id":"0","rarity":"1337","name":"O"},
-	{"id":"0","rarity":"epic","name":"Binary OFF"},
-	{"id":"0","rarity":"idiot","name":"Нулина"},
-	{"id":"0","rarity":"legendary","name":"Singleplayer"},
-	{"id":"0","rarity":"normal","name":"Начало"},
-	{"id":"0","rarity":"rare","name":"The Void"},
-	{"id":"007","rarity":"legendary","name":"James Bond"},
-	{"id":"1","rarity":"idiot","name":"В жало"},
-	{"id":"1","rarity":"1337","name":"i"},
-	{"id":"1","rarity":"epic","name":"Binary ON"},
-	{"id":"1","rarity":"legendary","name":"First Prime Number"},
-	{"id":"1","rarity":"normal","name":"Single unit of countering or measurement"},
-	{"id":"1","rarity":"normal","name":"Первый Канал"},
-	{"id":"1","rarity":"rare","name":"🍾Первак🍾"},
-	{"id":"10","rarity":"epic","name":"10 out of 10"},
-	{"id":"10","rarity":"1337","name":"Input/Output"},
-	{"id":"10","rarity":"idiot","name":"Опа, чирик"},
-	{"id":"10","rarity":"legendary","name":"На порядок выше"},
-	{"id":"10","rarity":"normal","name":"Десять"},
-	{"id":"10","rarity":"rare","name":"Smallest noncototient"},
-	{"id":"10^-19","rarity":"legendary","name":"Кварк, мельчайшая известная частица во вселенной"},
-	{"id":"100","rarity":"normal","name":"Сто"},
-	{"id":"1000","rarity":"normal","name":"Тысяча"},
-	{"id":"1000000","rarity":"normal","name":"Миллион"},
-	{"id":"1000000000","rarity":"normal","name":"Миллиард"},
-	{"id":"1000000000000","rarity":"normal","name":"Триллион"},
-	{"id":"1000000000000000","rarity":"normal","name":"Квадриллион"},
-	{"id":"1000000000000000000","rarity":"normal","name":"Квинтиллион"},
-	{"id":"100000000000000000000","rarity":"normal","name":"Секстиллион"},
-	{"id":"10000000000000000000000","rarity":"normal","name":"Септиллион"},
-	{"id":"1000000000000000000000000","rarity":"normal","name":"Октиллион"},
-	{"id":"1008","rarity":"normal","name":"1008 Bukkake"},
-	{"id":"101","rarity":"rare","name":"Binary"},
-	{"id":"1024","rarity":"normal","name":"Килобайт"},
-	{"id":"1046","rarity":"normal","name":"Второе пришествие"},
-	{"id":"1050","rarity":"normal","name":"1050г"},
-	{"id":"1080","rarity":"rare","name":"Full HD resolution (1920x1080)"},
-	{"id":"11","rarity":"1337","name":"II"},
-	{"id":"11","rarity":"epic","name":"First Two-Digit Prime Number"},
-	{"id":"11","rarity":"idiot","name":"Раз! Раз! Это хардбасс!"},
-	{"id":"11","rarity":"legendary","name":"Очень странные дела"},
-	{"id":"11","rarity":"normal","name":"Пешком"},
-	{"id":"11","rarity":"rare","name":"November"},
-	{"id":"1125","rarity":"normal","name":"Промиллерий"},
-	{"id":"12","rarity":"epic","name":"Year"},
-	{"id":"12","rarity":"1337","name":"L"},
-	{"id":"12","rarity":"meme","name":"РазДва][https://youtu.be/_chlNetwWdc"},
-	{"id":"12","rarity":"legendary","name":"12 Angry Men"},
-	{"id":"12","rarity":"normal","name":"Дюжина"},
-	{"id":"12","rarity":"rare","name":"December"},
-	{"id":"1200","rarity":"normal","name":"Тысяча и двадцать"},
-	{"id":"13","rarity":"1337","name":"B"},
-	{"id":"13","rarity":"epic","name":"Unlucky"},
-	{"id":"13","rarity":"legendary","name":"Friday 13"},
-	{"id":"13","rarity":"normal","name":"Чёртова дюжина"},
-	{"id":"13","rarity":"rare","name":"13th Floor"},
-	{"id":"1337","rarity":"1337","name":"Leet Speak"},
-	{"id":"1337","rarity":"normal","name":"1337"},
-	{"id":"14","rarity":"legendary","name":"14th Century"},
-	{"id":"14","rarity":"rare","name":"Четырнадцать"},
-	{"id":"144","rarity":"epic","name":"Allo! Eto pro-gamer?"},
-	{"id":"1440","rarity":"rare","name":"Quad HD resolution (2560x1440)"},
-	{"id":"149","rarity":"normal","name":"Pokemon Mewtwo"},
-	{"id":"16","rarity":"normal","name":"Base in hexadecimal number system"},
-	{"id":"1729","rarity":"normal","name":"1729"},
-	{"id":"18","rarity":"normal","name":"Забирай меня скорей"},
-	{"id":"1984","rarity":"normal","name":"George Orwell's Novel"},
-	{"id":"2","rarity":"1337","name":"Half-Life 2"},
-	{"id":"2","rarity":"epic","name":"Lord of the rings: Two towers"},
-	{"id":"2","rarity":"meme","name":"Two Girls One Cup][https://youtu.be/wxp3zqIqO68"},
-	{"id":"2","rarity":"idiot","name":"Непара][https://www.youtube.com/watch?v=7mknQoaXEv0"},
-	{"id":"2","rarity":"legendary","name":"Postal 2"},
-	{"id":"2","rarity":"legendary","name":"PlayStation 2"},
-	{"id":"2","rarity":"normal","name":"Два"},
-	{"id":"2","rarity":"rare","name":"🏆Double-Kill🏆"},
-	{"id":"2.718","rarity":"rare","name":"Euler's Number"},
-	{"id":"20","rarity":"normal","name":"Пальцы"},
-	{"id":"2000","rarity":"normal","name":"Два тысячи"},
-	{"id":"2001","rarity":"normal","name":"Space Odyssey"},
-	{"id":"2001","rarity":"rare","name":"A Space Odyssey"},
-	{"id":"202","rarity":"normal","name":"2020 Vision"},
-	{"id":"2048","rarity":"rare","name":"Unicode: ⁈"},
-	{"id":"2048","rarity":"normal","name":"Popular mobile game"},
-	{"id":"2069","rarity":"normal","name":"2069"},
-	{"id":"2077","rarity":"epic","name":"Wake the fuck up, samurai"},
-	{"id":"21","rarity":"rare","name":"Blackjack"},
-	{"id":"2137","rarity":"normal","name":"2137"},
-	{"id":"2147483647","rarity":"epic","name":"Maximum value for a 32-bit integer"},
-	{"id":"2160","rarity":"rare","name":"4K UHD resolution (3840x2160)"},
-	{"id":"22","rarity":"rare","name":"Double eleven"},
-	{"id":"228","rarity":"idiot","name":"Счастье в дом приносим"},
-	{"id":"23","rarity":"rare","name":"Number of chromosomes in a human sperm or egg cell"},
-	{"id":"24","rarity":"normal","name":"Сутки"},
-	{"id":"24","rarity":"rare","name":"Based movie framerate"},
-	{"id":"240","rarity":"legendary","name":"Как там? На той стороне FPS?"},
-	{"id":"2468","rarity":"normal","name":"Часть числа Пи"},
-	{"id":"25","rarity":"normal","name":"Четвертак"},
-	{"id":"25","rarity":"rare","name":"Quarter"},
-	{"id":"251","rarity":"rare","name":"Hello, MKBHD here."},
-	{"id":"2500","rarity":"normal","name":"Два тысячи пятьсот"},
-	{"id":"256","rarity":"epic","name":"A programmer's favorite number"},
-	{"id":"256","rarity":"normal","name":"Byte-sized"},
-	{"id":"2567","rarity":"normal","name":"2567"},
-	{"id":"26","rarity":"rare","name":"Number of letters in the English alphabet"},
-	{"id":"27","rarity":"rare","name":"Number of bones in the human hand"},
-	{"id":"28","rarity":"rare","name":"National cry yourself to sleep day"},
-	{"id":"29","rarity":"rare","name":"Number of days in February during a non-leap year"},
-	{"id":"3","rarity":"epic","name":"Triple-Kill"},
-	{"id":"3","rarity":"1337","name":"E"},
-	{"id":"3","rarity":"epic","name":"Three Laws of Robotics"},
-	{"id":"3","rarity":"idiot","name":"Threesome"},
-	{"id":"3","rarity":"legendary","name":"Windows 3"},
-	{"id":"3","rarity":"legendary","name":"Warcraft 3"},
-	{"id":"3","rarity":"legendary","name":"TriForce"},
-	{"id":"3","rarity":"normal","name":"PlayStation 3"},
-	{"id":"3","rarity":"rare","name":"PlayStation 3 Slim"},
-	{"id":"30","rarity":"rare","name":"Console peasant FPS for smooth gameplay"},
-	{"id":"3000","rarity":"normal","name":"Три тысячи"},
-	{"id":"3000","rarity":"rare","name":"P(i)P-boy"},
-	{"id":"31","rarity":"idiot","name":"Masturbation in Turkey -3 is hand, -1 is cock"},
-	{"id":"3141","rarity":"normal","name":"Pikachu's Pokedex number"},
-	{"id":"3141592","rarity":"normal","name":"Pi to Seven Digits"},
-	{"id":"3142","rarity":"normal","name":"Squirtle's Pokedex number"},
-	{"id":"3143","rarity":"normal","name":"Bulbasaur's Pokedex number"},
-	{"id":"32","rarity":"normal","name":"Зубы"},
-	{"id":"32","rarity":"rare","name":"Number of bits in a typical CPU architecture"},
-	{"id":"322","rarity":"rare","name":"Подставной матч в киберспорте"},
-	{"id":"33","rarity":"rare","name":"Age of Jesus at his death"},
-	{"id":"34","rarity":"legendary","name":"Basic rule of the internets"},
-	{"id":"35","rarity":"normal","name":"35мм - плёнка"},
-	{"id":"35","rarity":"rare","name":"Cinema film size - 35mm"},
-	{"id":"36","rarity":"normal","name":"36 Видов горы Fuji"},
-	{"id":"36","rarity":"rare","name":"Number of inches in a yard"},
-	{"id":"365","rarity":"legendary","name":"No scope, no life"},
-	{"id":"37","rarity":"rare","name":"Number of plays by William Shakespeare"},
-	{"id":"38","rarity":"1337","name":"Balls deep 8==D"},
-	{"id":"39","rarity":"rare","name":"Hatsune Miku"},
-	{"id":"4","rarity":"idiot","name":"Чё?"},
-	{"id":"4","rarity":"epic","name":"Quad Damage"},
-	{"id":"4","rarity":"1337","name":"Fuck You 00100"},
-	{"id":"4","rarity":"legendary","name":"Quadra-Kill"},
-	{"id":"4","rarity":"normal","name":"Four-Leaf Clover"},
-	{"id":"4","rarity":"rare","name":"Four Elements"},
-	{"id":"40","rarity":"rare","name":"Number of weeks in an average pregnancy"},
-	{"id":"404","rarity":"normal","name":"Not Found"},
-	{"id":"404","rarity":"rare","name":"Not Found"},
-	{"id":"4096","rarity":"rare","name":"Common page size in operating systems (in bytes)"},
-	{"id":"42","rarity":"normal","name":"The answer to life, the universe, and everything"},
-	{"id":"42","rarity":"rare","name":"Answer to the Ultimate Question of Life, the Universe, and Everything"},
-	{"id":"4294967296","rarity":"epic","name":"Number of possible values in a 32-bit system"},
-	{"id":"43","rarity":"rare","name":"Number of muscles in the human face"},
-	{"id":"44","rarity":"rare","name":"+44: Alo, England?"},
-	{"id":"45","rarity":"rare","name":"Number of US presidents"},
-	{"id":"46","rarity":"normal","name":"Хромосом у человека"},
-	{"id":"46","rarity":"rare","name":"Number of chromosomes in a human cell"},
-	{"id":"47","rarity":"epic","name":"Codename 47"},
-	{"id":"47","rarity":"normal","name":"47 ронин"},
-	{"id":"48","rarity":"rare","name":"Number of states in US"},
-	{"id":"5","rarity":"1337","name":"LOL 101"},
-	{"id":"5","rarity":"idiot","name":"Pentagon"},
-	{"id":"5","rarity":"meme","name":"Камни бесконечности][https://youtu.be/8SJC-G-H_jU"},
-	{"id":"5","rarity":"normal","name":"Дай пять][https://youtu.be/4JopR83_1Jk"},
-	{"id":"5","rarity":"epic","name":"PlayStation 5"},
-	{"id":"5","rarity":"rare","name":"🏆Pentakill🏆"},
-	{"id":"50","rarity":"normal","name":"Половина"},
-	{"id":"505","rarity":"normal","name":"Время и Стекло"},
-	{"id":"5051","rarity":"1337","name":"SOSI"},
-	{"id":"512","rarity":"normal","name":"512 MB RAM"},
-	{"id":"512","rarity":"rare","name":"Кибибайт"},
-	{"id":"52","rarity":"normal","name":"Карточная колода"},
-	{"id":"53","rarity":"normal","name":"Недель в високосном году"},
-	{"id":"6","rarity":"idiot","name":"Sex"},
-	{"id":"6","rarity":"epic","name":"6 String Guitar"},
-	{"id":"6","rarity":"1337","name":"b"},
-	{"id":"6","rarity":"legendary","name":"Dice"},
-	{"id":"6","rarity":"normal","name":"Carbon"},
-	{"id":"6","rarity":"rare","name":"Six-pack Abs"},
-	{"id":"60","rarity":"normal","name":"Минута"},
-	{"id":"60","rarity":"rare","name":"Standard FPS for smooth gameplay"},
-	{"id":"6006","rarity":"normal","name":"Palindrome"},
-	{"id":"61","rarity":"normal","name":"Кнопок в стандартной печатной машинке"},
-	{"id":"64","rarity":"1337","name":"I want to upgrade from my simple eight bits, But will you still love me when I'm 64?"},
-	{"id":"64","rarity":"normal","name":"Шахматная доска"},
-	{"id":"64","rarity":"rare","name":"64 Bit Architecture"},
-	{"id":"65536","rarity":"epic","name":"Maximum number of ports in TCP/UDP"},
-	{"id":"666","rarity":"normal","name":"Number of the Beast"},
-	{"id":"69","rarity":"normal","name":"Nice"},
-	{"id":"7","rarity":"1337","name":"T"},
-	{"id":"7","rarity":"epic","name":"Lucky"},
-	{"id":"7","rarity":"idiot","name":"7️⃣"},
-	{"id":"7","rarity":"legendary","name":"Windows 7"},
-	{"id":"7","rarity":"normal","name":"Week"},
-	{"id":"7","rarity":"rare","name":"7 Eleven"},
-	{"id":"73","rarity":"legendary","name":"The Best Number according to Sheldon Cooper"},
-	{"id":"7680","rarity":"epic","name":"8K UHD resolution (7680x4320)"},
-	{"id":"777","rarity":"legendary","name":"🍷 Портвешок Три Топора 🍷"},
-	{"id":"777","rarity":"normal","name":"Lucky Seven"},
-	{"id":"8","rarity":"1337","name":"8 Bits are enough for me][https://youtu.be/GoGpLl-SUfk"},
-	{"id":"8","rarity":"rare","name":"🎱🎱🎱"},
-	{"id":"8","rarity":"legendary","name":"Second only positive Fibonacci number for Perfect Cube"},
-	{"id":"8","rarity":"normal","name":"8 Ball pool"},
-	{"id":"8","rarity":"epic","name":"Bits in a Byte"},
-	{"id":"8.1","rarity":"rare","name":"Windows 8.1"},
-	{"id":"8008135","rarity":"1337","name":"(. ) ( .)"},
-	{"id":"88","rarity":"rare","name":"Back to the Future!"},
-	{"id":"9","rarity":"1337","name":"g"},
-	{"id":"9","rarity":"epic","name":"9️⃣"},
-	{"id":"9","rarity":"idiot","name":"Nein!"},
-	{"id":"9","rarity":"legendary","name":"Motzkin Number"},
-	{"id":"9","rarity":"normal","name":"Cloud 9"},
-	{"id":"9","rarity":"rare","name":"Completion, Enlightenment"},
-	{"id":"9000","rarity":"meme","name":"💪 It's over 9000!][https://youtu.be/SiMHTK15Pik"},
-	{"id":"90210","rarity":"normal","name":"Beverly Hills ZIP Code"},
-	{"id":"90210","rarity":"rare","name":"Beverly Hills"},
-	{"id":"9223372036854776000","rarity":"1337","name":"Maximum value for a 64-bit integer"},
-	{"id":"999","rarity":"epic","name":"Maximum HP in many RPG games"},
-	{"id":"π","rarity":"rare","name":"Pi"},	
-	{"id":"Android","rarity":"epic","name":"Mobile OS"},	
-    {"id":"Anime", "rarity": "idiot", "name": "Как стать аниме, пошаговая инструкция][https://www.youtube.com/watch?v=gL8VRSKOAbo" },
-	{"id":"Atari","rarity":"legendary","name":"Classic Game Console"},
-    {"id":"ASCII","rarity":"1337","name":"Wake up Neo...][https://youtu.be/mXF-uLEH3x0"},	
-    {"id":"API", "rarity": "epic", "name": "Application Programming Interface][https://youtu.be/4vLxWqE94l4" },
-    {"id":"BB8","rarity":"rare","name":"Star Wars Droid][https://youtu.be/_RWWKFqv7EM"},
-    {"id":"Bitcoin","rarity":"legendary","name":"Cryptocurrency][https://youtu.be/MDF87xaULiI"},
-    {"id":"Black Hole","rarity":"epic","name":"Space Phenomenon][https://youtu.be/zUyH3XhpLTo"},
-    {"id":"Captcha", "rarity": "idiot", "name": "I am not a robot!][https://youtu.be/WqnXp6Saa8Y" },
-    {"id":"Captain Kirk","rarity":"legendary","name":"Star Trek][https://youtu.be/wRnSnfiUI54"},
-    {"id":"Cylon","rarity":"rare","name":"Battlestar Galactica][https://youtu.be/9VBTcDF1eVQ"},
-    {"id":"CSS","rarity":"rare","name":"Cascading Style Sheets][https://youtu.be/OEV8gMkCHXQ"},
-    {"id":"Deku","rarity":"epic","name":"My Hero Academia][https://youtu.be/yu0HjPzFYnY"},
-    {"id":"Docker","rarity":"epic","name":"Containerization Platform][https://youtu.be/Gjnup-PuquQ"},
-    {"id":"Einstein","rarity":"epic","name":"Теория относительности][https://www.youtube.com/watch?v=lSuCC-Ih-00"},
-    {"id":"Elon Musk","rarity":"legendary","name":"Tech Entrepreneur][https://youtu.be/8Nael8xcSus"},
-    {"id":"Fibonacci","rarity":"rare","name":"Золотое сечение][https://youtu.be/pqdX_NKuNFw"},
-    {"id":"Gandalf","rarity":"legendary","name":"Жахни, Пендальф!][https://www.youtube.com/watch?v=k_evFuT-84k"},
-    {"id":"Goku","rarity":"legendary","name":"Dragon Ball Z][https://youtu.be/0mrOOXbeVxQ"},
-    {"id":"Groot","rarity":"legendary","name":"I am Groot][https://youtu.be/DfNSBeFliIg"},
-    {"id":"HAL9000","rarity":"epic","name":"Heuristically Programmed Algorithmic Computer][https://youtu.be/ARJ8cAGm6JE"},
-    {"id":"Hodor","rarity":"epic","name":"Ходор!][https://youtu.be/cxjw-w-V5k4"},
-    {"id":"iPhone","rarity":"epic","name":"Apple Smartphone][https://youtu.be/LJJ05fkkLaU"},
-    {"id":"JavaScript","rarity":"epic","name":"Programming Language][https://youtu.be/pZUTdw6zcck"},
-    {"id":"Jedi","rarity":"legendary","name":"Сила рыцаря Джедаи это сила вселенной][https://youtu.be/GadZ4OqmVh4"},
-    {"id":"Link","rarity":"legendary","name":"The Legend of Zelda][https://www.youtube.com/shorts/1GdFkTm-R60"},
-    {"id":"Monty Python","rarity":"rare","name":"https://www.youtube.com/watch?v=cy42VTOwuEM"},
-    {"id":"Naruto","rarity":"legendary","name":"We are fighting dreamers][https://youtu.be/6toqwz1CbCA"},
-    {"id":"One Piece","rarity":"legendary","name":"Pirate Adventure Anime][https://youtu.be/Yanma6U-Idw"},
-    {"id":"Sailor Moon","rarity":"legendary","name":"Лунная Призма, Дай мне силу!][https://youtu.be/VZRSaGsrUMA"},
-    {"id":"Totoro","rarity":"legendary","name":"Studio Ghibli Icon][https://youtu.be/92a7Hj0ijLs"},
-    {"id":"DROP DATABASE", "rarity": "legendary", "name": "Я QA-инженер" }
+    {
+        "id": "0",
+        "rarity": "1337",
+        "name": "O",
+        "power": 0,
+        "guid": "90b3b908-6f29-40cb-ac79-0daa83390058"
+    },
+    {
+        "id": "0",
+        "rarity": "epic",
+        "name": "Binary OFF",
+        "power": 0,
+        "guid": "80df86f4-3ed0-48b1-a853-c060da70b257"
+    },
+    {
+        "id": "0",
+        "rarity": "idiot",
+        "name": "Нулина",
+        "power": 0,
+        "guid": "83571af5-3731-4822-8ed0-93eb350d5ad8"
+    },
+    {
+        "id": "0",
+        "rarity": "legendary",
+        "name": "Singleplayer",
+        "power": 0,
+        "guid": "55905ab9-0d3f-433f-9999-4af19e2d3aaa"
+    },
+    {
+        "id": "0",
+        "rarity": "normal",
+        "name": "Начало",
+        "power": 0,
+        "guid": "ede66ac4-d2d5-40fe-ad2c-bc27e16c623b"
+    },
+    {
+        "id": "0",
+        "rarity": "rare",
+        "name": "The Void",
+        "power": 0,
+        "guid": "30c4aa4c-f3e2-46d9-aa7b-fd2cd32e6e1a"
+    },
+    {
+        "id": "007",
+        "rarity": "legendary",
+        "name": "James Bond",
+        "power": 7,
+        "guid": "7edf448a-0410-44a8-8e22-d310ece06037"
+    },
+    {
+        "id": "1",
+        "rarity": "idiot",
+        "name": "В жало",
+        "power": 1,
+        "guid": "944d049f-2f36-4f9d-a875-5ac940aa6b43"
+    },
+    {
+        "id": "1",
+        "rarity": "1337",
+        "name": "i",
+        "power": 1,
+        "guid": "27693fbd-3a4e-4ed9-99cf-e9542933c560"
+    },
+    {
+        "id": "1",
+        "rarity": "epic",
+        "name": "Binary ON",
+        "power": 1,
+        "guid": "28606f44-9329-4ded-9f57-1f7c9e45d451"
+    },
+    {
+        "id": "1",
+        "rarity": "legendary",
+        "name": "First Prime Number",
+        "power": 1,
+        "guid": "c3677583-6188-40d3-b9f2-cc6ed987a128"
+    },
+    {
+        "id": "1",
+        "rarity": "normal",
+        "name": "Single unit of countering or measurement",
+        "power": 1,
+        "guid": "562e7e26-8e32-4ea4-b042-6c063b2a3678"
+    },
+    {
+        "id": "1",
+        "rarity": "normal",
+        "name": "Первый Канал",
+        "power": 1,
+        "guid": "266ca259-5a28-47a9-81f9-7685159336c2"
+    },
+    {
+        "id": "1",
+        "rarity": "rare",
+        "name": "🍾Первак🍾",
+        "power": 1,
+        "guid": "d9e992b3-2902-428a-a5d0-95d0c8a540b3"
+    },
+    {
+        "id": "10",
+        "rarity": "epic",
+        "name": "10 out of 10",
+        "power": 10,
+        "guid": "5117086c-7327-4a04-8943-85c0e659a415"
+    },
+    {
+        "id": "10",
+        "rarity": "1337",
+        "name": "Input/Output",
+        "power": 10,
+        "guid": "f79367f6-0b76-43cc-b48f-fe11169cfcbc"
+    },
+    {
+        "id": "10",
+        "rarity": "idiot",
+        "name": "Опа, чирик",
+        "power": 10,
+        "guid": "919e5f0f-e3bc-477f-8b00-50de927c8bfa"
+    },
+    {
+        "id": "10",
+        "rarity": "legendary",
+        "name": "На порядок выше",
+        "power": 10,
+        "guid": "a8a16edd-8334-4987-85f6-495f9b146d3f"
+    },
+    {
+        "id": "10",
+        "rarity": "normal",
+        "name": "Десять",
+        "guid": "5e43e206-47e0-484e-88a3-747f809e24c9"
+    },
+    {
+        "id": "10",
+        "rarity": "rare",
+        "name": "Smallest noncototient",
+        "guid": "b285c4ea-f269-4ce4-aa77-d99453a63280"
+    },
+    {
+        "id": "10^-19",
+        "rarity": "legendary",
+        "name": "Кварк, мельчайшая известная частица во вселенной",
+        "guid": "25030452-0137-4778-9c1b-680e32dfe2b2"
+    },
+    {
+        "id": "100",
+        "rarity": "normal",
+        "name": "Сто",
+        "guid": "ebab5f84-f2fd-49bb-8de1-7315c438644d"
+    },
+    {
+        "id": "1000",
+        "rarity": "normal",
+        "name": "Тысяча",
+        "guid": "7634a09d-67a9-4a84-be48-062df1dbdcf5"
+    },
+    {
+        "id": "1000000",
+        "rarity": "rare",
+        "name": "Миллион",
+        "guid": "ade30bf6-bbab-4d3c-80cb-a39469383f31"
+    },
+    {
+        "id": "1000000000",
+        "rarity": "rare",
+        "name": "Миллиард",
+        "guid": "9d0e987c-64b5-4b6e-8823-b6d08caf8f6f"
+    },
+    {
+        "id": "1000000000000",
+        "rarity": "epic",
+        "name": "Триллион",
+        "guid": "310830fb-2a61-4ab8-9581-1fb67e23e790"
+    },
+    {
+        "id": "1000000000000000",
+        "rarity": "epic",
+        "name": "Квадриллион",
+        "guid": "6bbc6308-4a93-44c3-a1cd-75f3532d9c84"
+    },
+    {
+        "id": "1000000000000000000",
+        "rarity": "epic",
+        "name": "Квинтиллион",
+        "guid": "e75afb9f-baf1-479f-95dc-ce9ad27078a4"
+    },
+    {
+        "id": "100000000000000000000",
+        "rarity": "legendary",
+        "name": "Секстиллион",
+        "guid": "7c7f95ac-7037-49f3-a383-9a2e4763f147"
+    },
+    {
+        "id": "10000000000000000000000",
+        "rarity": "legendary",
+        "name": "Септиллион",
+        "guid": "64b941de-ea79-49c1-be91-fd958dff2b7d"
+    },
+    {
+        "id": "1000000000000000000000000",
+        "rarity": "idiot",
+        "name": "Октиллион",
+        "guid": "0eb349fa-294a-4093-a6c7-aed2dd670986"
+    },
+    {
+        "id": "1008",
+        "rarity": "normal",
+        "name": "1008 Bukkake",
+        "guid": "4d4345a6-cf98-4678-b019-36c93315d34d"
+    },
+    {
+        "id": "101",
+        "rarity": "rare",
+        "name": "Binary",
+        "guid": "2d5ef479-e8f1-4ef1-bb31-95bff518df97"
+    },
+    {
+        "id": "1024",
+        "rarity": "normal",
+        "name": "Килобайт",
+        "guid": "f517ace7-dfb1-4f1f-9bac-f49500f484a3"
+    },
+    {
+        "id": "1046",
+        "rarity": "normal",
+        "name": "Второе пришествие",
+        "guid": "c713aab9-9ddd-452d-9d9f-9bc178aa7c8c"
+    },
+    {
+        "id": "1050",
+        "rarity": "normal",
+        "name": "1050г",
+        "guid": "cfc23d36-050a-43aa-8950-7695dc835324"
+    },
+    {
+        "id": "1080",
+        "rarity": "rare",
+        "name": "Full HD resolution (1920x1080)",
+        "guid": "fc47809f-0be1-417d-b1e2-ea0a5529f548"
+    },
+    {
+        "id": "11",
+        "rarity": "1337",
+        "name": "II",
+        "guid": "cf543525-c6bd-4ed6-815c-6e1fcf854008"
+    },
+    {
+        "id": "11",
+        "rarity": "epic",
+        "name": "First Two-Digit Prime Number",
+        "guid": "194ad0e9-70a4-4503-804f-25d7491738af"
+    },
+    {
+        "id": "11",
+        "rarity": "idiot",
+        "name": "Раз! Раз! Это хардбасс!",
+        "guid": "40208fbd-ccfd-4f00-bbdb-7c5130d9a890"
+    },
+    {
+        "id": "11",
+        "rarity": "legendary",
+        "name": "Очень странные дела",
+        "guid": "f2353239-4549-47b9-b5ab-9dfede121ac1"
+    },
+    {
+        "id": "11",
+        "rarity": "normal",
+        "name": "Пешком",
+        "guid": "d29802d8-f420-4fa1-ad3b-65f3368a6ec4"
+    },
+    {
+        "id": "11",
+        "rarity": "rare",
+        "name": "November",
+        "guid": "d59cc84b-656c-4674-a673-ada1ea2f4101"
+    },
+    {
+        "id": "1125",
+        "rarity": "normal",
+        "name": "Промиллерий",
+        "guid": "45f93853-a38f-4909-b422-ec6bef0f5db0"
+    },
+    {
+        "id": "12",
+        "rarity": "epic",
+        "name": "Year",
+        "guid": "66d73947-c27e-4e73-8766-c0ae98b57994"
+    },
+    {
+        "id": "12",
+        "rarity": "1337",
+        "name": "L",
+        "guid": "57ebd039-cd74-4016-9ded-519b30f1cea8"
+    },
+    {
+        "id": "12",
+        "rarity": "meme",
+        "name": "РазДва",
+        "guid": "fbc6bc8a-e1d8-4434-8e5d-6a7133f841ad"
+    },
+    {
+        "id": "12",
+        "rarity": "legendary",
+        "name": "12 Angry Men",
+        "guid": "963112e4-a222-41d2-986a-c260ef7b7076"
+    },
+    {
+        "id": "12",
+        "rarity": "normal",
+        "name": "Дюжина",
+        "guid": "15389a12-e1c3-4f79-b6ed-b6bf8c5ce0a6"
+    },
+    {
+        "id": "12",
+        "rarity": "rare",
+        "name": "December",
+        "guid": "6100aca6-c746-4060-9d02-968da9ece277"
+    },
+    {
+        "id": "1200",
+        "rarity": "normal",
+        "name": "Тысяча и двадцать",
+        "guid": "f8cc51c5-3249-4454-8196-2c7f0b266778"
+    },
+    {
+        "id": "13",
+        "rarity": "1337",
+        "name": "B",
+        "guid": "8dc11c14-375f-4e54-bb01-753491b49df9"
+    },
+    {
+        "id": "13",
+        "rarity": "epic",
+        "name": "Unlucky",
+        "guid": "7aba980a-4efd-4837-9980-7b70ea8a44b5"
+    },
+    {
+        "id": "13",
+        "rarity": "legendary",
+        "name": "Friday 13",
+        "guid": "6dd09049-1d0b-4847-9aaa-8e070f16a539"
+    },
+    {
+        "id": "13",
+        "rarity": "normal",
+        "name": "Чёртова дюжина",
+        "guid": "a109c0ff-72e1-4b42-9cc0-866417d186b3"
+    },
+    {
+        "id": "13",
+        "rarity": "rare",
+        "name": "13th Floor",
+        "guid": "b3825fb5-0247-4c7d-9535-23f41b98aa2a"
+    },
+    {
+        "id": "1337",
+        "rarity": "1337",
+        "name": "Leet Speak",
+        "guid": "85d76cba-782a-4c09-b03e-bdbf0848bd8b"
+    },
+    {
+        "id": "1337",
+        "rarity": "normal",
+        "name": "1337",
+        "guid": "4bf81c2f-66c1-4c17-aaf7-cb14dd9321d8"
+    },
+    {
+        "id": "14",
+        "rarity": "legendary",
+        "name": "14th Century",
+        "guid": "a4d4902f-828e-4d97-96ec-72307db6bb58"
+    },
+    {
+        "id": "14",
+        "rarity": "rare",
+        "name": "Четырнадцать",
+        "guid": "db4c88c9-165b-4079-99a6-a9bb4584a1b7"
+    },
+    {
+        "id": "144",
+        "rarity": "epic",
+        "name": "Allo! Eto pro-gamer?",
+        "guid": "f8451db1-e8e6-483b-8d07-0b4624eb6fac"
+    },
+    {
+        "id": "1440",
+        "rarity": "rare",
+        "name": "Quad HD resolution (2560x1440)",
+        "guid": "904f2af4-defb-4385-b50a-36668d83c423"
+    },
+    {
+        "id": "149",
+        "rarity": "normal",
+        "name": "Pokemon Mewtwo",
+        "guid": "6e68f3b8-fd0c-41d4-a8ae-df7474ab6e94"
+    },
+    {
+        "id": "16",
+        "rarity": "normal",
+        "name": "Base in hexadecimal number system",
+        "guid": "29a67300-fc95-4a22-ad22-78d92eec88c1"
+    },
+    {
+        "id": "1729",
+        "rarity": "normal",
+        "name": "1729",
+        "guid": "cd3f368f-16ca-4b7a-8f02-618feaaa78d3"
+    },
+    {
+        "id": "18",
+        "rarity": "normal",
+        "name": "Забирай меня скорей",
+        "guid": "0e4fedc0-dea1-4c15-9e03-0a0ea725ee18"
+    },
+    {
+        "id": "1984",
+        "rarity": "normal",
+        "name": "George Orwell's Novel",
+        "guid": "903b9ff1-5931-4b10-9fdd-2ac19166ee62"
+    },
+    {
+        "id": "2",
+        "rarity": "1337",
+        "name": "Half-Life 2",
+        "guid": "edb22261-8c46-44ce-9de5-9173e84c14ea"
+    },
+    {
+        "id": "2",
+        "rarity": "epic",
+        "name": "Lord of the rings: Two towers",
+        "guid": "e17cafed-3069-4e9c-b5eb-3d53efc5c138"
+    },
+    {
+        "id": "2",
+        "rarity": "meme",
+        "name": "Two Girls One Cup",
+        "guid": "922e8284-11d8-45a7-96ac-e3a4991677a3"
+    },
+    {
+        "id": "2",
+        "rarity": "idiot",
+        "name": "Непара",
+        "guid": "5697fd8e-f785-47d3-b744-335ac3bc8433"
+    },
+    {
+        "id": "2",
+        "rarity": "rare",
+        "name": "Postal 2",
+        "guid": "42eec644-1b2b-4d91-9d58-c812e8a2829e"
+    },
+    {
+        "id": "2",
+        "rarity": "epic",
+        "name": "PlayStation 2",
+        "guid": "93900fb2-52de-4095-a993-21d8be0d6c40"
+    },
+    {
+        "id": "2",
+        "rarity": "normal",
+        "name": "Два",
+        "guid": "f9d4f589-e8ec-410b-aab3-90ccdb7bceb0"
+    },
+    {
+        "id": "2",
+        "rarity": "rare",
+        "name": "🏆Double-Kill🏆",
+        "guid": "423569db-aeaf-4b95-b5bf-6853ce4aeefd"
+    },
+    {
+        "id": "2.718",
+        "rarity": "rare",
+        "name": "Euler's Number",
+        "guid": "3307f1ca-d522-4a2f-8a5c-8bcdb6e9be07"
+    },
+    {
+        "id": "20",
+        "rarity": "normal",
+        "name": "Пальцы",
+        "guid": "19271588-01fd-49d2-ac7b-eac70e74bdf3"
+    },
+    {
+        "id": "2000",
+        "rarity": "normal",
+        "name": "Два тысячи",
+        "guid": "b18f4f93-eedc-4b4e-9c84-1642d7f39c59"
+    },
+    {
+        "id": "2001",
+        "rarity": "normal",
+        "name": "Space Odyssey",
+        "guid": "81d28e1b-398a-445f-9a9e-fd06910f088c"
+    },
+    {
+        "id": "2001",
+        "rarity": "rare",
+        "name": "A Space Odyssey",
+        "guid": "6d543065-20d0-4d58-aca9-2777cbb4394b"
+    },
+    {
+        "id": "202",
+        "rarity": "normal",
+        "name": "2020 Vision",
+        "guid": "90ad12ec-c695-41ef-9b9e-811540c51e8d"
+    },
+    {
+        "id": "2048",
+        "rarity": "rare",
+        "name": "Unicode: ⁈",
+        "guid": "439bdab5-d4fd-4060-8a45-1d49ce5333cb"
+    },
+    {
+        "id": "2048",
+        "rarity": "normal",
+        "name": "Popular mobile game",
+        "guid": "99bb05aa-7d3f-4c23-b185-5e03b5d8d419"
+    },
+    {
+        "id": "2069",
+        "rarity": "normal",
+        "name": "2069",
+        "guid": "03946cce-6890-40f1-a1c4-cd09b3586d03"
+    },
+    {
+        "id": "2077",
+        "rarity": "epic",
+        "name": "Wake the fuck up, samurai",
+        "guid": "03fe4d03-6d8c-4f93-995e-4e4312b0904b"
+    },
+    {
+        "id": "21",
+        "rarity": "rare",
+        "name": "Blackjack",
+        "guid": "e7ed684a-c492-4048-b10f-19f9bbe06e33"
+    },
+    {
+        "id": "2137",
+        "rarity": "normal",
+        "name": "2137",
+        "guid": "3eb957f7-d930-4b5d-be5e-aa1eb45850a6"
+    },
+    {
+        "id": "2147483647",
+        "rarity": "epic",
+        "name": "Maximum value for a 32-bit integer",
+        "guid": "24ea04e8-243f-4154-9802-1d40575d17bd"
+    },
+    {
+        "id": "2160",
+        "rarity": "rare",
+        "name": "4K UHD resolution (3840x2160)",
+        "guid": "d22c6529-9c3f-4031-be9f-8b6b6218a2e7"
+    },
+    {
+        "id": "22",
+        "rarity": "rare",
+        "name": "Double eleven",
+        "guid": "d6c9e892-c293-4b32-a8e9-b7ebe8cb4478"
+    },
+    {
+        "id": "228",
+        "rarity": "idiot",
+        "name": "Счастье в дом приносим",
+        "guid": "ee8eccb9-aa1e-48c4-b1dc-41d53048aea7"
+    },
+    {
+        "id": "23",
+        "rarity": "rare",
+        "name": "Number of chromosomes in a human sperm or egg cell",
+        "guid": "ed815aee-4691-473d-82e8-6e75b41b9c4a"
+    },
+    {
+        "id": "24",
+        "rarity": "normal",
+        "name": "Сутки",
+        "guid": "42c30302-90a1-4682-a862-32e2a698f4dc"
+    },
+    {
+        "id": "24",
+        "rarity": "rare",
+        "name": "Based movie framerate",
+        "guid": "db8f8b1b-5a25-4d92-a762-4da3dcaa00e7"
+    },
+    {
+        "id": "240",
+        "rarity": "legendary",
+        "name": "Как там? На той стороне FPS?",
+        "guid": "8a970458-382b-466e-b51a-d57ac30c793f"
+    },
+    {
+        "id": "2468",
+        "rarity": "normal",
+        "name": "Часть числа Пи",
+        "guid": "e6b38781-c167-4c50-a495-d011c9859b02"
+    },
+    {
+        "id": "25",
+        "rarity": "normal",
+        "name": "Четвертак",
+        "guid": "48cb446e-39d8-49a2-a560-9ed31d21f894"
+    },
+    {
+        "id": "25",
+        "rarity": "rare",
+        "name": "Quarter",
+        "guid": "2c25c1b5-5721-4007-981c-ebefe3a2a1dd"
+    },
+    {
+        "id": "251",
+        "rarity": "rare",
+        "name": "Hello, MKBHD here.",
+        "guid": "ac99c702-e017-463a-818f-50fd077f2f71"
+    },
+    {
+        "id": "2500",
+        "rarity": "normal",
+        "name": "Два тысячи пятьсот",
+        "guid": "fd8bbdb7-f087-4a60-84f7-b111064b486d"
+    },
+    {
+        "id": "256",
+        "rarity": "epic",
+        "name": "A programmer's favorite number",
+        "guid": "703fdeac-33cd-4c47-bb35-a5c2d54e0415"
+    },
+    {
+        "id": "256",
+        "rarity": "normal",
+        "name": "Byte-sized",
+        "guid": "45ea120f-eb54-4e25-b67a-5f0ec93ffa4a"
+    },
+    {
+        "id": "2567",
+        "rarity": "normal",
+        "name": "2567",
+        "guid": "7ebe04eb-6b89-4bf3-90cf-89b9df2ea644"
+    },
+    {
+        "id": "26",
+        "rarity": "rare",
+        "name": "Number of letters in the English alphabet",
+        "guid": "7323c111-36ae-4730-bc75-231b8257c743"
+    },
+    {
+        "id": "27",
+        "rarity": "rare",
+        "name": "Number of bones in the human hand",
+        "guid": "86d1fb1e-5e09-4d7e-91cd-306f52dad794"
+    },
+    {
+        "id": "28",
+        "rarity": "rare",
+        "name": "National cry yourself to sleep day",
+        "guid": "807bb587-019b-4875-bd41-e17d5cdbb112"
+    },
+    {
+        "id": "29",
+        "rarity": "rare",
+        "name": "Number of days in February during a non-leap year",
+        "guid": "25b605f7-ea3e-4079-a34e-9fff35ebbd34"
+    },
+    {
+        "id": "3",
+        "rarity": "epic",
+        "name": "Triple-Kill",
+        "guid": "9347a43e-838b-46e4-8025-180d434eabbe"
+    },
+    {
+        "id": "3",
+        "rarity": "1337",
+        "name": "E",
+        "guid": "1148ca91-5cb0-4b7d-b558-fa43c8562906"
+    },
+    {
+        "id": "3",
+        "rarity": "epic",
+        "name": "Three Laws of Robotics",
+        "guid": "58da05a3-5b8f-40ac-8c54-74ea3e5771c3"
+    },
+    {
+        "id": "3",
+        "rarity": "idiot",
+        "name": "Threesome",
+        "guid": "869d7748-3e14-4d47-9d51-6a6205a8d7c3"
+    },
+    {
+        "id": "3",
+        "rarity": "legendary",
+        "name": "Windows 3",
+        "guid": "445c4a67-5856-43ce-a44f-962ec4254fa1"
+    },
+    {
+        "id": "3",
+        "rarity": "legendary",
+        "name": "Warcraft 3",
+        "guid": "8ff64c80-c376-4bcd-8bb2-f39494c9347d"
+    },
+    {
+        "id": "3",
+        "rarity": "legendary",
+        "name": "TriForce",
+        "guid": "ec9567cf-bada-45fc-9cfb-f7aa246b2acd"
+    },
+    {
+        "id": "3",
+        "rarity": "normal",
+        "name": "PlayStation 3",
+        "guid": "ea9276f0-4ff3-43a6-b991-924f19866c07"
+    },
+    {
+        "id": "3",
+        "rarity": "rare",
+        "name": "PlayStation 3 Slim",
+        "guid": "e81e8c2e-c531-425d-aa31-c7fb51cdda87"
+    },
+    {
+        "id": "30",
+        "rarity": "rare",
+        "name": "Console peasant FPS for smooth gameplay",
+        "guid": "a8581919-e8d2-48e0-a236-01cd0ade0dc0"
+    },
+    {
+        "id": "3000",
+        "rarity": "normal",
+        "name": "Три тысячи",
+        "guid": "2d9d0454-eee2-4405-b90c-35540641caac"
+    },
+    {
+        "id": "3000",
+        "rarity": "rare",
+        "name": "P(i)P-boy",
+        "guid": "9186ee08-3ea3-4f6d-b6d1-30664813c4f0"
+    },
+    {
+        "id": "31",
+        "rarity": "idiot",
+        "name": "Masturbation in Turkey -3 is hand, -1 is cock",
+        "guid": "fe15416a-db4e-429e-88f5-cdbb20e38828"
+    },
+    {
+        "id": "3141",
+        "rarity": "normal",
+        "name": "Pikachu's Pokedex number",
+        "guid": "b5cf01a4-7144-4f29-acc1-daffe334c1a3"
+    },
+    {
+        "id": "3141592",
+        "rarity": "normal",
+        "name": "Pi to Seven Digits",
+        "guid": "dfc917a7-5736-4fad-aa61-f8156c71e330"
+    },
+    {
+        "id": "3142",
+        "rarity": "normal",
+        "name": "Squirtle's Pokedex number",
+        "guid": "a04b122b-0a58-4aa7-907b-c069837ffda9"
+    },
+    {
+        "id": "3143",
+        "rarity": "normal",
+        "name": "Bulbasaur's Pokedex number",
+        "guid": "651bba4b-2aa2-4d9f-8991-3a0c4a2e9188"
+    },
+    {
+        "id": "32",
+        "rarity": "normal",
+        "name": "Зубы",
+        "guid": "09337aa9-6080-40c2-b352-8c1ec8150924"
+    },
+    {
+        "id": "32",
+        "rarity": "rare",
+        "name": "Number of bits in a typical CPU architecture",
+        "guid": "be5f73cb-d970-45e0-820e-639bb1c236cc"
+    },
+    {
+        "id": "322",
+        "rarity": "rare",
+        "name": "Подставной матч в киберспорте",
+        "guid": "17ab6dbc-5eac-4abf-8cd8-77ea52b0698a"
+    },
+    {
+        "id": "33",
+        "rarity": "rare",
+        "name": "Age of Jesus at his death",
+        "guid": "d4582d58-cf4a-4cad-a243-df62cac9f739"
+    },
+    {
+        "id": "34",
+        "rarity": "legendary",
+        "name": "Basic rule of the internets",
+        "guid": "b0e26ad4-54dd-4ec7-9d7f-7bccf522d23b"
+    },
+    {
+        "id": "35",
+        "rarity": "normal",
+        "name": "35мм - плёнка",
+        "guid": "82a6ef5e-a940-46c8-bdd1-434ed57c63ce"
+    },
+    {
+        "id": "35",
+        "rarity": "rare",
+        "name": "Cinema film size - 35mm",
+        "guid": "a83f44af-67e2-4127-ba19-db0a57963e57"
+    },
+    {
+        "id": "36",
+        "rarity": "normal",
+        "name": "36 Видов горы Fuji",
+        "guid": "b362fec1-8a9e-4d3d-8be8-bb0f125b608a"
+    },
+    {
+        "id": "36",
+        "rarity": "rare",
+        "name": "Number of inches in a yard",
+        "guid": "58d45436-645a-4dcd-bac0-7b0facb56089"
+    },
+    {
+        "id": "365",
+        "rarity": "legendary",
+        "name": "No scope, no life",
+        "guid": "b6baa8df-4f4f-436b-a16d-e332cd43a897"
+    },
+    {
+        "id": "37",
+        "rarity": "rare",
+        "name": "Number of plays by William Shakespeare",
+        "guid": "2da484d1-a1a4-42b3-87f7-ecd813b6f015"
+    },
+    {
+        "id": "38",
+        "rarity": "1337",
+        "name": "Balls deep 8==D",
+        "guid": "eef80568-f982-4d93-81d7-731b1ae2bfa9"
+    },
+    {
+        "id": "39",
+        "rarity": "rare",
+        "name": "Hatsune Miku",
+        "guid": "9dfb8e5d-204b-4c85-8bb6-2dc24e490c0b"
+    },
+    {
+        "id": "4",
+        "rarity": "idiot",
+        "name": "Чё?",
+        "guid": "5b0ea8f9-30cb-4426-ad20-6325027343f0"
+    },
+    {
+        "id": "4",
+        "rarity": "epic",
+        "name": "Quad Damage",
+        "guid": "a4c3c1fc-dfee-4af9-bfd3-ccd171e2eb4d"
+    },
+    {
+        "id": "4",
+        "rarity": "1337",
+        "name": "Fuck You 00100",
+        "guid": "d6916a44-f8f9-4ef8-991e-9e932025148d"
+    },
+    {
+        "id": "4",
+        "rarity": "legendary",
+        "name": "Quadra-Kill",
+        "guid": "1ebe6f73-0c5e-438b-872c-6e0f42f03063"
+    },
+    {
+        "id": "4",
+        "rarity": "normal",
+        "name": "Four-Leaf Clover",
+        "guid": "cc5baf28-a34d-49f9-8bad-5c4a711420e9"
+    },
+    {
+        "id": "4",
+        "rarity": "rare",
+        "name": "Four Elements",
+        "guid": "648593d0-c0de-4098-98d4-10f1c3576976"
+    },
+    {
+        "id": "40",
+        "rarity": "rare",
+        "name": "Number of weeks in an average pregnancy",
+        "guid": "8d03ef69-9532-4ce9-81c6-9e43ae7b9a37"
+    },
+    {
+        "id": "404",
+        "rarity": "normal",
+        "name": "Not Found",
+        "guid": "c0f35f66-476c-4f23-8814-f6e830523cc3"
+    },
+    {
+        "id": "404",
+        "rarity": "rare",
+        "name": "Not Found",
+        "guid": "8c337e70-af0b-4802-a550-07fcfda8af9f"
+    },
+    {
+        "id": "4096",
+        "rarity": "rare",
+        "name": "Common page size in operating systems (in bytes)",
+        "guid": "94eed12f-9b8f-4958-a6bb-abb097684a8b"
+    },
+    {
+        "id": "42",
+        "rarity": "normal",
+        "name": "The answer to life, the universe, and everything",
+        "guid": "eaa7e0cf-e930-47af-ba7c-8c1d392c3bd8"
+    },
+    {
+        "id": "42",
+        "rarity": "rare",
+        "name": "Answer to the Ultimate Question of Life, the Universe, and Everything",
+        "guid": "b7b217e7-2b02-4fc7-b9a9-90177bdac29e"
+    },
+    {
+        "id": "4294967296",
+        "rarity": "epic",
+        "name": "Number of possible values in a 32-bit system",
+        "guid": "c20bc717-ba58-46e5-a4d9-3067aa53b8b9"
+    },
+    {
+        "id": "43",
+        "rarity": "rare",
+        "name": "Number of muscles in the human face",
+        "guid": "7eb2399f-07df-4628-866a-7204595faa15"
+    },
+    {
+        "id": "44",
+        "rarity": "rare",
+        "name": "+44: Alo, England?",
+        "guid": "843d0ec2-19d0-42e1-9b97-9f1ab72291fe"
+    },
+    {
+        "id": "45",
+        "rarity": "rare",
+        "name": "Number of US presidents",
+        "guid": "061cfca9-c50c-47b1-8ca1-1d7f9d214ffd"
+    },
+    {
+        "id": "46",
+        "rarity": "normal",
+        "name": "Хромосом у человека",
+        "guid": "341072a9-17ce-4602-b5ee-52eb348e52e3"
+    },
+    {
+        "id": "46",
+        "rarity": "rare",
+        "name": "Number of chromosomes in a human cell",
+        "guid": "34a31efc-4695-4a2d-9e8d-5d6b8fe7ca34"
+    },
+    {
+        "id": "47",
+        "rarity": "epic",
+        "name": "Codename 47",
+        "guid": "907ad886-6a1c-4228-865b-7e2060d7b6de"
+    },
+    {
+        "id": "47",
+        "rarity": "normal",
+        "name": "47 ронин",
+        "guid": "f0e0472a-b842-42a2-9444-c8c5bad33dc0"
+    },
+    {
+        "id": "48",
+        "rarity": "rare",
+        "name": "Number of states in US",
+        "guid": "b73bc828-7645-4ad6-b3d0-6a3988642b51"
+    },
+    {
+        "id": "5",
+        "rarity": "1337",
+        "name": "LOL 101",
+        "guid": "30d8180f-ebab-4d3c-9dbb-826cbd0b4f17"
+    },
+    {
+        "id": "5",
+        "rarity": "idiot",
+        "name": "Pentagon",
+        "guid": "5ff02d7b-c379-4bc4-9ccc-6a863edf35d4"
+    },
+    {
+        "id": "5",
+        "rarity": "meme",
+        "name": "Камни бесконечности",
+        "guid": "6489f036-7182-4151-81af-b676afad6221"
+    },
+    {
+        "id": "5",
+        "rarity": "normal",
+        "name": "Дай пять",
+        "guid": "85eb1cb0-0e8a-4218-b5e3-88cd18a525d0"
+    },
+    {
+        "id": "5",
+        "rarity": "epic",
+        "name": "PlayStation 5",
+        "guid": "c4cd7079-3ccb-42a1-a304-d67f7227656f"
+    },
+    {
+        "id": "5",
+        "rarity": "rare",
+        "name": "🏆Pentakill🏆",
+        "guid": "3aad4705-0e78-4d04-be86-ef4f2a7d90c1"
+    },
+    {
+        "id": "50",
+        "rarity": "normal",
+        "name": "Половина",
+        "guid": "9fdec5c8-bafb-4761-a6c8-ac70027f4ea3"
+    },
+    {
+        "id": "505",
+        "rarity": "normal",
+        "name": "Время и Стекло",
+        "guid": "b160daf1-8165-499d-a6cd-bfc204a60387"
+    },
+    {
+        "id": "5051",
+        "rarity": "1337",
+        "name": "SOSI",
+        "guid": "5ae14198-7050-4049-be1b-9a9a44007284"
+    },
+    {
+        "id": "512",
+        "rarity": "normal",
+        "name": "512 MB RAM",
+        "guid": "917a901c-c171-417f-926b-fdab4a20dce0"
+    },
+    {
+        "id": "512",
+        "rarity": "rare",
+        "name": "Кибибайт",
+        "guid": "686ba143-8a4d-4803-ac21-fb84e3f5b6d7"
+    },
+    {
+        "id": "52",
+        "rarity": "normal",
+        "name": "Карточная колода",
+        "guid": "1a7adf99-6b0a-49c8-8b3b-5d1f89f7bf6c"
+    },
+    {
+        "id": "53",
+        "rarity": "normal",
+        "name": "Недель в високосном году",
+        "guid": "e9de4bcc-dfc2-4794-99c5-c4a24f03e0b5"
+    },
+    {
+        "id": "6",
+        "rarity": "idiot",
+        "name": "Sex",
+        "guid": "8b3532cb-757a-45f1-95d2-d819e3a0b775"
+    },
+    {
+        "id": "6",
+        "rarity": "epic",
+        "name": "6 String Guitar",
+        "guid": "34761613-4972-4ccf-9488-d037b445dcc7"
+    },
+    {
+        "id": "6",
+        "rarity": "1337",
+        "name": "b",
+        "guid": "49fca3a0-e78c-49d4-8188-9ab3a3a97c6a"
+    },
+    {
+        "id": "6",
+        "rarity": "legendary",
+        "name": "Dice",
+        "guid": "6c95aab2-0596-4e30-8efb-9b1ad51a7922"
+    },
+    {
+        "id": "6",
+        "rarity": "normal",
+        "name": "Carbon",
+        "guid": "8b61c1c5-4740-4c3f-ba88-a13a5c216210"
+    },
+    {
+        "id": "6",
+        "rarity": "rare",
+        "name": "Six-pack Abs",
+        "guid": "068cca51-cd5d-446b-a23b-0b7a9dcc8868"
+    },
+    {
+        "id": "60",
+        "rarity": "normal",
+        "name": "Минута",
+        "guid": "804850db-9cd1-44bb-84d0-b055dad4f975"
+    },
+    {
+        "id": "60",
+        "rarity": "rare",
+        "name": "Standard FPS for smooth gameplay",
+        "guid": "a6e084c4-8d71-4d7a-917d-f7ab68cb8b67"
+    },
+    {
+        "id": "6006",
+        "rarity": "normal",
+        "name": "Palindrome",
+        "guid": "1d1c56d7-34d6-4488-9acb-bba341a3eca1"
+    },
+    {
+        "id": "61",
+        "rarity": "normal",
+        "name": "Кнопок в стандартной печатной машинке",
+        "guid": "266409e2-57ae-4dbf-929c-01c22173ae97"
+    },
+    {
+        "id": "64",
+        "rarity": "1337",
+        "name": "I want to upgrade from my simple eight bits, But will you still love me when I'm 64?",
+        "guid": "be5d218e-062a-4aa0-8564-68f63b51e8fc"
+    },
+    {
+        "id": "64",
+        "rarity": "normal",
+        "name": "Шахматная доска",
+        "guid": "39a6417e-23c2-4c58-806b-be5c706a6ebb"
+    },
+    {
+        "id": "64",
+        "rarity": "rare",
+        "name": "64 Bit Architecture",
+        "guid": "0e4be9a0-eda6-423d-aeca-821268f7b54e"
+    },
+    {
+        "id": "65536",
+        "rarity": "epic",
+        "name": "Maximum number of ports in TCP/UDP",
+        "guid": "c78e83a7-1984-450b-8011-c36d9d942bc0"
+    },
+    {
+        "id": "666",
+        "rarity": "normal",
+        "name": "Number of the Beast",
+        "guid": "7f1e386a-c035-440f-b62c-1710fca00c91"
+    },
+    {
+        "id": "69",
+        "rarity": "normal",
+        "name": "Nice",
+        "guid": "f9ce420e-cda7-4ca8-922f-ee970f422f2d"
+    },
+    {
+        "id": "7",
+        "rarity": "1337",
+        "name": "T",
+        "guid": "9a03192e-aee7-41da-8d24-8da8e748e612"
+    },
+    {
+        "id": "7",
+        "rarity": "epic",
+        "name": "Lucky",
+        "guid": "364f0e6c-963f-42e0-924c-4662a892f71e"
+    },
+    {
+        "id": "7",
+        "rarity": "idiot",
+        "name": "7️⃣",
+        "guid": "2fe15dbb-bcbe-43ff-bb62-4ad4af0a0ddb"
+    },
+    {
+        "id": "7",
+        "rarity": "legendary",
+        "name": "Windows 7",
+        "guid": "332df42e-d49c-437e-8007-1df85e913f80"
+    },
+    {
+        "id": "7",
+        "rarity": "normal",
+        "name": "Week",
+        "guid": "5b077fdc-e07a-4ab8-9eb8-8eda637973de"
+    },
+    {
+        "id": "7",
+        "rarity": "rare",
+        "name": "7 Eleven",
+        "guid": "4a969c03-121d-413c-8c3d-5b2980691a65"
+    },
+    {
+        "id": "73",
+        "rarity": "legendary",
+        "name": "The Best Number according to Sheldon Cooper",
+        "guid": "4ece84b9-a2bb-4bce-b909-a0c738b4dc32"
+    },
+    {
+        "id": "7680",
+        "rarity": "epic",
+        "name": "8K UHD resolution (7680x4320)",
+        "guid": "583bc145-f8d3-4924-a777-3eb698be4b01"
+    },
+    {
+        "id": "777",
+        "rarity": "legendary",
+        "name": "🍷 Портвешок Три Топора 🍷",
+        "guid": "1425b5a6-dbf6-4d03-ba53-234f9af2fe10"
+    },
+    {
+        "id": "777",
+        "rarity": "normal",
+        "name": "Lucky Seven",
+        "guid": "829889c7-fa23-4535-b9c8-7426f4bc88dd"
+    },
+    {
+        "id": "8",
+        "rarity": "1337",
+        "name": "8 Bits are enough for me",
+        "guid": "bc54e46f-3685-4556-9f8d-0478d0b2f65c"
+    },
+    {
+        "id": "8",
+        "rarity": "rare",
+        "name": "🎱🎱🎱",
+        "guid": "2cebf71b-dd4b-4faa-a608-a3c8b72bcffe"
+    },
+    {
+        "id": "8",
+        "rarity": "legendary",
+        "name": "Second only positive Fibonacci number for Perfect Cube",
+        "guid": "70ad7392-5056-4db8-9d41-d422715c7f14"
+    },
+    {
+        "id": "8",
+        "rarity": "normal",
+        "name": "8 Ball pool",
+        "guid": "68e7179d-a0bf-4c8e-9d5e-e061a2273eb2"
+    },
+    {
+        "id": "8",
+        "rarity": "epic",
+        "name": "Bits in a Byte",
+        "guid": "ce8d4f8e-5042-4a74-82d7-555c6751d9be"
+    },
+    {
+        "id": "8.1",
+        "rarity": "rare",
+        "name": "Windows 8.1",
+        "power": 81,
+        "guid": "334c8da4-e83c-409b-9819-6340820fddf8"
+    },
+    {
+        "id": "8008135",
+        "rarity": "1337",
+        "name": "(. ) ( .)",
+        "guid": "fe59e6e5-25be-49ec-9000-b1ada6c36161"
+    },
+    {
+        "id": "88",
+        "rarity": "rare",
+        "name": "Back to the Future!",
+        "guid": "5217375a-9574-422c-84bf-577f2022ddfc"
+    },
+    {
+        "id": "9",
+        "rarity": "1337",
+        "name": "g",
+        "guid": "32666a20-83ee-45ce-90ce-750722c78eb5"
+    },
+    {
+        "id": "9",
+        "rarity": "epic",
+        "name": "9️⃣",
+        "guid": "e9a23e45-40fe-4abd-8316-4962b7e0628b"
+    },
+    {
+        "id": "9",
+        "rarity": "idiot",
+        "name": "Nein!",
+        "guid": "6f15836a-94f7-4280-bb3c-a030f47d8448"
+    },
+    {
+        "id": "9",
+        "rarity": "legendary",
+        "name": "Motzkin Number",
+        "guid": "8502a201-331d-4986-b279-96c8ed52e12b"
+    },
+    {
+        "id": "9",
+        "rarity": "normal",
+        "name": "Cloud 9",
+        "guid": "7276a49e-8ea9-4cc4-aa90-ba0d9fb05405"
+    },
+    {
+        "id": "9",
+        "rarity": "rare",
+        "name": "Completion, Enlightenment",
+        "guid": "75f11dfb-9085-4fe0-bfe1-882afb8ff83c"
+    },
+    {
+        "id": "9000",
+        "rarity": "meme",
+        "name": "💪 It's over 9000!",
+        "guid": "a3ccb213-1f61-40f8-bad1-ba24c8e9140a"
+    },
+    {
+        "id": "90210",
+        "rarity": "normal",
+        "name": "Beverly Hills ZIP Code",
+        "guid": "caf08d6e-31b5-47c0-8741-fa67ea2d44df"
+    },
+    {
+        "id": "90210",
+        "rarity": "rare",
+        "name": "Beverly Hills",
+        "guid": "ae6e8ed2-f421-4bf7-ad09-fbdb9c8c3958"
+    },
+    {
+        "id": "9223372036854776000",
+        "rarity": "1337",
+        "name": "Maximum value for a 64-bit integer",
+        "guid": "1c37d1e8-ad59-46eb-92a7-665a55e40398"
+    },
+    {
+        "id": "999",
+        "rarity": "epic",
+        "name": "Maximum HP in many RPG games",
+        "guid": "741bfe75-7fc3-433e-b404-5f0d57ee031a"
+    },
+    {
+        "id": "π",
+        "rarity": "rare",
+        "name": "Pi",
+        "power": 314159,
+        "guid": "9e5f8521-a39a-4ad5-9ec8-c183f075e2e4"
+    },
+    {
+        "id": "Android",
+        "rarity": "epic",
+        "name": "Android, операционная система для смартфонов, планшетов и других устройств, была первоначально выпущена 23 сентября 2008 года",
+        "power": 23092008,
+        "guid": "a012c4d0-0664-4745-9b4a-4ace58027185"
+    },
+    {
+        "id": "Anime",
+        "rarity": "idiot",
+        "name": "Как стать аниме?",
+        "power": 4,
+        "guid": "81149f62-0ae3-4a0d-b0ad-096767c4e357"
+    },
+    {
+        "id": "Anime",
+        "rarity": "epic",
+        "name": "8000, примерно столько Аниме-тайтлов по примерной оценке могло выйти на момент 2024 года",
+        "power": 8000,
+        "guid": "a0cadf72-431e-42de-a269-e88b26ac076b"
+    },
+    {
+        "id": "Atari 2600",
+        "rarity": "legendary",
+        "name": "Стала наиболее популярной игровой приставкой конца 1970-х — начала 1980-х",
+        "power": 2600,
+        "guid": "5383ea53-594c-4909-b9a1-a38ff62f32a1"
+    },
+    {
+        "id": "ASCII",
+        "rarity": "1337",
+        "name": "Стандарт кодирования знаков латинского алфавита, цифр, некоторых специальных знаков и управляющих последовательностей, принятый в 1963 году Американской ассоциацией стандартов как основной способ представления текстовых данных в ЭВМ",
+        "power": 128,
+        "guid": "74c04754-710f-4ee8-91c7-dc35041322bb"
+    },
+    {
+        "id": "API",
+        "rarity": "legendary",
+        "name": "1.29 миллиарда запросов к API создали пользователи Postman в 2023",
+        "power": 1290000000,
+        "guid": "df076105-22f1-402d-a89d-9ae1911c1b88"
+    },
+    {
+        "id": "BB8",
+        "rarity": "rare",
+        "name": "Star Wars Droid",
+        "power": 888,
+        "guid": "1959ee47-113f-470d-9a3e-18f0d616354e"
+    },
+    {
+        "id": "Bitcoin",
+        "rarity": "legendary",
+        "name": "Цена бетховена на лето 2024 >60000USD",
+        "power": 60000,
+        "guid": "b68fe9f3-c164-4cf1-ad3b-145b21e1dd48"
+    },
+    {
+        "id": "Black Hole",
+        "rarity": "legendary",
+        "name": "5 триллионов солнечных масс — это масса ближайшей чёрной дыры к Земле в тройной системе HR 6819",
+        "power": 5000000000000,
+        "guid": "c95b3683-8c30-46ea-91e0-31da6f423705"
+    },
+    {
+        "id": "Captcha",
+        "rarity": "epic",
+        "name": "Всего в США на сегодняшний день активно используется 13 436 839 веб-сайтов с технологией CAPTCHA2.",
+        "power": 13436839,
+        "guid": "ffc79c7d-f684-489f-981b-c0da94aa97a0"
+    },
+    {
+        "id": "Captain Kirk",
+        "rarity": "legendary",
+        "name": "За всё время вышло более 900 произведений по Star Trek, включая книги, фильмы, итд",
+        "power": 900,
+        "guid": "1d2d8492-9192-4057-8486-4059be8177b8"
+    },
+    {
+        "id": "CSS",
+        "rarity": "legendary",
+        "name": "Более 180000000 веб-сайтов используют CSS",
+        "power": 180000000,
+        "guid": "abc5e01c-484a-4ae8-9fda-8cc44bc012cb"
+    },
+    {
+        "id": "My Hero Academia",
+        "rarity": "rare",
+        "name": "Уже вышло более 400 глав манги My Hero Academia",
+        "power": 400,
+        "guid": "15fbb290-7db9-4ede-8948-64a8295b7a53"
+    },
+    {
+        "id": "Docker",
+        "rarity": "legendary",
+        "name": "Каждый день создаётся более 2 миллиардов Docker контейнеров",
+        "power": 2000000000,
+        "guid": "7516156a-0850-483d-8a83-e48023ed8fac"
+    },
+    {
+        "id": "Einstein",
+        "rarity": "legendary",
+        "name": "Эйнштейн установил, что скорость света в вакууме составляет 299,792,458 метров в секунду",
+        "power": 299792458,
+        "guid": "c5c2d0a0-f1f8-421c-b75e-1553e0e6d823"
+    },
+    {
+        "id": "Elon Musk",
+        "rarity": "legendary",
+        "name": "Илон Маск, американский предприниматель, инженер и миллиардер, обладает огромным состоянием. По оценочным данным на 1 июня 2023 года, его капитал составляет 192 миллиарда долларов",
+        "power": 192000000000,
+        "guid": "5965c67d-01e6-429e-bd80-e063c3ccaf89"
+    },
+    {
+        "id": "Fibonacci",
+        "rarity": "rare",
+        "name": "Золотое сечение",
+        "power": 1618,
+        "guid": "b4969674-48ad-4e51-b5bb-dd684574ae93"
+    },
+    {
+        "id": "Gandalf",
+        "rarity": "rare",
+        "name": "Жахни, Пендальф! И Пендальф жахнул на 70 секунде фильма",
+        "power": 70,
+        "guid": "1a5982ae-6dd5-4c63-90be-7e0ae09dbdde"
+    },
+    {
+        "id": "Groot",
+        "rarity": "legendary",
+        "name": "I am Groot - за эту фразу на 15 языках Вин Дизель заработал 54 миллиона USD",
+        "power": 54000000,
+        "guid": "4053e203-2f19-4557-b32f-dd2cec71a352"
+    },
+    {
+        "id": "HAL9000",
+        "rarity": "epic",
+        "name": "Heuristically Programmed Algorithmic Computer",
+        "power": 9000,
+        "guid": "819696c5-c390-4589-b427-d091b854fc86"
+    },
+    {
+        "id": "Hodor",
+        "rarity": "epic",
+        "name": "В сериале Game of Thrones Ходор произнёс 234 слова, интересно, каких?",
+        "power": 234,
+        "guid": "ce6ac0fb-10e4-4547-94c8-0133d63eb6a2"
+    },
+    {
+        "id": "iPhone",
+        "rarity": "epic",
+        "name": "Было продано около 6,124 млн iPhone 2G",
+        "power": 6124000,
+        "guid": "e774682c-b641-4f52-bb34-dd98a5e0bbe9"
+    },
+    {
+        "id": "One Piece",
+        "rarity": "legendary",
+        "name": "Pirate Adventure Anime",
+        "guid": "2070386b-7db7-42c8-b2c9-5598fb941e7b"
+    },
+    {
+        "id": "Sailor Moon",
+        "rarity": "legendary",
+        "name": "Лунная Призма, Дай мне силу!",
+        "guid": "4273edb5-141a-4e4d-9e4e-6f078c05e05f"
+    },
+    {
+        "id": "Totoro",
+        "rarity": "legendary",
+        "name": "Studio Ghibli Icon",
+        "guid": "25ab1787-d113-4744-93e6-c971eddbbd21"
+    },
+    {
+        "id": "DROP DATABASE",
+        "rarity": "legendary",
+        "name": "Я QA-инженер",
+        "guid": "55124f96-dec8-47c1-95b2-c728a2eef21e"
+    }
 ]
